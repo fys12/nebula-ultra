@@ -136,7 +136,6 @@ public class PermDeptCommonServiceImpl extends ServiceImpl<PermDeptMapper, PermD
         LambdaQueryWrapper<PermDept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PermDept::getTDeptId, tDeptId)
                 .eq(PermDept::getDeleted, false)
-                .eq(PermDept::getState, true)
                 .select(PermDept::getTPermId);
         List<PermDept> list = this.list(queryWrapper);
         return list.stream().map(PermDept::getTPermId).collect(Collectors.toSet());
@@ -153,7 +152,6 @@ public class PermDeptCommonServiceImpl extends ServiceImpl<PermDeptMapper, PermD
         LambdaQueryWrapper<PermDept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PermDept::getTPermId, tPermId)
                 .eq(PermDept::getDeleted, false)
-                .eq(PermDept::getState, true)
                 .select(PermDept::getTDeptId);
         List<PermDept> list = this.list(queryWrapper);
         return list.stream().map(PermDept::getTDeptId).collect(Collectors.toSet());

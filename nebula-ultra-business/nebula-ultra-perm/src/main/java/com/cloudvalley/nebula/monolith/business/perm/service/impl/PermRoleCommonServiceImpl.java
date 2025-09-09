@@ -134,7 +134,6 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
         LambdaQueryWrapper<PermRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PermRole::getTPermId, permId)
                 .eq(PermRole::getDeleted, false)
-                .eq(PermRole::getState, true)
                 .select(PermRole::getTRoleId);
 
         List<PermRole> permRoles = this.list(queryWrapper);
@@ -153,7 +152,6 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
         LambdaQueryWrapper<PermRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PermRole::getTRoleId, roleId)
                 .eq(PermRole::getDeleted, false)
-                .eq(PermRole::getState, true)
                 .select(PermRole::getTPermId);
 
         List<PermRole> permRoles = this.list(queryWrapper);

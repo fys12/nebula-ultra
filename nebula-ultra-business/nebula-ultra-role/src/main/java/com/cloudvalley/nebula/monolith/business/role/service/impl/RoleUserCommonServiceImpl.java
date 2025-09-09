@@ -134,7 +134,6 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
         LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(RoleUser::getTUserId, userId)
                 .eq(RoleUser::getDeleted, false)
-                .eq(RoleUser::getState, true)
                 .select(RoleUser::getTRoleId);
 
         List<RoleUser> roleUsers = this.list(queryWrapper);
@@ -153,7 +152,6 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
         LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(RoleUser::getTRoleId, roleId)
                 .eq(RoleUser::getDeleted, false)
-                .eq(RoleUser::getState, true)
                 .select(RoleUser::getTUserId);
 
         List<RoleUser> roleUsers = this.list(queryWrapper);
@@ -176,7 +174,6 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
         LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(RoleUser::getTUserId, userIds)
                 .eq(RoleUser::getDeleted, false)
-                .eq(RoleUser::getState, true)
                 .select(RoleUser::getTUserId, RoleUser::getTRoleId);
 
         List<RoleUser> roleUsers = this.list(queryWrapper);
@@ -201,7 +198,6 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
         LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(RoleUser::getTRoleId, roleIds)
                 .eq(RoleUser::getDeleted, false)
-                .eq(RoleUser::getState, true)
                 .select(RoleUser::getTRoleId, RoleUser::getTUserId);
 
         List<RoleUser> roleUsers = this.list(queryWrapper);

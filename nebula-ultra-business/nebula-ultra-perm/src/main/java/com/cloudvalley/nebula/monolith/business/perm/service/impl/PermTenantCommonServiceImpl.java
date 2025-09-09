@@ -114,7 +114,6 @@ public class PermTenantCommonServiceImpl extends ServiceImpl<PermTenantMapper, P
         LambdaQueryWrapper<PermTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PermTenant::getSTenantId, tenantId)
                 .eq(PermTenant::getDeleted, false)
-                .eq(PermTenant::getState, true)
                 .select(PermTenant::getSPermId);
 
         List<PermTenant> permTenants = this.list(queryWrapper);
@@ -133,7 +132,6 @@ public class PermTenantCommonServiceImpl extends ServiceImpl<PermTenantMapper, P
         LambdaQueryWrapper<PermTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PermTenant::getSPermId, permId)
                 .eq(PermTenant::getDeleted, false)
-                .eq(PermTenant::getState, true)
                 .select(PermTenant::getSTenantId);
 
         List<PermTenant> permTenants = this.list(queryWrapper);

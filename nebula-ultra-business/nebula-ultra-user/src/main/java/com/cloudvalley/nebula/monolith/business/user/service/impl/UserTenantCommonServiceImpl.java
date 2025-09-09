@@ -141,7 +141,6 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
         LambdaQueryWrapper<UserTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(UserTenant::getSTenantId, tenantId)
                 .eq(UserTenant::getDeleted, false)
-                .eq(UserTenant::getState, true)
                 .select(UserTenant::getSUserId);
 
         List<UserTenant> tenantUsers = this.list(queryWrapper);
@@ -161,7 +160,6 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
         LambdaQueryWrapper<UserTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(UserTenant::getSUserId, userId)
                 .eq(UserTenant::getDeleted, false)
-                .eq(UserTenant::getState, true)
                 .select(UserTenant::getSTenantId);
 
         List<UserTenant> tenantUsers = this.list(queryWrapper);
@@ -184,7 +182,6 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
         LambdaQueryWrapper<UserTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(UserTenant::getSTenantId, tenantIds)
                 .eq(UserTenant::getDeleted, false)
-                .eq(UserTenant::getState, true)
                 .select(UserTenant::getSTenantId, UserTenant::getSUserId);
 
         List<UserTenant> tenantUsers = this.list(queryWrapper);
@@ -209,7 +206,6 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
         LambdaQueryWrapper<UserTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(UserTenant::getSUserId, userIds)
                 .eq(UserTenant::getDeleted, false)
-                .eq(UserTenant::getState, true)
                 .select(UserTenant::getSUserId, UserTenant::getSTenantId);
 
         List<UserTenant> tenantUsers = this.list(queryWrapper);

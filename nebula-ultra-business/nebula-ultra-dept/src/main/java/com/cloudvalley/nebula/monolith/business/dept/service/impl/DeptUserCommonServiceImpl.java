@@ -141,7 +141,6 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
         LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DeptUser::getTUserId, userId)
                 .eq(DeptUser::getDeleted, false)
-                .eq(DeptUser::getState, true)
                 .select(DeptUser::getTDeptId);
 
         List<DeptUser> userDepts = this.list(queryWrapper);
@@ -161,7 +160,6 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
         LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DeptUser::getTDeptId, deptId)
                 .eq(DeptUser::getDeleted, false)
-                .eq(DeptUser::getState, true)
                 .select(DeptUser::getTUserId);
 
         List<DeptUser> userDepts = this.list(queryWrapper);
@@ -184,7 +182,6 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
         LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(DeptUser::getTUserId, userIds)
                 .eq(DeptUser::getDeleted, false)
-                .eq(DeptUser::getState, true)
                 .select(DeptUser::getTUserId, DeptUser::getTDeptId);
 
         List<DeptUser> userDepts = this.list(queryWrapper);
@@ -209,7 +206,6 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
         LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(DeptUser::getTDeptId, deptIds)
                 .eq(DeptUser::getDeleted, false)
-                .eq(DeptUser::getState, true)
                 .select(DeptUser::getTDeptId, DeptUser::getTUserId);
 
         List<DeptUser> userDepts = this.list(queryWrapper);

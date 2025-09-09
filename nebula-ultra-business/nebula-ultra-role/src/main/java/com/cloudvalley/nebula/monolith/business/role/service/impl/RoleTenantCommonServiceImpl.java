@@ -134,7 +134,6 @@ public class RoleTenantCommonServiceImpl extends ServiceImpl<RoleTenantMapper, R
         LambdaQueryWrapper<RoleTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(RoleTenant::getSTenantId, tenantId)
                 .eq(RoleTenant::getDeleted, false)
-                .eq(RoleTenant::getState, true)
                 .select(RoleTenant::getSRoleId);
 
         List<RoleTenant> roleTenants = this.list(queryWrapper);
@@ -153,7 +152,6 @@ public class RoleTenantCommonServiceImpl extends ServiceImpl<RoleTenantMapper, R
         LambdaQueryWrapper<RoleTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(RoleTenant::getSRoleId, roleId)
                 .eq(RoleTenant::getDeleted, false)
-                .eq(RoleTenant::getState, true)
                 .select(RoleTenant::getSTenantId);
 
         List<RoleTenant> roleTenants = this.list(queryWrapper);

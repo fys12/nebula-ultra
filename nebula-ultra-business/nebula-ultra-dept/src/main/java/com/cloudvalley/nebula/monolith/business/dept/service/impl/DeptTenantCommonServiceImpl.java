@@ -134,7 +134,6 @@ public class DeptTenantCommonServiceImpl extends ServiceImpl<DeptTenantMapper, D
         LambdaQueryWrapper<DeptTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DeptTenant::getSTenantId, sTenantId)
                 .eq(DeptTenant::getDeleted, false)
-                .eq(DeptTenant::getState, true)
                 .select(DeptTenant::getSDeptId);
         List<DeptTenant> list = this.list(queryWrapper);
         return list.stream().map(DeptTenant::getSDeptId).collect(Collectors.toSet());
@@ -150,7 +149,6 @@ public class DeptTenantCommonServiceImpl extends ServiceImpl<DeptTenantMapper, D
         LambdaQueryWrapper<DeptTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DeptTenant::getSDeptId, sDeptId)
                 .eq(DeptTenant::getDeleted, false)
-                .eq(DeptTenant::getState, true)
                 .select(DeptTenant::getSTenantId);
         List<DeptTenant> list = this.list(queryWrapper);
         return list.stream().map(DeptTenant::getSTenantId).collect(Collectors.toSet());

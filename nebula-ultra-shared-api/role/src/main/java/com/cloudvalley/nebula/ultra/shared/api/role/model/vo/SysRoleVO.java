@@ -63,6 +63,13 @@ public class SysRoleVO {
     Boolean state;
 
     /**
+     * 级联禁用 [ system tenant ]
+     * system -因系统禁用而级联禁用 tenant -因租户禁用而级联禁用
+     * 如果 该部门没有级联禁用 则为 null
+     */
+    String cascadeDisable;
+
+    /**
      * 软删
      */
     Boolean deleted;

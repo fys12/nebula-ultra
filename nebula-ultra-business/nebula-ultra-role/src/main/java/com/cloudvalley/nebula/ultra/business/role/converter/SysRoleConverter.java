@@ -3,6 +3,7 @@ package com.cloudvalley.nebula.ultra.business.role.converter;
 import com.cloudvalley.nebula.ultra.business.role.model.entity.SysRole;
 import com.cloudvalley.nebula.ultra.shared.api.role.model.vo.SysRoleVO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface SysRoleConverter {
      * @param sysRole 源实体对象
      * @return 转换后的 VO 对象
      */
+    @Mapping(source = "RDesc", target = "desc")
     SysRoleVO EnToVO(SysRole sysRole);
 
     /**

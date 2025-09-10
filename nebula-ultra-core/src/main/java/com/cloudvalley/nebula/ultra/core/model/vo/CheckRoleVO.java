@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Value;
 
 import java.util.List;
+import java.util.Map;
 
 @Value
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -13,31 +14,31 @@ public class CheckRoleVO {
     /**
      * 有效角色 [ 系统级 ]
      */
-    List<SysRoleVO> validSysRole;
+    Map<Long, List<SysRoleVO>> validSysRole;
 
     /**
      * 有效角色 [ 租户级 ]
      */
-    List<SysRoleVO> validTenantRole;
+    Map<Long, List<SysRoleVO>> validTenantRole;
 
     /**
      * 有效角色 [ 用户级 ]
      */
-    List<SysRoleVO> validUserRole;
+    Map<Long, List<SysRoleVO>> validUserRole;
 
     /**
      * 禁用角色 [ 系统级 ]
      */
-    List<SysRoleVO> disabledSysRole;
+    Map<Long, List<SysRoleVO>> disabledSysRole;
 
     /**
      * 禁用角色 [ 租户级 ]
      */
-    List<SysRoleVO> disabledTenantRole;
+    Map<Long, List<SysRoleVO>> disabledTenantRole;
 
     /**
      * 禁用角色 [ 用户级 ]
      */
-    List<SysRoleVO> disabledUserRole;
+    Map<Long, List<SysRoleVO>> disabledUserRole;
     
 }

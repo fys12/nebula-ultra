@@ -3,6 +3,7 @@ package com.cloudvalley.nebula.ultra.business.dept.converter;
 import com.cloudvalley.nebula.ultra.business.dept.model.entity.SysDept;
 import com.cloudvalley.nebula.ultra.shared.api.dept.model.vo.SysDeptVO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public interface SysDeptConverter {
      *       转换内容包括但不限于：部门ID、名称、编码、父级ID、排序号、状态、创建/更新时间等字段。
      *       此方法主要用于单个对象的数据脱敏与视图适配，确保VO层不暴露持久化实体细节。
      */
+    @Mapping(source = "DDesc", target = "desc")
     SysDeptVO EnToVO(SysDept sysDept);
 
     /**

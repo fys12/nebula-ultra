@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.cloudvalley.nebula.monolith</groupId>
+        <groupId>com.cloudvalley.nebula.ultra</groupId>
         <artifactId>nebula-ultra</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.cloudvalley.nebula.monolith.core</groupId>
+    <groupId>com.cloudvalley.nebula.ultra.core</groupId>
     <artifactId>nebula-ultra-core</artifactId>
 
     <properties>
@@ -19,6 +19,36 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.shared.api.perm</groupId>
+            <artifactId>perm</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.shared.api.tenant</groupId>
+            <artifactId>tenant</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.shared.api.dept</groupId>
+            <artifactId>dept</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.shared.api.role</groupId>
+            <artifactId>role</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.shared.api.user</groupId>
+            <artifactId>user</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- Sa-Token 权限认证，在线文档：https://sa-token.cc -->
         <dependency>
             <groupId>cn.dev33</groupId>
@@ -29,6 +59,12 @@
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-redis</artifactId>
+        </dependency>
+
+        <!-- Sa-Token 整合 jwt -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-jwt</artifactId>
         </dependency>
 
         <!-- 提供Redis连接池 -->

@@ -8,12 +8,14 @@ import com.cloudvalley.nebula.ultra.business.perm.model.entity.PermUser;
 import com.cloudvalley.nebula.ultra.shared.api.perm.model.vo.PermUserVO;
 import com.cloudvalley.nebula.ultra.shared.api.perm.service.IPermUserCommonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 public class PermUserCommonServiceImpl extends ServiceImpl<PermUserMapper, PermUser> implements IPermUserCommonService {
 
     @Autowired

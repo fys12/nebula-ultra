@@ -3,6 +3,7 @@ package com.cloudvalley.nebula.ultra.business.perm.converter;
 import com.cloudvalley.nebula.ultra.business.perm.model.entity.SysPerm;
 import com.cloudvalley.nebula.ultra.shared.api.perm.model.vo.SysPermVO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface SysPermConverter {
      * @param sysPerm 源实体对象
      * @return 转换后的 VO 对象
      */
+    @Mapping(source = "PDesc", target = "desc")
     SysPermVO EnToVO(SysPerm sysPerm);
 
     /**

@@ -1,6 +1,7 @@
 package com.cloudvalley.nebula.ultra.core.auth;
 
 import com.cloudvalley.nebula.ultra.core.model.vo.CheckDeptVO;
+import com.cloudvalley.nebula.ultra.core.model.vo.CheckPermVO;
 import com.cloudvalley.nebula.ultra.core.model.vo.CheckRoleVO;
 import com.cloudvalley.nebula.ultra.core.model.vo.CheckTenantVO;
 import com.cloudvalley.nebula.ultra.shared.api.dept.model.vo.DeptTenantVO;
@@ -9,6 +10,8 @@ import com.cloudvalley.nebula.ultra.shared.api.dept.model.vo.SysDeptVO;
 import com.cloudvalley.nebula.ultra.shared.api.dept.service.IDeptTenantCommonService;
 import com.cloudvalley.nebula.ultra.shared.api.dept.service.IDeptUserCommonService;
 import com.cloudvalley.nebula.ultra.shared.api.dept.service.ISysDeptCommonService;
+import com.cloudvalley.nebula.ultra.shared.api.perm.model.vo.*;
+import com.cloudvalley.nebula.ultra.shared.api.perm.service.*;
 import com.cloudvalley.nebula.ultra.shared.api.role.model.vo.RoleTenantVO;
 import com.cloudvalley.nebula.ultra.shared.api.role.model.vo.RoleUserVO;
 import com.cloudvalley.nebula.ultra.shared.api.role.model.vo.SysRoleVO;
@@ -26,6 +29,18 @@ import java.util.stream.Stream;
 
 @Service
 public class IdentityAuth {
+
+    @Autowired
+    private IPermTenantCommonService iPermTenantCommonService;
+
+    @Autowired
+    private IPermDeptCommonService iPermDeptCommonService;
+
+    @Autowired
+    private IPermRoleCommonService iPermRoleCommonService;
+
+    @Autowired
+    private IPermUserCommonService iPermUserCommonService;
 
     @Autowired
     private ISysTenantCommonService iSysTenantCommonService;
@@ -48,77 +63,75 @@ public class IdentityAuth {
     @Autowired
     private IRoleUserCommonService iRoleUserCommonService;
 
+    @Autowired
+    private ISysPermCommonService iSysPermCommonService;
+
     /**
      * 权限认证
      * @param tUserId 租户用户ID
-     * @param sTenantIds 租户ID 列表
-     * @return 权限认证结果 Map<层级 Map<权限状态 Map<系统权限Id 系统权限VO>>>
+     * @return 权限认证结果
      */
-    public Map<String, Object> checkPerm(Long tUserId, List<Long> sTenantIds) {
+    public CheckPermVO checkPerm(Long tUserId) {
+        // 1. 调用 租户认证
 
-        // 有效权限Id [ 系统级 Id->TId ]
-        List<Long> validSysTPermId = new ArrayList<>();
+        // 1.1 获取 用户 绑定的有效租户Id
 
-        // 有效权限Id [ 租户级 Id->TId ]
-        List<Long> validTenantTPermId = new ArrayList<>();
+        // 1.2 获取 用户 绑定的禁用租户Id
 
-        // 有效权限Id [ 部门级 Id->TId ]
-        List<Long> validDeptTPermId = new ArrayList<>();
+        // 1.3 根据 禁用租户Id 获取 绑定的权限 [ 因禁用的租户Id 级联禁用的 权限 ]
 
-        // 有效权限Id [ 角色级 Id->TId ]
-        List<Long> validRoleTPermId = new ArrayList<>();
+        // 2. 调用 部门认证
 
-        // 有效权限Id [ 用户级 Id->TId ]
-        List<Long> validUserTPermId = new ArrayList<>();
+        // 2.1 获取 用户 绑定的有效部门Id
 
-        // 禁用权限Id [ 系统级 Id->TId ]
-        List<Long> disabledSysTPermId = new ArrayList<>();
+        // 2.2 获取 用户 绑定的禁用部门Id
 
-        // 禁用权限Id [ 租户级 Id->TId ]
-        List<Long> disabledTenantTPermId = new ArrayList<>();
+        // 2.3 根据 禁用部门Id 查询 对应权限 [ 因禁用的部门Id 级联禁用的 权限 ]
 
-        // 禁用权限Id [ 部门级 Id->TId ]
-        List<Long> disabledDeptTPermId = new ArrayList<>();
+        // 3. 调用 角色认证
 
-        // 禁用权限Id [ 角色级 Id->TId ]
-        List<Long> disabledRoleTPermId = new ArrayList<>();
+        // 3.1 获取 用户 绑定的有效角色Id
 
-        // 禁用权限Id [ 用户级 Id->TId ]
-        List<Long> disabledUserTPermId = new ArrayList<>();
+        // 3.2 获取 用户 绑定的禁用角色Id
 
-        // 1. 查询 所有系统权限
+        // 3.3 根据 禁用角色Id 获取 绑定的权限 [ 因禁用的角色Id 级联禁用的 权限 ]
 
-        // 1.1 获取 禁用的 系统权限Id [ 禁用权限 系统级 ]
+        // 4. 根据 用户有效部门Id 查询 绑定的租户权限
 
-        // 2. 根据 系统租户Id列表 查询 租户权限信息
+        // 5. 根据 用户有效角色Id 获取 绑定的租户权限
 
-        // 2.1 获取 禁用 系统权限Id [ 禁用权限 租户级 ]
+        // 6. 根据 组合用户Id 查询 直接绑定的组合权限
 
-        // 2.2 调用 租户认证 获取 禁用的 租户Id
+        // 7. 组合用户 绑定的租户权限 [ 所属 有效部门权限 + 有效角色权限 + 本身权限 ]
 
-        // 2.3 获取 禁用的 租户Id 对应的 系统权限Id [ 禁用权限 租户级 ]
+        // 8. 根据 用户 绑定的租户权限Id 查询 绑定的 系统权限信息
 
-        // 3. 根据 租户权限Id列表 查询 部门权限信息
+        // 8.1 获取 禁用系统权限Id [ 禁用权限 系统级 ]
 
-        // 3.1 获取 禁用 租户权限Id [ 禁用权限 部门级 ]
+        // 8.2 获取 有效系统权限Id [ 有效权限 系统级 ]
 
-        // 3.2 调用 部门认证 获取 禁用的 部门Id
+        // 8.3 获取 因系统权限禁用 级联禁用的对应的租户权限Id
 
-        // 3.3 获取 禁用的 部门Id 对应的 租户权限Id [ 禁用权限 部门级 ]
+        // 9 获取 禁用租户权限Id [ 禁用权限 租户级 ]
 
-        // 4. 根据 租户权限Id列表 查询 角色权限信息
+        // 9.1 获取 有效租户权限Id [ 有效权限 租户级 ]
 
-        // 4.1 获取 禁用 租户权限Id [ 禁用权限 角色级 ]
+        // 10. 获取 禁用租户权限Id [ 禁用权限 部门级 ]
 
-        // 4.2 调用 角色认证 获取 禁用的 角色Id
+        // 10.1 获取 有效租户权限Id [ 有效权限 部门级 ]
 
-        // 4.3 获取 禁用的 角色Id 对应的 租户权限Id [ 禁用权限 角色级 ]
+        // 11. 获取 禁用租户权限Id [ 禁用权限 角色级 ]
 
-        // 5. 根据 租户用户Id 查询 用户权限信息
+        // 11.1 获取 有效租户权限Id [ 有效权限 角色级 ]
 
-        // 5.1 获取 禁用 租户权限Id [ 禁用权限 用户级 ]
+        // 12. 获取 禁用租户权限Id [ 禁用权限 用户级 ]
+
+        // 12.1 获取 有效租户权限Id [ 有效权限 用户级 ]
+
+        // 13. 组装 权限认证结果
 
         return null;
+
     }
 
     /**
@@ -152,13 +165,29 @@ public class IdentityAuth {
      * @return 部门认证结果
      */
     public CheckDeptVO checkDept(Long tUserId, List<Long> sTenantIds) {
-        // 1. 根据 租户Id列表 查询 租户部门信息
-        List<Map<Long, List<DeptTenantVO>>> deptTenantsBySTenantIds = iDeptTenantCommonService.getDeptTenantsBySTenantIds(sTenantIds);
+        // 1. 调用 租户认证
+        CheckTenantVO checkTenantVO = checkTenant(sTenantIds);
 
-        // 1.1 根据租户用户Id 查询 绑定 租户部门Id
+        // 1.1 获取 有效租户Id列表
+        List<Long> validTenantIds = checkTenantVO.getValidSysTenant().stream()
+                .map(SysTenantVO::getId)
+                .toList();
+
+        // 1.2 获取 禁用租户Id列表
+        List<Long> disabledTenantIds = checkTenantVO.getDisabledSysTenant().stream()
+                .map(SysTenantVO::getId)
+                .toList();
+
+        // 2. 根据 所有租户Id列表（有效+禁用） 查询 租户部门信息
+        List<Long> allTenantIds = Stream.concat(validTenantIds.stream(), disabledTenantIds.stream())
+                .distinct()
+                .toList();
+        List<Map<Long, List<DeptTenantVO>>> deptTenantsBySTenantIds = iDeptTenantCommonService.getDeptTenantsBySTenantIds(allTenantIds);
+
+        // 2.1 根据租户用户Id 查询 绑定 租户部门Id
         Set<Long> deptIdsByUserId = iDeptUserCommonService.getDeptIdsByUserId(tUserId);
 
-        // 1.2 排除 其余租户部门信息 只保留 用户 绑定的部门信息
+        // 2.2 排除 其余租户部门信息 只保留 用户 绑定的部门信息（无论有效或禁用的租户）
         deptTenantsBySTenantIds = deptTenantsBySTenantIds.stream()
                 .map(tenantDeptMap -> tenantDeptMap.entrySet().stream()
                         .collect(Collectors.toMap(
@@ -170,7 +199,7 @@ public class IdentityAuth {
                 .filter(map -> !map.isEmpty() || map.values().stream().anyMatch(list -> !list.isEmpty()))
                 .toList();
 
-        // 2. 获取 所有系统部门Id
+        // 3. 获取 所有系统部门Id
         List<Long> sysDeptIds = deptTenantsBySTenantIds.stream()
                 .flatMap(map -> map.values().stream())
                 .flatMap(List::stream)
@@ -178,26 +207,26 @@ public class IdentityAuth {
                 .distinct()
                 .toList();
 
-        // 2.1 根据 系统部门Id 获取 系统部门信息 Map<系统部门ID, 部门VO>
+        // 3.1 根据 系统部门Id 获取 系统部门信息 Map<系统部门ID, 部门VO>
         Map<Long, SysDeptVO> sysDeptsByIds = iSysDeptCommonService.getSysDeptsByIds(sysDeptIds);
 
-        // 2.2 获取 禁用系统部门Id [ 禁用部门 系统级 ]
+        // 3.2 获取 禁用系统部门Id [ 禁用部门 系统级 ]
         List<SysDeptVO> disabledSysDept = sysDeptsByIds.values().stream()
                 .filter(dept -> dept.getState() == null || !dept.getState())
                 .toList();
 
-        // 2.3 获取 有效系统部门 [ 有效部门 系统级 ]
+        // 3.3 获取 有效系统部门 [ 有效部门 系统级 ]
         List<SysDeptVO> validSysDept = sysDeptsByIds.values().stream()
                 .filter(dept -> dept.getState() != null && dept.getState())
                 .toList();
 
-        // 2.4 建立 系统部门Id->租户部门信息 键值对（包含租户ID信息）
+        // 3.4 建立 系统部门Id->租户部门信息 键值对（包含租户ID信息）
         Map<Long, List<DeptTenantVO>> sysDeptIdToTenantDeptVOs = deptTenantsBySTenantIds.stream()
                 .flatMap(map -> map.values().stream())
                 .flatMap(List::stream)
                 .collect(Collectors.groupingBy(DeptTenantVO::getSDeptId));
 
-        // 2.5 获取 因系统部门禁用 级联禁用的对应的租户部门Id
+        // 3.5 获取 因系统部门禁用 级联禁用的对应的租户部门Id
         List<Long> cascadeDisabledDeptBySys = disabledSysDept.stream()
                 .map(SysDeptVO::getId)
                 .flatMap(sysDeptId -> sysDeptIdToTenantDeptVOs.getOrDefault(sysDeptId, Collections.emptyList()).stream())
@@ -205,7 +234,7 @@ public class IdentityAuth {
                 .distinct()
                 .toList();
 
-        // 3. 获取 所有租户部门Id
+        // 4. 获取 所有租户部门Id
         List<Long> tenantDeptIds = deptTenantsBySTenantIds.stream()
                 .flatMap(map -> map.values().stream())
                 .flatMap(List::stream)
@@ -213,7 +242,7 @@ public class IdentityAuth {
                 .distinct()
                 .toList();
 
-        // 3.1 获取 禁用租户部门Id [ 禁用部门 租户级 ]
+        // 4.1 获取 禁用租户部门Id [ 禁用部门 租户级 ]
         List<Long> disabledTenantDeptTenantIds = deptTenantsBySTenantIds.stream()
                 .flatMap(map -> map.values().stream())
                 .flatMap(List::stream)
@@ -222,36 +251,37 @@ public class IdentityAuth {
                 .distinct()
                 .toList();
 
-        // 3.2 获取 有效租户部门Id [ 有效部门 租户级 ] = tenantDeptIds - disabledTenantDeptTenantIds - cascadeDisabledDeptBySys
+        // 4.2 获取 有效租户部门Id [ 有效部门 租户级 ] = tenantDeptIds - disabledTenantDeptTenantIds - cascadeDisabledDeptBySys
         List<Long> validTenantDeptSystemIds = tenantDeptIds.stream()
                 .filter(tenantDeptId -> !disabledTenantDeptTenantIds.contains(tenantDeptId))
                 .filter(tenantDeptId -> !cascadeDisabledDeptBySys.contains(tenantDeptId))
                 .toList();
 
-        // 3.3 获取 因租户部门禁用 级联禁用的对应的租户部门Id = disabledTenantDeptTenantIds + cascadeDisabledDeptBySys
+        // 4.3 获取 因租户部门禁用 级联禁用的对应的租户部门Id = disabledTenantDeptTenantIds + cascadeDisabledDeptBySys
         List<Long> cascadeDisabledDeptByTenant = Stream.concat(
                 disabledTenantDeptTenantIds.stream(),
                 cascadeDisabledDeptBySys.stream()
         ).distinct().toList();
 
-        // 4. 根据 租户用户Id 查询 绑定 租户部门信息
+        // 5. 根据 租户用户Id 查询 绑定 租户部门信息
         List<DeptUserVO> deptUsersByUserId = iDeptUserCommonService.getDeptUsersByUserId(tUserId);
 
-        // 4.1 获取 禁用的 用户租户部门Id [ 禁用部门 用户级 ]
+        // 5.1 获取 禁用的 用户租户部门Id [ 禁用部门 用户级 ]
         List<Long> disabledUserDeptIds = deptUsersByUserId.stream()
                 .filter(deptUser -> deptUser.getState() == null || !deptUser.getState())
                 .map(DeptUserVO::getTDeptId)
                 .toList();
 
-        // 4.2 获取 有效部门Id [ 有效部门 用户级 ] = tenantDeptIds - disabledUserDeptIds - cascadeDisabledDeptByTenant
+        // 5.2 获取 有效部门Id [ 有效部门 用户级 ] = tenantDeptIds - disabledUserDeptIds - cascadeDisabledDeptByTenant
         List<Long> validUserDeptIds = tenantDeptIds.stream()
                 .filter(tenantDeptId -> !disabledUserDeptIds.contains(tenantDeptId))
                 .filter(tenantDeptId -> !cascadeDisabledDeptByTenant.contains(tenantDeptId))
                 .toList();
 
-        // 5. 建立租户ID到系统部门的映射关系
+        // 6. 建立租户ID到系统部门的映射关系（只包含有效租户）
         Map<Long, List<SysDeptVO>> tenantIdToSysDeptVOs = deptTenantsBySTenantIds.stream()
                 .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(
@@ -263,9 +293,9 @@ public class IdentityAuth {
                         )
                 ));
 
-        // 6. 按租户分组组装各级有效部门数据时，需要设置 cascadeDisable 字段
-        // 6.1 系统级有效部门 - 按租户分组（无级联禁用，cascadeDisable = null）
-        Map<Long, List<SysDeptVO>> validSysDeptByTenant = sTenantIds.stream()
+        // 7. 按租户分组组装各级有效部门数据时，需要设置 cascadeDisable 字段（只包含有效租户）
+        // 7.1 系统级有效部门 - 按租户分组（无级联禁用，cascadeDisable = null）
+        Map<Long, List<SysDeptVO>> validSysDeptByTenant = validTenantIds.stream()
                 .collect(Collectors.toMap(
                         tenantId -> tenantId,
                         tenantId -> validSysDept.stream()
@@ -275,9 +305,10 @@ public class IdentityAuth {
                                 .collect(Collectors.toList())
                 ));
 
-        // 6.2 租户级有效部门 - 按租户分组（无级联禁用，cascadeDisable = null）
+        // 7.2 租户级有效部门 - 按租户分组（无级联禁用，cascadeDisable = null）（只包含有效租户）
         Map<Long, List<SysDeptVO>> validTenantDeptByTenant = deptTenantsBySTenantIds.stream()
                 .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(
@@ -294,9 +325,10 @@ public class IdentityAuth {
                         )
                 ));
 
-        // 6.3 用户级有效部门 - 按租户分组（无级联禁用，cascadeDisable = null）
+        // 7.3 用户级有效部门 - 按租户分组（无级联禁用，cascadeDisable = null）（只包含有效租户）
         Map<Long, List<SysDeptVO>> validUserDeptByTenant = deptTenantsBySTenantIds.stream()
                 .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(
@@ -313,9 +345,9 @@ public class IdentityAuth {
                         )
                 ));
 
-        // 7. 按租户分组组装各级禁用部门数据时，需要设置 cascadeDisable 字段
-        // 7.1 系统级禁用部门 - 按租户分组（直接禁用，cascadeDisable = null）
-        Map<Long, List<SysDeptVO>> disabledSysDeptByTenant = sTenantIds.stream()
+        // 8. 按租户分组组装各级禁用部门数据时，需要设置 cascadeDisable 字段（只包含有效租户）
+        // 8.1 系统级禁用部门 - 按租户分组（直接禁用，cascadeDisable = null）
+        Map<Long, List<SysDeptVO>> disabledSysDeptByTenant = validTenantIds.stream()
                 .collect(Collectors.toMap(
                         tenantId -> tenantId,
                         tenantId -> disabledSysDept.stream()
@@ -325,9 +357,10 @@ public class IdentityAuth {
                                 .collect(Collectors.toList())
                 ));
 
-        // 7.2 租户级禁用部门 - 按租户分组（需要区分直接禁用和级联禁用）
+        // 8.2 租户级禁用部门 - 按租户分组（需要区分直接禁用和级联禁用）（只包含有效租户）
         Map<Long, List<SysDeptVO>> disabledTenantDeptByTenant = deptTenantsBySTenantIds.stream()
                 .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(
@@ -364,9 +397,10 @@ public class IdentityAuth {
                         )
                 ));
 
-        // 7.3 用户级禁用部门 - 按租户分组（需要区分直接禁用和级联禁用）
+        // 8.3 用户级禁用部门 - 按租户分组（需要区分直接禁用和级联禁用）（只包含有效租户）
         Map<Long, List<SysDeptVO>> disabledUserDeptByTenant = deptTenantsBySTenantIds.stream()
                 .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(
@@ -418,31 +452,70 @@ public class IdentityAuth {
                         )
                 ));
 
-        // 8. 确保每个租户都有对应的条目（即使是空列表）
-        sTenantIds.forEach(tenantId -> {
-            validSysDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
-            validTenantDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
-            validUserDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
-            disabledSysDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
-            disabledTenantDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
-            disabledUserDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
+        // 8.4 获取用户所绑定的禁用租户的部门，并将这些部门信息存储到disabledDeptByTenant
+        Map<Long, List<SysDeptVO>> disabledDeptByTenant = deptTenantsBySTenantIds.stream()
+                .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> disabledTenantIds.contains(entry.getKey())) // 只处理禁用租户
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(
+                                entry -> entry.getValue().stream()
+                                        // 只包含用户绑定的部门
+                                        .filter(deptTenant -> deptIdsByUserId.contains(deptTenant.getId()))
+                                        .map(deptTenant -> {
+                                            SysDeptVO originalDept = sysDeptsByIds.get(deptTenant.getSDeptId());
+                                            // 设置级联禁用标识为 "tenant"
+                                            return new SysDeptVO(
+                                                    originalDept.getId(),
+                                                    originalDept.getName(),
+                                                    originalDept.getDesc(),
+                                                    originalDept.getCreatedAt(),
+                                                    originalDept.getUpdatedAt(),
+                                                    originalDept.getCreatedById(),
+                                                    originalDept.getUpdatedById(),
+                                                    originalDept.getColor(),
+                                                    originalDept.getState(),
+                                                    "tenant", // 因租户禁用而级联
+                                                    originalDept.getDeleted()
+                                            );
+                                        })
+                                        .filter(Objects::nonNull)
+                                        .collect(Collectors.toList()),
+                                Collectors.flatMapping(List::stream, Collectors.toList())
+                        )
+                ));
+
+        // 9. 确保每个租户都有对应的条目（有效租户在前6个字段中，所有租户在disabledDeptByTenant中）
+        allTenantIds.forEach(tenantId -> {
+            // 只有有效租户才需要在前6个字段中有条目
+            if (validTenantIds.contains(tenantId)) {
+                validSysDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                validTenantDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                validUserDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                disabledSysDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                disabledTenantDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                disabledUserDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
+            }
+            // 所有租户（包括禁用租户）在disabledDeptByTenant中都需要有条目
+            disabledDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
         });
 
-        // 9. 组装并返回结果
+        // 10. 组装并返回结果
         return new CheckDeptVO(
                 validSysDeptByTenant,
                 validTenantDeptByTenant,
                 validUserDeptByTenant,
                 disabledSysDeptByTenant,
                 disabledTenantDeptByTenant,
-                disabledUserDeptByTenant
+                disabledUserDeptByTenant,
+                disabledDeptByTenant // 添加这个字段
         );
     }
 
     /**
      * 角色认证
      * @param tUserId 租户用户ID
-     * @param sTenantIds 租户ID 列表
+     * @param sTenantIds 有效租户ID 列表
      * @return 角色认证结果
      */
     public CheckRoleVO checkRole(Long tUserId, List<Long> sTenantIds) {

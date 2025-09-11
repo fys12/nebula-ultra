@@ -20,5 +20,11 @@ public interface ISysPermCommonService {
      */
     List<SysPermVO> getSysPermsByIds(List<Long> ids);
 
+    /**
+     * 获取所有系统权限
+     * @return SysPermVO
+     */
+    List<SysPermVO> getSysPerms();
+
 
 }

@@ -41,4 +41,10 @@ public class CheckDeptVO {
      */
     Map<Long, List<SysDeptVO>> disabledUserDept;
 
+    /**
+     * 因 租户禁用 级联禁用的部门
+     * cascadeDisable 为 null
+     */
+    Map<Long, List<SysDeptVO>> disabledDeptByTenant;
+
 }

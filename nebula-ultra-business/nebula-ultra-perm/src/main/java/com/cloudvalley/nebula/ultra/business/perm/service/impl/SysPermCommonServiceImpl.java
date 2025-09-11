@@ -51,4 +51,17 @@ public class SysPermCommonServiceImpl extends ServiceImpl<SysPermMapper, SysPerm
         return sysPermConverter.EnListToVOList(list);
     }
 
+    /**
+     * 获取所有系统权限
+     * @return SysPermVO
+     */
+    @Override
+    public List<SysPermVO> getSysPerms() {
+        LambdaQueryWrapper<SysPerm> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysPerm::getDeleted, false)
+                .orderByDesc(SysPerm::getCreatedAt);
+        List<SysPerm> list = this.list(queryWrapper);
+        return sysPermConverter.EnListToVOList(list);
+    }
+
 }

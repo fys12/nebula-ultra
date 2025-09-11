@@ -8,6 +8,7 @@ import com.cloudvalley.nebula.ultra.business.user.model.vo.UserAggregatorInfoVO;
 import com.cloudvalley.nebula.ultra.business.user.service.IUserAggregatorService;
 import com.cloudvalley.nebula.ultra.core.auth.IdentityAuth;
 import com.cloudvalley.nebula.ultra.core.model.vo.CheckDeptVO;
+import com.cloudvalley.nebula.ultra.core.model.vo.CheckPermVO;
 import com.cloudvalley.nebula.ultra.core.model.vo.CheckRoleVO;
 import com.cloudvalley.nebula.ultra.shared.api.user.model.vo.SysUserVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +57,8 @@ public class UserAggregatorController {
     }
 
     @GetMapping("/text")
-    public CheckRoleVO text() {
-        return identityAuth.checkRole(8001L, List.of(1002L, 1003L));
+    public CheckDeptVO text() {
+        return identityAuth.checkDept(8001L, List.of(1002L, 1003L));
     }
 
 }

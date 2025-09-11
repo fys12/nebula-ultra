@@ -69,14 +69,22 @@ public class IdentityAuth {
     /**
      * 权限认证
      * @param tUserId 租户用户ID
+     * @param sTenantIds 有效租户ID 列表
      * @return 权限认证结果
      */
-    public CheckPermVO checkPerm(Long tUserId) {
+    public CheckPermVO checkPerm(Long tUserId, List<Long> sTenantIds) {
         // 1. 调用 租户认证
+        CheckTenantVO checkTenantVO = checkTenant(sTenantIds);
 
         // 1.1 获取 用户 绑定的有效租户Id
+        List<Long> validTenantIds = checkTenantVO.getValidSysTenant().stream()
+                .map(SysTenantVO::getId)
+                .toList();
 
         // 1.2 获取 用户 绑定的禁用租户Id
+        List<Long> disabledTenantIds = checkTenantVO.getDisabledSysTenant().stream()
+                .map(SysTenantVO::getId)
+                .toList();
 
         // 1.3 根据 禁用租户Id 获取 绑定的权限 [ 因禁用的租户Id 级联禁用的 权限 ]
 
@@ -485,9 +493,27 @@ public class IdentityAuth {
                         )
                 ));
 
-        // 9. 确保每个租户都有对应的条目（有效租户在前6个字段中，所有租户在disabledDeptByTenant中）
+        // 9. 获取用户在所有有效租户中的有效部门，组装为全局有效部门
+        Map<Long, List<SysDeptVO>> validGlobalDept = validTenantIds.stream()
+                .collect(Collectors.toMap(
+                        tenantId -> tenantId,
+                        tenantId -> {
+                            // 合并系统级、租户级和用户级的有效部门
+                            List<SysDeptVO> sysDepts = validSysDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysDeptVO> tenantDepts = validTenantDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysDeptVO> userDepts = validUserDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
+
+                            // 合并所有有效部门并去重
+                            return Stream.of(sysDepts, tenantDepts, userDepts)
+                                    .flatMap(List::stream)
+                                    .distinct()
+                                    .collect(Collectors.toList());
+                        }
+                ));
+
+        // 10. 确保每个租户都有对应的条目（有效租户在前7个字段中，所有租户在disabledDeptByTenant中）
         allTenantIds.forEach(tenantId -> {
-            // 只有有效租户才需要在前6个字段中有条目
+            // 只有有效租户才需要在前7个字段中有条目
             if (validTenantIds.contains(tenantId)) {
                 validSysDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
                 validTenantDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
@@ -495,12 +521,13 @@ public class IdentityAuth {
                 disabledSysDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
                 disabledTenantDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
                 disabledUserDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                validGlobalDept.putIfAbsent(tenantId, Collections.emptyList());
             }
             // 所有租户（包括禁用租户）在disabledDeptByTenant中都需要有条目
             disabledDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
         });
 
-        // 10. 组装并返回结果
+        // 11. 组装并返回结果
         return new CheckDeptVO(
                 validSysDeptByTenant,
                 validTenantDeptByTenant,
@@ -508,7 +535,8 @@ public class IdentityAuth {
                 disabledSysDeptByTenant,
                 disabledTenantDeptByTenant,
                 disabledUserDeptByTenant,
-                disabledDeptByTenant // 添加这个字段
+                disabledDeptByTenant,
+                validGlobalDept
         );
     }
 
@@ -519,14 +547,30 @@ public class IdentityAuth {
      * @return 角色认证结果
      */
     public CheckRoleVO checkRole(Long tUserId, List<Long> sTenantIds) {
-        // 1. 根据 租户Id列表 获取 查询 租户角色信息
-        List<Map<Long, List<RoleTenantVO>>> roleTenantsByTenantIds = iRoleTenantCommonService.getRoleTenantsByTenantIds(sTenantIds);
+        // 1. 调用 租户认证
+        CheckTenantVO checkTenantVO = checkTenant(sTenantIds);
 
-        // 1.1 根据租户用户Id 查询 绑定 租户角色Id
+        // 1.1 获取 有效租户Id列表
+        List<Long> validTenantIds = checkTenantVO.getValidSysTenant().stream()
+                .map(SysTenantVO::getId)
+                .toList();
+
+        // 1.2 获取 禁用租户Id列表
+        List<Long> disabledTenantIds = checkTenantVO.getDisabledSysTenant().stream()
+                .map(SysTenantVO::getId)
+                .toList();
+
+        // 2. 根据 所有租户Id列表（有效+禁用） 查询 租户角色信息
+        List<Long> allTenantIds = Stream.concat(validTenantIds.stream(), disabledTenantIds.stream())
+                .distinct()
+                .toList();
+        List<Map<Long, List<RoleTenantVO>>> roleTenantsBySTenantIds = iRoleTenantCommonService.getRoleTenantsByTenantIds(allTenantIds);
+
+        // 2.1 根据租户用户Id 查询 绑定 租户角色Id
         Set<Long> roleIdsByUserId = iRoleUserCommonService.getRoleIdsByUserId(tUserId);
 
-        // 1.2 排除 其余租户角色信息 只保留 用户 绑定的角色信息
-        roleTenantsByTenantIds = roleTenantsByTenantIds.stream()
+        // 2.2 排除 其余租户角色信息 只保留 用户 绑定的角色信息（无论有效或禁用的租户）
+        roleTenantsBySTenantIds = roleTenantsBySTenantIds.stream()
                 .map(tenantRoleMap -> tenantRoleMap.entrySet().stream()
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey,
@@ -534,131 +578,92 @@ public class IdentityAuth {
                                         .filter(roleTenant -> roleIdsByUserId.contains(roleTenant.getId()))
                                         .collect(Collectors.toList())
                         )))
-                .filter(map -> map.values().stream().anyMatch(list -> !list.isEmpty()))
+                .filter(map -> !map.isEmpty() || map.values().stream().anyMatch(list -> !list.isEmpty()))
                 .toList();
 
-        // 2. 获取 所有系统角色Id
-        List<Long> sysRoleIds = roleTenantsByTenantIds.stream()
+        // 3. 获取 所有系统角色Id
+        List<Long> sysRoleIds = roleTenantsBySTenantIds.stream()
                 .flatMap(map -> map.values().stream())
                 .flatMap(List::stream)
                 .map(RoleTenantVO::getSRoleId)
                 .distinct()
                 .toList();
 
-        // 2.1 根据 系统角色Id 获取 系统角色信息 Map<系统角色ID, 角色VO>
+        // 3.1 根据 系统角色Id 获取 系统角色信息 Map<系统角色ID, 角色VO>
         Map<Long, SysRoleVO> sysRolesByIds = iSysRoleCommonService.getSysRolesByIds(sysRoleIds);
 
-        // 2.2 获取 禁用系统角色Id [ 禁用角色 系统级 ]
+        // 3.2 获取 禁用系统角色Id [ 禁用角色 系统级 ]
         List<SysRoleVO> disabledSysRole = sysRolesByIds.values().stream()
-                .filter(role -> !role.getState())
+                .filter(role -> role.getState() == null || !role.getState())
                 .toList();
 
-        // 2.3 获取 有效系统角色 [ 有效角色 系统级 ]
+        // 3.3 获取 有效系统角色 [ 有效角色 系统级 ]
         List<SysRoleVO> validSysRole = sysRolesByIds.values().stream()
-                .filter(role -> role.getState())
+                .filter(role -> role.getState() != null && role.getState())
                 .toList();
 
-        // 2.4 建立 系统角色Id->租户角色Id 键值对
-        Map<Long, List<Long>> sysRoleIdToTenantRoleIds = roleTenantsByTenantIds.stream()
+        // 3.4 建立 系统角色Id->租户角色信息 键值对（包含租户ID信息）
+        Map<Long, List<RoleTenantVO>> sysRoleIdToTenantRoleVOs = roleTenantsBySTenantIds.stream()
                 .flatMap(map -> map.values().stream())
                 .flatMap(List::stream)
-                .collect(Collectors.groupingBy(
-                        RoleTenantVO::getSRoleId,
-                        Collectors.mapping(RoleTenantVO::getId, Collectors.toList())
-                ));
+                .collect(Collectors.groupingBy(RoleTenantVO::getSRoleId));
 
-        // 2.5 获取 因系统角色禁用 级联禁用的对应的租户角色Id
+        // 3.5 获取 因系统角色禁用 级联禁用的对应的租户角色Id
         List<Long> cascadeDisabledRoleBySys = disabledSysRole.stream()
-                // 获取禁用的系统角色ID
                 .map(SysRoleVO::getId)
-                // 获取对应的租户角色ID
-                .flatMap(sysRoleId -> sysRoleIdToTenantRoleIds.getOrDefault(sysRoleId, Collections.emptyList()).stream())
+                .flatMap(sysRoleId -> sysRoleIdToTenantRoleVOs.getOrDefault(sysRoleId, Collections.emptyList()).stream())
+                .map(RoleTenantVO::getId)
                 .distinct()
                 .toList();
 
-        // 3. 获取 禁用租户角色Id [ 禁用角色 租户级 ]
-        List<Long> tenantRoleIds = roleTenantsByTenantIds.stream()
+        // 4. 获取 所有租户角色Id
+        List<Long> tenantRoleIds = roleTenantsBySTenantIds.stream()
                 .flatMap(map -> map.values().stream())
                 .flatMap(List::stream)
                 .map(RoleTenantVO::getId)
                 .distinct()
                 .toList();
 
-        // 3.1 获取 禁用租户角色Id [ 禁用角色 租户级 ]
-        List<Long> disabledTenantRoleTenantIds = roleTenantsByTenantIds.stream()
+        // 4.1 获取 禁用租户角色Id [ 禁用角色 租户级 ]
+        List<Long> disabledTenantRoleTenantIds = roleTenantsBySTenantIds.stream()
                 .flatMap(map -> map.values().stream())
                 .flatMap(List::stream)
-                .filter(roleTenant -> !roleTenant.getState())
+                .filter(roleTenant -> roleTenant.getState() == null || !roleTenant.getState())
                 .map(RoleTenantVO::getId)
                 .distinct()
                 .toList();
 
-        // 3.2 获取 有效租户角色Id [ 有效角色 租户级 ] = tenantRoleIds - disabledTenantRoleTenantIds - cascadeDisabledRoleBySys
+        // 4.2 获取 有效租户角色Id [ 有效角色 租户级 ] = tenantRoleIds - disabledTenantRoleTenantIds - cascadeDisabledRoleBySys
         List<Long> validTenantRoleSystemIds = tenantRoleIds.stream()
                 .filter(tenantRoleId -> !disabledTenantRoleTenantIds.contains(tenantRoleId))
                 .filter(tenantRoleId -> !cascadeDisabledRoleBySys.contains(tenantRoleId))
                 .toList();
 
-        // 3.3 根据 禁用租户角色Id 获取 租户角色信息 [ 禁用角色 租户级 ]
-        // 通过 disabledTenantRoleTenantIds 反向查找对应的系统角色ID，然后获取系统角色信息
-        List<SysRoleVO> disabledTenantRole = sysRoleIdToTenantRoleIds.entrySet().stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(disabledTenantRoleTenantIds::contains))
-                .map(Map.Entry::getKey)
-                .map(sysRolesByIds::get)
-                .filter(Objects::nonNull)
-                .toList();
-
-        // 3.4 根据 有效租户角色Id 获取 系统角色信息 [ 有效角色 租户级 ]
-        // 通过 validTenantRoleSystemIds 反向查找对应的系统角色ID，然后获取系统角色信息
-        List<SysRoleVO> validTenantRole = sysRoleIdToTenantRoleIds.entrySet().stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(validTenantRoleSystemIds::contains))
-                .map(Map.Entry::getKey)
-                .map(sysRolesByIds::get)
-                .filter(Objects::nonNull)
-                .toList();
-
-        // 3.5 获取 因租户角色禁用 级联禁用的对应的租户角色Id = disabledTenantRoleTenantIds + cascadeDisabledRoleBySys
+        // 4.3 获取 因租户角色禁用 级联禁用的对应的租户角色Id = disabledTenantRoleTenantIds + cascadeDisabledRoleBySys
         List<Long> cascadeDisabledRoleByTenant = Stream.concat(
                 disabledTenantRoleTenantIds.stream(),
                 cascadeDisabledRoleBySys.stream()
         ).distinct().toList();
 
-        // 4. 根据 租户用户Id 查询 绑定 租户角色信息
+        // 5. 根据 租户用户Id 查询 绑定 租户角色信息
         List<RoleUserVO> roleUsersByUserId = iRoleUserCommonService.getRoleUsersByUserId(tUserId);
 
-        // 4.1 获取 禁用的 用户租户角色Id [ 禁用角色 用户级 ]
+        // 5.1 获取 禁用的 用户租户角色Id [ 禁用角色 用户级 ]
         List<Long> disabledUserRoleIds = roleUsersByUserId.stream()
-                .filter(roleUser -> !roleUser.getState())
+                .filter(roleUser -> roleUser.getState() == null || !roleUser.getState())
                 .map(RoleUserVO::getTRoleId)
                 .toList();
 
-        // 4.2 获取 有效角色Id [ 有效角色 用户级 ] = tenantRoleIds - disabledUserRoleIds - cascadeDisabledRoleByTenant
+        // 5.2 获取 有效角色Id [ 有效角色 用户级 ] = tenantRoleIds - disabledUserRoleIds - cascadeDisabledRoleByTenant
         List<Long> validUserRoleIds = tenantRoleIds.stream()
                 .filter(tenantRoleId -> !disabledUserRoleIds.contains(tenantRoleId))
                 .filter(tenantRoleId -> !cascadeDisabledRoleByTenant.contains(tenantRoleId))
                 .toList();
 
-        // 4.3 根据 禁用角色Id 获取 对应 系统角色信息 [ 禁用角色 用户级 ]
-        // 通过 disabledUserRoleIds 反向查找对应的系统角色ID，然后获取系统角色信息
-        List<SysRoleVO> disabledUserRole = sysRoleIdToTenantRoleIds.entrySet().stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(disabledUserRoleIds::contains))
-                .map(Map.Entry::getKey)
-                .map(sysRolesByIds::get)
-                .filter(Objects::nonNull)
-                .toList();
-
-        // 4.4 根据 有效角色Id 获取 对应 系统角色信息 [ 有效角色 用户级 ]
-        // 通过 validUserRoleIds 反向查找对应的系统角色ID，然后获取系统角色信息
-        List<SysRoleVO> validUserRole = sysRoleIdToTenantRoleIds.entrySet().stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(validUserRoleIds::contains))
-                .map(Map.Entry::getKey)
-                .map(sysRolesByIds::get)
-                .filter(Objects::nonNull)
-                .toList();
-
-        // 5. 建立租户ID到系统角色的映射关系
-        Map<Long, List<SysRoleVO>> tenantIdToSysRoleVOs = roleTenantsByTenantIds.stream()
+        // 6. 建立租户ID到系统角色的映射关系（只包含有效租户）
+        Map<Long, List<SysRoleVO>> tenantIdToSysRoleVOs = roleTenantsBySTenantIds.stream()
                 .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(
@@ -670,63 +675,74 @@ public class IdentityAuth {
                         )
                 ));
 
-        // 6. 按租户分组组装各级有效角色数据
-
-        // 6.1 系统级有效角色 - 按租户分组（无级联禁用，cascadeDisable = null）
-        Map<Long, List<SysRoleVO>> validSysRoleByTenant = sTenantIds.stream()
+        // 7. 按租户分组组装各级有效角色数据时，需要设置 cascadeDisable 字段（只包含有效租户）
+        // 7.1 系统级有效角色 - 按租户分组（无级联禁用，cascadeDisable = null）
+        Map<Long, List<SysRoleVO>> validSysRoleByTenant = validTenantIds.stream()
                 .collect(Collectors.toMap(
                         tenantId -> tenantId,
                         tenantId -> validSysRole.stream()
                                 .filter(role -> tenantIdToSysRoleVOs.getOrDefault(tenantId, Collections.emptyList())
                                         .stream().anyMatch(sysRole -> sysRole.getId().equals(role.getId())))
+                                // 系统级角色不存在级联禁用，cascadeDisable 保持原值（通常为 null）
                                 .collect(Collectors.toList())
                 ));
 
-        // 6.2 租户级有效角色 - 按租户分组（无级联禁用，cascadeDisable = null）
-        Map<Long, List<SysRoleVO>> validTenantRoleByTenant = roleTenantsByTenantIds.stream()
+        // 7.2 租户级有效角色 - 按租户分组（无级联禁用，cascadeDisable = null）（只包含有效租户）
+        Map<Long, List<SysRoleVO>> validTenantRoleByTenant = roleTenantsBySTenantIds.stream()
                 .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(
                                 entry -> entry.getValue().stream()
                                         .filter(roleTenant -> validTenantRoleSystemIds.contains(roleTenant.getId()))
-                                        .map(roleTenant -> sysRolesByIds.get(roleTenant.getSRoleId()))
+                                        .map(roleTenant -> {
+                                            SysRoleVO originalRole = sysRolesByIds.get(roleTenant.getSRoleId());
+                                            // 租户级有效角色不存在级联禁用，cascadeDisable 保持原值（通常为 null）
+                                            return originalRole;
+                                        })
                                         .filter(Objects::nonNull)
                                         .collect(Collectors.toList()),
                                 Collectors.flatMapping(List::stream, Collectors.toList())
                         )
                 ));
 
-        // 6.3 用户级有效角色 - 按租户分组（无级联禁用，cascadeDisable = null）
-        Map<Long, List<SysRoleVO>> validUserRoleByTenant = roleTenantsByTenantIds.stream()
+        // 7.3 用户级有效角色 - 按租户分组（无级联禁用，cascadeDisable = null）（只包含有效租户）
+        Map<Long, List<SysRoleVO>> validUserRoleByTenant = roleTenantsBySTenantIds.stream()
                 .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(
                                 entry -> entry.getValue().stream()
                                         .filter(roleTenant -> validUserRoleIds.contains(roleTenant.getId()))
-                                        .map(roleTenant -> sysRolesByIds.get(roleTenant.getSRoleId()))
+                                        .map(roleTenant -> {
+                                            SysRoleVO originalRole = sysRolesByIds.get(roleTenant.getSRoleId());
+                                            // 用户级有效角色不存在级联禁用，cascadeDisable 保持原值（通常为 null）
+                                            return originalRole;
+                                        })
                                         .filter(Objects::nonNull)
                                         .collect(Collectors.toList()),
                                 Collectors.flatMapping(List::stream, Collectors.toList())
                         )
                 ));
 
-        // 7. 按租户分组组装各级禁用角色数据
-
-        // 7.1 系统级禁用角色 - 按租户分组（直接禁用，cascadeDisable = null）
-        Map<Long, List<SysRoleVO>> disabledSysRoleByTenant = sTenantIds.stream()
+        // 8. 按租户分组组装各级禁用角色数据时，需要设置 cascadeDisable 字段（只包含有效租户）
+        // 8.1 系统级禁用角色 - 按租户分组（直接禁用，cascadeDisable = null）
+        Map<Long, List<SysRoleVO>> disabledSysRoleByTenant = validTenantIds.stream()
                 .collect(Collectors.toMap(
                         tenantId -> tenantId,
                         tenantId -> disabledSysRole.stream()
                                 .filter(role -> tenantIdToSysRoleVOs.getOrDefault(tenantId, Collections.emptyList())
                                         .stream().anyMatch(sysRole -> sysRole.getId().equals(role.getId())))
+                                // 系统级禁用角色是直接禁用，不是级联禁用，cascadeDisable 保持原值（通常为 null）
                                 .collect(Collectors.toList())
                 ));
 
-        // 7.2 租户级禁用角色 - 按租户分组（需要区分直接禁用和级联禁用）
-        Map<Long, List<SysRoleVO>> disabledTenantRoleByTenant = roleTenantsByTenantIds.stream()
+        // 8.2 租户级禁用角色 - 按租户分组（需要区分直接禁用和级联禁用）（只包含有效租户）
+        Map<Long, List<SysRoleVO>> disabledTenantRoleByTenant = roleTenantsBySTenantIds.stream()
                 .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(
@@ -764,9 +780,10 @@ public class IdentityAuth {
                         )
                 ));
 
-        // 7.3 用户级禁用角色 - 按租户分组（需要区分直接禁用和级联禁用）
-        Map<Long, List<SysRoleVO>> disabledUserRoleByTenant = roleTenantsByTenantIds.stream()
+        // 8.3 用户级禁用角色 - 按租户分组（需要区分直接禁用和级联禁用）（只包含有效租户）
+        Map<Long, List<SysRoleVO>> disabledUserRoleByTenant = roleTenantsBySTenantIds.stream()
                 .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
                 .collect(Collectors.groupingBy(
                         Map.Entry::getKey,
                         Collectors.mapping(
@@ -820,26 +837,85 @@ public class IdentityAuth {
                         )
                 ));
 
-        // 8. 确保每个租户都有对应的条目（即使是空列表）
-        sTenantIds.forEach(tenantId -> {
-            validSysRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
-            validTenantRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
-            validUserRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
-            disabledSysRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
-            disabledTenantRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
-            disabledUserRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
+        // 8.4 获取用户所绑定的禁用租户的角色，并将这些角色信息存储到disabledRoleByTenant
+        Map<Long, List<SysRoleVO>> disabledRoleByTenant = roleTenantsBySTenantIds.stream()
+                .flatMap(map -> map.entrySet().stream())
+                .filter(entry -> disabledTenantIds.contains(entry.getKey())) // 只处理禁用租户
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        Collectors.mapping(
+                                entry -> entry.getValue().stream()
+                                        // 只包含用户绑定的角色
+                                        .filter(roleTenant -> roleIdsByUserId.contains(roleTenant.getId()))
+                                        .map(roleTenant -> {
+                                            SysRoleVO originalRole = sysRolesByIds.get(roleTenant.getSRoleId());
+                                            // 设置级联禁用标识为 "tenant"
+                                            return new SysRoleVO(
+                                                    originalRole.getId(),
+                                                    originalRole.getName(),
+                                                    originalRole.getAlias(),
+                                                    originalRole.getDesc(),
+                                                    originalRole.getCreatedAt(),
+                                                    originalRole.getUpdatedAt(),
+                                                    originalRole.getCreatedById(),
+                                                    originalRole.getUpdatedById(),
+                                                    originalRole.getColor(),
+                                                    originalRole.getState(),
+                                                    "tenant", // 因租户禁用而级联
+                                                    originalRole.getDeleted()
+                                            );
+                                        })
+                                        .filter(Objects::nonNull)
+                                        .collect(Collectors.toList()),
+                                Collectors.flatMapping(List::stream, Collectors.toList())
+                        )
+                ));
+
+        // 9. 获取用户在所有有效租户中的有效角色，组装为全局有效角色
+        Map<Long, List<SysRoleVO>> validGlobalRole = validTenantIds.stream()
+                .collect(Collectors.toMap(
+                        tenantId -> tenantId,
+                        tenantId -> {
+                            // 合并系统级、租户级和用户级的有效角色
+                            List<SysRoleVO> sysRoles = validSysRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysRoleVO> tenantRoles = validTenantRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysRoleVO> userRoles = validUserRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
+
+                            // 合并所有有效角色并去重
+                            return Stream.of(sysRoles, tenantRoles, userRoles)
+                                    .flatMap(List::stream)
+                                    .distinct()
+                                    .collect(Collectors.toList());
+                        }
+                ));
+
+        // 10. 确保每个租户都有对应的条目（有效租户在前7个字段中，所有租户在disabledRoleByTenant中）
+        allTenantIds.forEach(tenantId -> {
+            // 只有有效租户才需要在前7个字段中有条目
+            if (validTenantIds.contains(tenantId)) {
+                validSysRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                validTenantRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                validUserRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                disabledSysRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                disabledTenantRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                disabledUserRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                validGlobalRole.putIfAbsent(tenantId, Collections.emptyList());
+            }
+            // 所有租户（包括禁用租户）在disabledRoleByTenant中都需要有条目
+            disabledRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
         });
 
-        // 9. 组装并返回结果
+        // 11. 组装并返回结果
         return new CheckRoleVO(
                 validSysRoleByTenant,
                 validTenantRoleByTenant,
                 validUserRoleByTenant,
                 disabledSysRoleByTenant,
                 disabledTenantRoleByTenant,
-                disabledUserRoleByTenant
+                disabledUserRoleByTenant,
+                disabledRoleByTenant,
+                validGlobalRole
         );
-
     }
 
 }

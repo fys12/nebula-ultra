@@ -47,4 +47,9 @@ public class CheckDeptVO {
      */
     Map<Long, List<SysDeptVO>> disabledDeptByTenant;
 
+    /**
+     * 有效部门 [ 全局 ]
+     */
+    Map<Long, List<SysDeptVO>> validGlobalDept;
+
 }

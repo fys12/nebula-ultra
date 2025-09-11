@@ -1,6 +1,5 @@
 package com.cloudvalley.nebula.ultra.core.model.vo;
 
-import com.cloudvalley.nebula.ultra.shared.api.dept.model.vo.SysDeptVO;
 import com.cloudvalley.nebula.ultra.shared.api.role.model.vo.SysRoleVO;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Value;
@@ -46,6 +45,11 @@ public class CheckRoleVO {
      * 因 租户禁用 级联禁用的角色
      * cascadeDisable 为 null
      */
-    // Map<Long, List<SysDeptVO>> disabledRoleByTenant;
+    Map<Long, List<SysRoleVO>> disabledRoleByTenant;
+
+    /**
+     * 有效角色 [ 全局 ]
+     */
+    Map<Long, List<SysRoleVO>> validGlobalRole;
     
 }

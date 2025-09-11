@@ -79,4 +79,9 @@ public class CheckPermVO {
      */
     Map<Long, List<SysPermVO>> disabledPermByRole;
 
+    /**
+     * 有效角色 [ 全局 ]
+     */
+    Map<Long, List<SysPermVO>> validGlobalPerm;
+
 }

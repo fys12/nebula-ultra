@@ -154,4 +154,54 @@ public class DeptTenantCommonServiceImpl extends ServiceImpl<DeptTenantMapper, D
         return list.stream().map(DeptTenant::getSTenantId).collect(Collectors.toSet());
     }
 
+    /**
+     * 根据多个系统租户 ID 查询系统部门 ID 列表
+     * @param sTenantIds 系统租户ID列表
+     * @return 按系统租户ID分组的系统部门ID集合映射
+     */
+    @Override
+    public Map<Long, Set<Long>> getSDeptIdsBySTenantIds(List<Long> sTenantIds) {
+        if (sTenantIds == null || sTenantIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        LambdaQueryWrapper<DeptTenant> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(DeptTenant::getSTenantId, sTenantIds)
+                .eq(DeptTenant::getDeleted, false)
+                .select(DeptTenant::getSTenantId, DeptTenant::getSDeptId);
+
+        List<DeptTenant> list = this.list(queryWrapper);
+
+        return list.stream()
+                .collect(Collectors.groupingBy(
+                        DeptTenant::getSTenantId,
+                        Collectors.mapping(DeptTenant::getSDeptId, Collectors.toSet())
+                ));
+    }
+
+    /**
+     * 根据多个系统部门 ID 查询系统租户 ID 列表
+     * @param sDeptIds 系统部门ID列表
+     * @return 按系统部门ID分组的系统租户ID集合映射
+     */
+    @Override
+    public Map<Long, Set<Long>> getSTenantIdsBySDeptIds(List<Long> sDeptIds) {
+        if (sDeptIds == null || sDeptIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        LambdaQueryWrapper<DeptTenant> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(DeptTenant::getSDeptId, sDeptIds)
+                .eq(DeptTenant::getDeleted, false)
+                .select(DeptTenant::getSDeptId, DeptTenant::getSTenantId);
+
+        List<DeptTenant> list = this.list(queryWrapper);
+
+        return list.stream()
+                .collect(Collectors.groupingBy(
+                        DeptTenant::getSDeptId,
+                        Collectors.mapping(DeptTenant::getSTenantId, Collectors.toSet())
+                ));
+    }
+
 }

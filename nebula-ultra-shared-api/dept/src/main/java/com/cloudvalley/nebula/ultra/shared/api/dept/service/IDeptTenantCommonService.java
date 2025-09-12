@@ -65,4 +65,19 @@ public interface IDeptTenantCommonService {
      * @return 系统租户ID集合
      */
     Set<Long> getSTenantIdsBySDeptId(Long sDeptId);
+
+    /**
+     * 根据多个系统租户 ID 查询系统部门 ID 列表
+     * @param sTenantIds 系统租户ID列表
+     * @return 按系统租户ID分组的系统部门ID集合映射
+     */
+    Map<Long, Set<Long>> getSDeptIdsBySTenantIds(List<Long> sTenantIds);
+
+    /**
+     * 根据多个系统部门 ID 查询系统租户 ID 列表
+     * @param sDeptIds 系统部门ID列表
+     * @return 按系统部门ID分组的系统租户ID集合映射
+     */
+    Map<Long, Set<Long>> getSTenantIdsBySDeptIds(List<Long> sDeptIds);
+
 }

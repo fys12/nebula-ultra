@@ -52,4 +52,9 @@ public class CheckDeptVO {
      */
     Map<Long, List<SysDeptVO>> validGlobalDept;
 
+    /**
+     * 禁用部门 [ 全局 ]
+     */
+    Map<Long, List<SysDeptVO>> disabledGlobalDept;
+
 }

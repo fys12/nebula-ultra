@@ -51,5 +51,10 @@ public class CheckRoleVO {
      * 有效角色 [ 全局 ]
      */
     Map<Long, List<SysRoleVO>> validGlobalRole;
+
+    /**
+     * 禁用角色 [ 全局 ]
+     */
+    Map<Long, List<SysRoleVO>> disabledGlobalRole;
     
 }

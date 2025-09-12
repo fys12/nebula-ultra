@@ -74,17 +74,10 @@ public class IdentityAuth {
      */
     public CheckPermVO checkPerm(Long tUserId, List<Long> sTenantIds) {
         // 1. 调用 租户认证
-        CheckTenantVO checkTenantVO = checkTenant(sTenantIds);
 
         // 1.1 获取 用户 绑定的有效租户Id
-        List<Long> validTenantIds = checkTenantVO.getValidSysTenant().stream()
-                .map(SysTenantVO::getId)
-                .toList();
 
         // 1.2 获取 用户 绑定的禁用租户Id
-        List<Long> disabledTenantIds = checkTenantVO.getDisabledSysTenant().stream()
-                .map(SysTenantVO::getId)
-                .toList();
 
         // 1.3 根据 禁用租户Id 获取 绑定的权限 [ 因禁用的租户Id 级联禁用的 权限 ]
 
@@ -511,7 +504,26 @@ public class IdentityAuth {
                         }
                 ));
 
-        // 10. 确保每个租户都有对应的条目（有效租户在前7个字段中，所有租户在disabledDeptByTenant中）
+        // 10. 获取用户在所有有效租户中的禁用部门，组装为全局禁用部门
+        Map<Long, List<SysDeptVO>> disabledGlobalDept = validTenantIds.stream()
+                .collect(Collectors.toMap(
+                        tenantId -> tenantId,
+                        tenantId -> {
+                            // 合并系统级、租户级、用户级和因租户禁用而级联禁用的部门
+                            List<SysDeptVO> sysDepts = disabledSysDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysDeptVO> tenantDepts = disabledTenantDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysDeptVO> userDepts = disabledUserDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysDeptVO> tenantCascadeDepts = disabledDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
+
+                            // 合并所有禁用部门并去重
+                            return Stream.of(sysDepts, tenantDepts, userDepts, tenantCascadeDepts)
+                                    .flatMap(List::stream)
+                                    .distinct()
+                                    .collect(Collectors.toList());
+                        }
+                ));
+
+        // 11. 确保每个租户都有对应的条目（有效租户在前7个字段中，所有租户在disabledDeptByTenant中）
         allTenantIds.forEach(tenantId -> {
             // 只有有效租户才需要在前7个字段中有条目
             if (validTenantIds.contains(tenantId)) {
@@ -522,12 +534,13 @@ public class IdentityAuth {
                 disabledTenantDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
                 disabledUserDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
                 validGlobalDept.putIfAbsent(tenantId, Collections.emptyList());
+                disabledGlobalDept.putIfAbsent(tenantId, Collections.emptyList());
             }
             // 所有租户（包括禁用租户）在disabledDeptByTenant中都需要有条目
             disabledDeptByTenant.putIfAbsent(tenantId, Collections.emptyList());
         });
 
-        // 11. 组装并返回结果
+        // 12. 组装并返回结果
         return new CheckDeptVO(
                 validSysDeptByTenant,
                 validTenantDeptByTenant,
@@ -536,7 +549,8 @@ public class IdentityAuth {
                 disabledTenantDeptByTenant,
                 disabledUserDeptByTenant,
                 disabledDeptByTenant,
-                validGlobalDept
+                validGlobalDept,
+                disabledGlobalDept
         );
     }
 
@@ -889,7 +903,32 @@ public class IdentityAuth {
                         }
                 ));
 
-        // 10. 确保每个租户都有对应的条目（有效租户在前7个字段中，所有租户在disabledRoleByTenant中）
+        // 10. 获取用户在所有有效租户中的禁用角色，组装为全局禁用角色
+        Map<Long, List<SysRoleVO>> disabledGlobalRole = validTenantIds.stream()
+                .collect(Collectors.toMap(
+                        tenantId -> tenantId,
+                        tenantId -> {
+                            // 合并系统级、租户级、用户级和因租户禁用而级联禁用的角色
+                            List<SysRoleVO> sysRoles = disabledSysRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysRoleVO> tenantRoles = disabledTenantRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysRoleVO> userRoles = disabledUserRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysRoleVO> tenantCascadeRoles = disabledRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
+
+                            // 合并所有禁用角色并基于角色ID去重
+                            return Stream.of(sysRoles, tenantRoles, userRoles, tenantCascadeRoles)
+                                    .flatMap(List::stream)
+                                    .collect(Collectors.toMap(
+                                            SysRoleVO::getId, // 使用角色ID作为键
+                                            role -> role,     // 使用角色对象作为值
+                                            (existing, replacement) -> existing // 如果ID重复，保留第一个
+                                    ))
+                                    .values()
+                                    .stream()
+                                    .collect(Collectors.toList());
+                        }
+                ));
+
+        // 11. 确保每个租户都有对应的条目（有效租户在前7个字段中，所有租户在disabledRoleByTenant中）
         allTenantIds.forEach(tenantId -> {
             // 只有有效租户才需要在前7个字段中有条目
             if (validTenantIds.contains(tenantId)) {
@@ -900,12 +939,13 @@ public class IdentityAuth {
                 disabledTenantRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
                 disabledUserRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
                 validGlobalRole.putIfAbsent(tenantId, Collections.emptyList());
+                disabledGlobalRole.putIfAbsent(tenantId, Collections.emptyList());
             }
             // 所有租户（包括禁用租户）在disabledRoleByTenant中都需要有条目
             disabledRoleByTenant.putIfAbsent(tenantId, Collections.emptyList());
         });
 
-        // 11. 组装并返回结果
+        // 12. 组装并返回结果
         return new CheckRoleVO(
                 validSysRoleByTenant,
                 validTenantRoleByTenant,
@@ -914,7 +954,8 @@ public class IdentityAuth {
                 disabledTenantRoleByTenant,
                 disabledUserRoleByTenant,
                 disabledRoleByTenant,
-                validGlobalRole
+                validGlobalRole,
+                disabledGlobalRole
         );
     }
 

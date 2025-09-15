@@ -68,7 +68,7 @@ public class UserAggregatorController {
 
     @GetMapping("/text3")
     public CheckPermVO text3() {
-        return identityAuth.checkPerm( List.of(8001L), List.of(1002L, 1003L));
+        return identityAuth.checkPerm( List.of(8001L), List.of(1002L));
     }
 
 }

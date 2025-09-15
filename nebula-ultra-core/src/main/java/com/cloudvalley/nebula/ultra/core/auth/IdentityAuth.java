@@ -72,9 +72,688 @@ public class IdentityAuth {
      * @param sTenantIds 有效租户ID 列表
      * @return 权限认证结果
      */
-    public CheckPermVO checkPerm(List<Long> tUserIds, List<Long> sTenantIds) {
-        return null;
-    }
+     public CheckPermVO checkPerm(List<Long> tUserIds, List<Long> sTenantIds) {
+         // 1. 调用 租户认证
+         CheckTenantVO checkTenantVO = checkTenant(sTenantIds);
+
+         // 1.1 获取 有效租户Id列表
+         List<Long> validTenantIds = checkTenantVO.getValidSysTenant().stream()
+                 .map(SysTenantVO::getId)
+                 .toList();
+
+         // 1.2 获取 禁用租户Id列表
+         List<Long> disabledTenantIds = checkTenantVO.getDisabledSysTenant().stream()
+                 .map(SysTenantVO::getId)
+                 .toList();
+
+         // 2. 调用 部门认证
+         CheckDeptVO checkDeptVO = checkDept(tUserIds, sTenantIds);
+
+         // 3. 调用 角色认证
+         CheckRoleVO checkRoleVO = checkRole(tUserIds, sTenantIds);
+
+         // 4. 根据 所有租户Id列表（有效+禁用） 查询 租户权限信息
+         List<Long> allTenantIds = Stream.concat(validTenantIds.stream(), disabledTenantIds.stream())
+                 .distinct()
+                 .toList();
+         List<Map<Long, List<PermTenantVO>>> permTenantsByTenantIds = iPermTenantCommonService.getPermTenantsByTenantIds(allTenantIds);
+
+         // 5. 根据租户用户Id 查询 绑定 租户权限Id
+         List<Map<Long, List<PermUserVO>>> permUsersByTUserIds = iPermUserCommonService.getPermUsersByTUserIds(tUserIds);
+
+         // 6. 获取 所有系统权限Id
+         List<Long> sysPermIds = permTenantsByTenantIds.stream()
+                 .flatMap(map -> map.values().stream())
+                 .flatMap(List::stream)
+                 .map(PermTenantVO::getSPermId)
+                 .distinct()
+                 .toList();
+
+         // 6.1 根据 系统权限Id 获取 系统权限信息 Map<系统权限ID, 权限VO>
+         List<SysPermVO> sysPermsByIds = iSysPermCommonService.getSysPermsByIds(sysPermIds);
+         Map<Long, SysPermVO> sysPermMap = sysPermsByIds.stream()
+                 .collect(Collectors.toMap(SysPermVO::getId, perm -> perm));
+
+         // 6.2 获取 禁用系统权限Id [ 禁用权限 系统级 ]
+         List<SysPermVO> disabledSysPerm = sysPermsByIds.stream()
+                 .filter(perm -> perm.getState() == null || !perm.getState())
+                 .toList();
+
+         // 6.3 获取 有效系统权限 [ 有效权限 系统级 ]
+         List<SysPermVO> validSysPerm = sysPermsByIds.stream()
+                 .filter(perm -> perm.getState() != null && perm.getState())
+                 .toList();
+
+         // 6.4 建立 系统权限Id->租户权限信息 键值对（包含租户ID信息）
+         Map<Long, List<PermTenantVO>> sysPermIdToTenantPermVOs = permTenantsByTenantIds.stream()
+                 .flatMap(map -> map.values().stream())
+                 .flatMap(List::stream)
+                 .collect(Collectors.groupingBy(PermTenantVO::getSPermId));
+
+         // 6.5 获取 因系统权限禁用 级联禁用的对应的租户权限Id
+         List<Long> cascadeDisabledPermBySys = disabledSysPerm.stream()
+                 .map(SysPermVO::getId)
+                 .flatMap(sysPermId -> sysPermIdToTenantPermVOs.getOrDefault(sysPermId, Collections.emptyList()).stream())
+                 .map(PermTenantVO::getId)
+                 .distinct()
+                 .toList();
+
+         // 7. 获取 所有租户权限Id
+         List<Long> tenantPermIds = permTenantsByTenantIds.stream()
+                 .flatMap(map -> map.values().stream())
+                 .flatMap(List::stream)
+                 .map(PermTenantVO::getId)
+                 .distinct()
+                 .toList();
+
+         // 7.1 获取 禁用租户权限Id [ 禁用权限 租户级 ]
+         List<Long> disabledTenantPermTenantIds = permTenantsByTenantIds.stream()
+                 .flatMap(map -> map.values().stream())
+                 .flatMap(List::stream)
+                 .filter(permTenant -> permTenant.getState() == null || !permTenant.getState())
+                 .map(PermTenantVO::getId)
+                 .distinct()
+                 .toList();
+
+         // 7.2 获取 有效租户权限Id [ 有效权限 租户级 ] = tenantPermIds - disabledTenantPermTenantIds - cascadeDisabledPermBySys
+         List<Long> validTenantPermSystemIds = tenantPermIds.stream()
+                 .filter(tenantPermId -> !disabledTenantPermTenantIds.contains(tenantPermId))
+                 .filter(tenantPermId -> !cascadeDisabledPermBySys.contains(tenantPermId))
+                 .toList();
+
+         // 7.3 获取 因租户权限禁用 级联禁用的对应的租户权限Id = disabledTenantPermTenantIds + cascadeDisabledPermBySys
+         List<Long> cascadeDisabledPermByTenant = Stream.concat(
+                 disabledTenantPermTenantIds.stream(),
+                 cascadeDisabledPermBySys.stream()
+         ).distinct().toList();
+
+         // 8. 根据 租户用户Id 查询 绑定 租户权限信息
+         List<Map<Long, List<PermUserVO>>> permUsersByUserId = iPermUserCommonService.getPermUsersByTUserIds(tUserIds);
+
+         // 8.1 获取 禁用的 用户租户权限Id [ 禁用权限 用户级 ]
+         List<Long> disabledUserPermIds = permUsersByUserId.stream()
+                 .flatMap(map -> map.values().stream())
+                 .flatMap(List::stream)
+                 .filter(permUser -> permUser.getStatus() == null || !permUser.getStatus())
+                 .map(PermUserVO::getTPermId)
+                 .toList();
+
+         // 8.2 获取 有效权限Id [ 有效权限 用户级 ] = tenantPermIds - disabledUserPermIds - cascadeDisabledPermByTenant
+         List<Long> validUserPermIds = tenantPermIds.stream()
+                 .filter(tenantPermId -> !disabledUserPermIds.contains(tenantPermId))
+                 .filter(tenantPermId -> !cascadeDisabledPermByTenant.contains(tenantPermId))
+                 .toList();
+
+         // 9. 根据租户部门Id 查询 绑定 租户权限信息
+         // 9.1 获取用户在各租户下的部门Id（使用租户部门Id）
+         Map<Long, Set<Long>> deptIdsByTenant = new HashMap<>();
+         for (Long tenantId : validTenantIds) {
+             Set<Long> deptIds = new HashSet<>();
+             // 通过用户绑定的租户部门关系获取租户部门Id
+             List<Map<Long, List<DeptUserVO>>> deptUsersByUserId = iDeptUserCommonService.getDeptUsersByUserIds(tUserIds);
+             for (Map<Long, List<DeptUserVO>> deptUserMap : deptUsersByUserId) {
+                 for (List<DeptUserVO> deptUsers : deptUserMap.values()) {
+                     for (DeptUserVO deptUser : deptUsers) {
+                         if (tUserIds.contains(deptUser.getTUserId())) {
+                             deptIds.add(deptUser.getTDeptId()); // 使用租户部门Id
+                         }
+                     }
+                 }
+             }
+             deptIdsByTenant.put(tenantId, deptIds);
+         }
+
+         // 9.2 根据部门Id获取部门权限
+         List<Long> allDeptIds = deptIdsByTenant.values().stream()
+                 .flatMap(Set::stream)
+                 .distinct()
+                 .toList();
+         List<Map<Long, List<PermDeptVO>>> permDeptsByTDeptIds = iPermDeptCommonService.getPermDeptsByTDeptIds(allDeptIds);
+
+         // 10. 根据租户角色Id 查询 绑定 租户权限信息
+         // 10.1 获取用户在各租户下的角色Id（使用租户角色Id）
+         Map<Long, Set<Long>> roleIdsByTenant = new HashMap<>();
+         for (Long tenantId : validTenantIds) {
+             Set<Long> roleIds = new HashSet<>();
+             // 通过用户绑定的租户角色关系获取租户角色Id
+             List<Map<Long, List<RoleUserVO>>> roleUsersByUserId = iRoleUserCommonService.getRoleUsersByUserIds(tUserIds);
+             for (Map<Long, List<RoleUserVO>> roleUserMap : roleUsersByUserId) {
+                 for (List<RoleUserVO> roleUsers : roleUserMap.values()) {
+                     for (RoleUserVO roleUser : roleUsers) {
+                         if (tUserIds.contains(roleUser.getTUserId())) {
+                             roleIds.add(roleUser.getTRoleId()); // 使用租户角色Id
+                         }
+                     }
+                 }
+             }
+             roleIdsByTenant.put(tenantId, roleIds);
+         }
+
+         // 10.2 根据角色Id获取角色权限
+         List<Long> allRoleIds = roleIdsByTenant.values().stream()
+                 .flatMap(Set::stream)
+                 .distinct()
+                 .toList();
+         List<Map<Long, List<PermRoleVO>>> permRolesByTRoleIds = iPermRoleCommonService.getPermRolesByRoleIds(allRoleIds);
+
+         // 10.3 获取角色权限Id
+         Set<Long> rolePermIds = permRolesByTRoleIds.stream()
+                 .flatMap(map -> map.values().stream())
+                 .flatMap(List::stream)
+                 .map(PermRoleVO::getTPermId)
+                 .collect(Collectors.toSet());
+
+         // 11. 按租户分组组装各级有效权限数据
+         // 11.1 系统级有效权限 - 按租户分组（无级联禁用，cascadeDisable = null）
+         Map<Long, List<SysPermVO>> validSysPermByTenant = validTenantIds.stream()
+                 .collect(Collectors.toMap(
+                         tenantId -> tenantId,
+                         tenantId -> validSysPerm.stream()
+                                 .collect(Collectors.toList())
+                 ));
+
+         // 11.2 租户级有效权限 - 按租户分组（无级联禁用，cascadeDisable = null）
+         Map<Long, List<SysPermVO>> validTenantPermByTenant = permTenantsByTenantIds.stream()
+                 .flatMap(map -> map.entrySet().stream())
+                 .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
+                 .collect(Collectors.groupingBy(
+                         Map.Entry::getKey,
+                         Collectors.mapping(
+                                 entry -> entry.getValue().stream()
+                                         .filter(permTenant -> validTenantPermSystemIds.contains(permTenant.getId()))
+                                         .map(permTenant -> sysPermMap.get(permTenant.getSPermId()))
+                                         .filter(Objects::nonNull)
+                                         .collect(Collectors.toList()),
+                                 Collectors.flatMapping(List::stream, Collectors.toList())
+                         )
+                 ));
+
+         // 11.3 部门级有效权限 - 按租户分组（无级联禁用，cascadeDisable = null）
+         Map<Long, List<SysPermVO>> validDeptPermByTenant = new HashMap<>();
+         for (Map.Entry<Long, Set<Long>> entry : deptIdsByTenant.entrySet()) {
+             Long tenantId = entry.getKey();
+             Set<Long> deptIds = entry.getValue();
+
+             // 获取这些部门的权限
+             List<PermDeptVO> deptPerms = permDeptsByTDeptIds.stream()
+                     .flatMap(map -> map.values().stream())
+                     .flatMap(List::stream)
+                     .filter(permDept -> deptIds.contains(permDept.getTDeptId()))
+                     .filter(permDept -> permDept.getState() != null && permDept.getState()) // 只取启用的
+                     .toList();
+
+             // 获取租户权限ID列表
+             List<Long> tenantPermIdsByDept = deptPerms.stream()
+                     .map(PermDeptVO::getTPermId)
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .toList();
+
+             // 通过租户权限ID获取系统权限ID
+             // 首先获取租户权限信息
+             List<PermTenantVO> tenantPerms = new ArrayList<>();
+             if (!tenantPermIdsByDept.isEmpty()) {
+                 // 按照已有代码中的方式，通过租户ID获取租户权限信息
+                 List<Map<Long, List<PermTenantVO>>> permTenantsByTenantIdsDept = iPermTenantCommonService.getPermTenantsByTenantIds(Arrays.asList(tenantId));
+                 tenantPerms = permTenantsByTenantIdsDept.stream()
+                         .flatMap(map -> map.values().stream())
+                         .flatMap(List::stream)
+                         .filter(permTenant -> tenantPermIds.contains(permTenant.getId()))
+                         .toList();
+             }
+
+             // 建立租户权限ID到系统权限的映射
+             Map<Long, Long> tenantPermIdToSysPermId = tenantPerms.stream()
+                     .collect(Collectors.toMap(PermTenantVO::getId, PermTenantVO::getSPermId));
+
+             // 获取对应的系统权限
+             List<SysPermVO> perms = tenantPerms.stream()
+                     .map(permTenant -> sysPermMap.get(permTenant.getSPermId()))
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .collect(Collectors.toList());
+
+             validDeptPermByTenant.put(tenantId, perms);
+         }
+
+         // 11.4 角色级有效权限 - 按租户分组（无级联禁用，cascadeDisable = null）
+         Map<Long, List<SysPermVO>> validRolePermByTenant = new HashMap<>();
+         for (Map.Entry<Long, Set<Long>> entry : roleIdsByTenant.entrySet()) {
+             Long tenantId = entry.getKey();
+             Set<Long> roleIds = entry.getValue();
+
+             // 获取这些角色的权限
+             List<PermRoleVO> rolePerms = permRolesByTRoleIds.stream()
+                     .flatMap(map -> map.values().stream())
+                     .flatMap(List::stream)
+                     .filter(permRole -> roleIds.contains(permRole.getTRoleId()))
+                     .filter(permRole -> permRole.getState() != null && permRole.getState()) // 只取启用的
+                     .toList();
+
+             // 获取租户权限ID列表
+             List<Long> tenantPermIdsByRole = rolePerms.stream()
+                     .map(PermRoleVO::getTPermId)
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .toList();
+
+             // 通过租户权限ID获取系统权限ID
+             // 首先获取租户权限信息
+             List<PermTenantVO> tenantPerms = new ArrayList<>();
+             if (!tenantPermIdsByRole.isEmpty()) {
+                 // 按照已有代码中的方式，通过租户ID获取租户权限信息
+                 List<Map<Long, List<PermTenantVO>>> permTenantsByTenantIdsRole = iPermTenantCommonService.getPermTenantsByTenantIds(Arrays.asList(tenantId));
+                 tenantPerms = permTenantsByTenantIdsRole.stream()
+                         .flatMap(map -> map.values().stream())
+                         .flatMap(List::stream)
+                         .filter(permTenant -> tenantPermIds.contains(permTenant.getId()))
+                         .toList();
+             }
+
+             // 建立租户权限ID到系统权限的映射
+             Map<Long, Long> tenantPermIdToSysPermId = tenantPerms.stream()
+                     .collect(Collectors.toMap(PermTenantVO::getId, PermTenantVO::getSPermId));
+
+             // 获取对应的系统权限
+             List<SysPermVO> perms = tenantPerms.stream()
+                     .map(permTenant -> sysPermMap.get(permTenant.getSPermId()))
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .collect(Collectors.toList());
+
+             validRolePermByTenant.put(tenantId, perms);
+         }
+
+         // 11.5 用户级有效权限 - 按租户分组（无级联禁用，cascadeDisable = null）
+         Map<Long, List<SysPermVO>> validUserPermByTenant = new HashMap<>();
+         // 遍历所有有效租户
+         for (Long tenantId : validTenantIds) {
+             // 获取该租户下的用户权限
+             List<SysPermVO> perms = new ArrayList<>();
+             for (Map<Long, List<PermUserVO>> userPermMap : permUsersByUserId) {
+                 for (Map.Entry<Long, List<PermUserVO>> entry : userPermMap.entrySet()) {
+                     Long userId = entry.getKey();
+                     List<PermUserVO> userPerms = entry.getValue();
+                     // 只处理指定用户的权限
+                     if (tUserIds.contains(userId)) {
+                         for (PermUserVO permUser : userPerms) {
+                             // 检查权限是否有效
+                             if (validUserPermIds.contains(permUser.getTPermId())
+                                     && permUser.getStatus() != null && permUser.getStatus()) {
+                                 // 通过租户权限ID获取系统权限
+                                 SysPermVO sysPerm = sysPermMap.get(permUser.getTPermId());
+                                 if (sysPerm != null) {
+                                     perms.add(sysPerm);
+                                 }
+                             }
+                         }
+                     }
+                 }
+             }
+             // 去重并添加到结果中
+             List<SysPermVO> distinctPerms = perms.stream().distinct().collect(Collectors.toList());
+             validUserPermByTenant.put(tenantId, distinctPerms);
+         }
+
+         // 12. 按租户分组组装各级禁用权限数据
+         // 12.1 系统级禁用权限 - 按租户分组（直接禁用，cascadeDisable = null）
+         Map<Long, List<SysPermVO>> disabledSysPermByTenant = validTenantIds.stream()
+                 .collect(Collectors.toMap(
+                         tenantId -> tenantId,
+                         tenantId -> disabledSysPerm.stream()
+                                 .collect(Collectors.toList())
+                 ));
+
+         // 12.2 租户级禁用权限 - 按租户分组（需要区分直接禁用和级联禁用）
+         Map<Long, List<SysPermVO>> disabledTenantPermByTenant = permTenantsByTenantIds.stream()
+                 .flatMap(map -> map.entrySet().stream())
+                 .filter(entry -> validTenantIds.contains(entry.getKey())) // 只处理有效租户
+                 .collect(Collectors.groupingBy(
+                         Map.Entry::getKey,
+                         Collectors.mapping(
+                                 entry -> entry.getValue().stream()
+                                         .filter(permTenant -> disabledTenantPermTenantIds.contains(permTenant.getId())
+                                                 || cascadeDisabledPermBySys.contains(permTenant.getId()))
+                                         .map(permTenant -> {
+                                             SysPermVO originalPerm = sysPermMap.get(permTenant.getSPermId());
+
+                                             // 判断是否为级联禁用
+                                             if (cascadeDisabledPermBySys.contains(permTenant.getId())) {
+                                                 // 因系统级权限禁用而级联禁用的租户级权限
+                                                 return new SysPermVO(
+                                                         originalPerm.getId(),
+                                                         originalPerm.getName(),
+                                                         originalPerm.getAlias(),
+                                                         originalPerm.getDesc(),
+                                                         originalPerm.getCreatedAt(),
+                                                         originalPerm.getUpdatedAt(),
+                                                         originalPerm.getCreatedById(),
+                                                         originalPerm.getUpdatedById(),
+                                                         originalPerm.getColor(),
+                                                         originalPerm.getState(),
+                                                         "system", // 设置级联禁用标识为 "system"
+                                                         originalPerm.getDeleted()
+                                                 );
+                                             } else {
+                                                 // 直接禁用的租户级权限，cascadeDisable 保持原值（通常为 null）
+                                                 return originalPerm;
+                                             }
+                                         })
+                                         .filter(Objects::nonNull)
+                                         .collect(Collectors.toList()),
+                                 Collectors.flatMapping(List::stream, Collectors.toList())
+                         )
+                 ));
+
+         // 12.3 部门级禁用权限 - 按租户分组（需要区分直接禁用和级联禁用）
+         Map<Long, List<SysPermVO>> disabledDeptPermByTenant = new HashMap<>();
+         for (Map.Entry<Long, Set<Long>> entry : deptIdsByTenant.entrySet()) {
+             Long tenantId = entry.getKey();
+             Set<Long> deptIds = entry.getValue();
+
+             // 获取这些部门的权限
+             List<PermDeptVO> deptPerms = permDeptsByTDeptIds.stream()
+                     .flatMap(map -> map.values().stream())
+                     .flatMap(List::stream)
+                     .filter(permDept -> deptIds.contains(permDept.getTDeptId()))
+                     .filter(permDept -> permDept.getState() == null || !permDept.getState()) // 只取禁用的
+                     .toList();
+
+             // 获取租户权限ID列表
+             List<Long> tenantPermIdsDept = deptPerms.stream()
+                     .map(PermDeptVO::getTPermId)
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .toList();
+
+             // 通过租户权限ID获取系统权限ID
+             // 首先获取租户权限信息
+             List<PermTenantVO> tenantPerms = new ArrayList<>();
+             if (!tenantPermIdsDept.isEmpty()) {
+                 // 按照已有代码中的方式，通过租户ID获取租户权限信息
+                 List<Map<Long, List<PermTenantVO>>> permTenantsByTenantIdsByDept = iPermTenantCommonService.getPermTenantsByTenantIds(Arrays.asList(tenantId));
+                 tenantPerms = permTenantsByTenantIdsByDept.stream()
+                         .flatMap(map -> map.values().stream())
+                         .flatMap(List::stream)
+                         .filter(permTenant -> tenantPermIds.contains(permTenant.getId()))
+                         .toList();
+             }
+
+             List<SysPermVO> perms = tenantPerms.stream()
+                     .map(permTenant -> {
+                         SysPermVO originalPerm = sysPermMap.get(permTenant.getSPermId());
+                         if (originalPerm != null) {
+                             // 因部门级权限禁用而级联禁用
+                             return new SysPermVO(
+                                     originalPerm.getId(),
+                                     originalPerm.getName(),
+                                     originalPerm.getAlias(),
+                                     originalPerm.getDesc(),
+                                     originalPerm.getCreatedAt(),
+                                     originalPerm.getUpdatedAt(),
+                                     originalPerm.getCreatedById(),
+                                     originalPerm.getUpdatedById(),
+                                     originalPerm.getColor(),
+                                     originalPerm.getState(),
+                                     "dept", // 设置级联禁用标识为 "dept"
+                                     originalPerm.getDeleted()
+                             );
+                         }
+                         return null;
+                     })
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .collect(Collectors.toList());
+
+             disabledDeptPermByTenant.put(tenantId, perms);
+         }
+
+         // 12.4 角色级禁用权限 - 按租户分组（需要区分直接禁用和级联禁用）
+         Map<Long, List<SysPermVO>> disabledRolePermByTenant = new HashMap<>();
+         for (Map.Entry<Long, Set<Long>> entry : roleIdsByTenant.entrySet()) {
+             Long tenantId = entry.getKey();
+             Set<Long> roleIds = entry.getValue();
+
+             // 获取这些角色的权限
+             List<PermRoleVO> rolePerms = permRolesByTRoleIds.stream()
+                     .flatMap(map -> map.values().stream())
+                     .flatMap(List::stream)
+                     .filter(permRole -> roleIds.contains(permRole.getTRoleId()))
+                     .filter(permRole -> permRole.getState() == null || !permRole.getState()) // 只取禁用的
+                     .toList();
+
+             // 获取租户权限ID列表
+             List<Long> tenantPermIdsRole = rolePerms.stream()
+                     .map(PermRoleVO::getTPermId)
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .toList();
+
+             // 通过租户权限ID获取系统权限ID
+             // 首先获取租户权限信息
+             List<PermTenantVO> tenantPerms = new ArrayList<>();
+             if (!tenantPermIdsRole.isEmpty()) {
+                 // 按照已有代码中的方式，通过租户ID获取租户权限信息
+                 List<Map<Long, List<PermTenantVO>>> permTenantsByTenantIdsByRole = iPermTenantCommonService.getPermTenantsByTenantIds(Arrays.asList(tenantId));
+                 tenantPerms = permTenantsByTenantIdsByRole.stream()
+                         .flatMap(map -> map.values().stream())
+                         .flatMap(List::stream)
+                         .filter(permTenant -> tenantPermIds.contains(permTenant.getId()))
+                         .toList();
+             }
+
+             List<SysPermVO> perms = tenantPerms.stream()
+                     .map(permTenant -> {
+                         SysPermVO originalPerm = sysPermMap.get(permTenant.getSPermId());
+                         if (originalPerm != null) {
+                             // 因角色级权限禁用而级联禁用
+                             return new SysPermVO(
+                                     originalPerm.getId(),
+                                     originalPerm.getName(),
+                                     originalPerm.getAlias(),
+                                     originalPerm.getDesc(),
+                                     originalPerm.getCreatedAt(),
+                                     originalPerm.getUpdatedAt(),
+                                     originalPerm.getCreatedById(),
+                                     originalPerm.getUpdatedById(),
+                                     originalPerm.getColor(),
+                                     originalPerm.getState(),
+                                     "role", // 设置级联禁用标识为 "role"
+                                     originalPerm.getDeleted()
+                             );
+                         }
+                         return null;
+                     })
+                     .filter(Objects::nonNull)
+                     .distinct()
+                     .collect(Collectors.toList());
+
+             disabledRolePermByTenant.put(tenantId, perms);
+         }
+
+         // 12.5 用户级禁用权限 - 按租户分组（需要区分直接禁用和级联禁用）
+         Map<Long, List<SysPermVO>> disabledUserPermByTenant = new HashMap<>();
+         // 遍历所有有效租户
+         for (Long tenantId : validTenantIds) {
+             // 获取该租户下的用户权限
+             List<SysPermVO> perms = new ArrayList<>();
+             for (Map<Long, List<PermUserVO>> userPermMap : permUsersByUserId) {
+                 for (Map.Entry<Long, List<PermUserVO>> entry : userPermMap.entrySet()) {
+                     Long userId = entry.getKey();
+                     List<PermUserVO> userPerms = entry.getValue();
+                     // 只处理指定用户的权限
+                     if (tUserIds.contains(userId)) {
+                         for (PermUserVO permUser : userPerms) {
+                             // 检查权限是否禁用
+                             if (disabledUserPermIds.contains(permUser.getTPermId())
+                                     || cascadeDisabledPermByTenant.contains(permUser.getTPermId())) {
+                                 // 通过租户权限ID获取系统权限
+                                 SysPermVO originalPerm = sysPermMap.get(permUser.getTPermId());
+                                 if (originalPerm != null) {
+                                     // 判断级联禁用的类型
+                                     if (cascadeDisabledPermBySys.contains(permUser.getTPermId())) {
+                                         // 因系统级权限禁用而级联禁用
+                                         perms.add(new SysPermVO(
+                                                 originalPerm.getId(),
+                                                 originalPerm.getName(),
+                                                 originalPerm.getAlias(),
+                                                 originalPerm.getDesc(),
+                                                 originalPerm.getCreatedAt(),
+                                                 originalPerm.getUpdatedAt(),
+                                                 originalPerm.getCreatedById(),
+                                                 originalPerm.getUpdatedById(),
+                                                 originalPerm.getColor(),
+                                                 originalPerm.getState(),
+                                                 "system", // 因系统级禁用而级联
+                                                 originalPerm.getDeleted()
+                                         ));
+                                     } else if (disabledTenantPermTenantIds.contains(permUser.getTPermId())) {
+                                         // 因租户级权限禁用而级联禁用
+                                         perms.add(new SysPermVO(
+                                                 originalPerm.getId(),
+                                                 originalPerm.getName(),
+                                                 originalPerm.getAlias(),
+                                                 originalPerm.getDesc(),
+                                                 originalPerm.getCreatedAt(),
+                                                 originalPerm.getUpdatedAt(),
+                                                 originalPerm.getCreatedById(),
+                                                 originalPerm.getUpdatedById(),
+                                                 originalPerm.getColor(),
+                                                 originalPerm.getState(),
+                                                 "tenant", // 因租户级禁用而级联
+                                                 originalPerm.getDeleted()
+                                         ));
+                                     } else {
+                                         // 直接禁用的用户级权限，cascadeDisable 保持原值（通常为 null）
+                                         perms.add(originalPerm);
+                                     }
+                                 }
+                             }
+                         }
+                     }
+                 }
+             }
+             // 去重并添加到结果中
+             List<SysPermVO> distinctPerms = perms.stream().distinct().collect(Collectors.toList());
+             disabledUserPermByTenant.put(tenantId, distinctPerms);
+         }
+
+         // 12.6 获取用户所绑定的禁用租户的权限，并将这些权限信息存储到disabledPermByTenant
+         Map<Long, List<SysPermVO>> disabledPermByTenant = permTenantsByTenantIds.stream()
+                 .flatMap(map -> map.entrySet().stream())
+                 .filter(entry -> disabledTenantIds.contains(entry.getKey())) // 只处理禁用租户
+                 .collect(Collectors.groupingBy(
+                         Map.Entry::getKey,
+                         Collectors.mapping(
+                                 entry -> entry.getValue().stream()
+                                         .map(permTenant -> {
+                                             SysPermVO originalPerm = sysPermMap.get(permTenant.getSPermId());
+                                             // 设置级联禁用标识为 "tenant"
+                                             if (originalPerm != null) {
+                                                 return new SysPermVO(
+                                                         originalPerm.getId(),
+                                                         originalPerm.getName(),
+                                                         originalPerm.getAlias(),
+                                                         originalPerm.getDesc(),
+                                                         originalPerm.getCreatedAt(),
+                                                         originalPerm.getUpdatedAt(),
+                                                         originalPerm.getCreatedById(),
+                                                         originalPerm.getUpdatedById(),
+                                                         originalPerm.getColor(),
+                                                         originalPerm.getState(),
+                                                         "tenant", // 因租户禁用而级联
+                                                         originalPerm.getDeleted()
+                                                 );
+                                             }
+                                             return null;
+                                         })
+                                         .filter(Objects::nonNull)
+                                         .collect(Collectors.toList()),
+                                 Collectors.flatMapping(List::stream, Collectors.toList())
+                         )
+                 ));
+
+         // 13. 获取用户在所有有效租户中的有效权限，组装为全局有效权限
+         Map<Long, List<SysPermVO>> validGlobalPerm = validTenantIds.stream()
+                 .collect(Collectors.toMap(
+                         tenantId -> tenantId,
+                         tenantId -> {
+                             // 合并系统级、租户级、部门级、角色级和用户级的有效权限
+                             List<SysPermVO> sysPerms = validSysPermByTenant.getOrDefault(tenantId, Collections.emptyList());
+                             List<SysPermVO> tenantPerms = validTenantPermByTenant.getOrDefault(tenantId, Collections.emptyList());
+                             List<SysPermVO> deptPerms = validDeptPermByTenant.getOrDefault(tenantId, Collections.emptyList());
+                             List<SysPermVO> rolePerms = validRolePermByTenant.getOrDefault(tenantId, Collections.emptyList());
+                             List<SysPermVO> userPerms = validUserPermByTenant.getOrDefault(tenantId, Collections.emptyList());
+
+                             // 合并所有有效权限并去重
+                             return Stream.of(sysPerms, tenantPerms, deptPerms, rolePerms, userPerms)
+                                     .flatMap(List::stream)
+                                     .distinct()
+                                     .collect(Collectors.toList());
+                         }
+                 ));
+
+         // 14. 获取用户在所有有效租户中的禁用权限，组装为全局禁用权限
+         Map<Long, List<SysPermVO>> disabledGlobalPerm = validTenantIds.stream()
+                 .collect(Collectors.toMap(
+                         tenantId -> tenantId,
+                         tenantId -> {
+                             // 合并系统级、租户级、部门级、角色级、用户级和因租户禁用而级联禁用的权限
+                             List<SysPermVO> sysPerms = disabledSysPermByTenant.getOrDefault(tenantId, Collections.emptyList());
+                             List<SysPermVO> tenantPerms = disabledTenantPermByTenant.getOrDefault(tenantId, Collections.emptyList());
+                             List<SysPermVO> deptPerms = disabledDeptPermByTenant.getOrDefault(tenantId, Collections.emptyList());
+                             List<SysPermVO> rolePerms = disabledRolePermByTenant.getOrDefault(tenantId, Collections.emptyList());
+                             List<SysPermVO> userPerms = disabledUserPermByTenant.getOrDefault(tenantId, Collections.emptyList());
+                             List<SysPermVO> tenantCascadePerms = disabledPermByTenant.getOrDefault(tenantId, Collections.emptyList());
+
+                             // 合并所有禁用权限并去重
+                             return Stream.of(sysPerms, tenantPerms, deptPerms, rolePerms, userPerms, tenantCascadePerms)
+                                     .flatMap(List::stream)
+                                     .distinct()
+                                     .collect(Collectors.toList());
+                         }
+                 ));
+
+         // 15. 确保每个租户都有对应的条目
+         allTenantIds.forEach(tenantId -> {
+             // 只有有效租户才需要在前几个字段中有条目
+             if (validTenantIds.contains(tenantId)) {
+                 validSysPermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                 validTenantPermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                 validDeptPermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                 validRolePermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                 validUserPermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                 disabledSysPermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                 disabledTenantPermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                 disabledDeptPermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                 disabledRolePermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                 disabledUserPermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+                 validGlobalPerm.putIfAbsent(tenantId, Collections.emptyList());
+                 disabledGlobalPerm.putIfAbsent(tenantId, Collections.emptyList());
+             }
+             // 所有租户（包括禁用租户）在disabledPermByTenant中都需要有条目
+             disabledPermByTenant.putIfAbsent(tenantId, Collections.emptyList());
+         });
+
+         // 16. 组装并返回结果
+         return new CheckPermVO(
+                 validSysPermByTenant,
+                 validTenantPermByTenant,
+                 validDeptPermByTenant,
+                 validRolePermByTenant,
+                 validUserPermByTenant,
+                 disabledSysPermByTenant,
+                 disabledTenantPermByTenant,
+                 disabledDeptPermByTenant,
+                 disabledRolePermByTenant,
+                 disabledUserPermByTenant,
+                 disabledPermByTenant,
+                 disabledDeptPermByTenant, // disabledPermByDept
+                 disabledRolePermByTenant, // disabledPermByRole
+                 validGlobalPerm,
+                 disabledGlobalPerm
+         );
+     }
 
     /**
      * 租户认证

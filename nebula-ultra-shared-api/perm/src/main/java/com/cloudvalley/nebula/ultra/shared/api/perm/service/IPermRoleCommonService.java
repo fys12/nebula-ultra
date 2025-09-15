@@ -64,5 +64,18 @@ public interface IPermRoleCommonService {
      */
     Set<Long> getPermIdsByRoleId(Long roleId);
 
+    /**
+     * 根据多个租户角色ID查询所有绑定的租户权限ID列表
+     * @param roleIds 租户角色ID列表
+     * @return Map结构，键为租户角色ID，值为该角色绑定的租户权限ID集合
+     */
+    Map<Long, Set<Long>> getPermIdsByRoleIds(List<Long> roleIds);
+
+    /**
+     * 根据多个租户权限ID查询所有绑定的租户角色ID列表
+     * @param permIds 租户权限ID列表
+     * @return Map结构，键为租户权限ID，值为该权限绑定的租户角色ID集合
+     */
+    Map<Long, Set<Long>> getRoleIdsByPermIds(List<Long> permIds);
 
 }

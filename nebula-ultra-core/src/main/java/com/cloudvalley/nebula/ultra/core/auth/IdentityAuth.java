@@ -68,71 +68,12 @@ public class IdentityAuth {
 
     /**
      * 权限认证
-     * @param tUserId 租户用户ID
+     * @param tUserIds 租户用户ID 列表
      * @param sTenantIds 有效租户ID 列表
      * @return 权限认证结果
      */
-    public CheckPermVO checkPerm(Long tUserId, List<Long> sTenantIds) {
-        // 1. 调用 租户认证
-
-        // 1.1 获取 用户 绑定的有效租户Id
-
-        // 1.2 获取 用户 绑定的禁用租户Id
-
-        // 1.3 根据 禁用租户Id 获取 绑定的权限 [ 因禁用的租户Id 级联禁用的 权限 ]
-
-        // 2. 调用 部门认证
-
-        // 2.1 获取 用户 绑定的有效部门Id
-
-        // 2.2 获取 用户 绑定的禁用部门Id
-
-        // 2.3 根据 禁用部门Id 查询 对应权限 [ 因禁用的部门Id 级联禁用的 权限 ]
-
-        // 3. 调用 角色认证
-
-        // 3.1 获取 用户 绑定的有效角色Id
-
-        // 3.2 获取 用户 绑定的禁用角色Id
-
-        // 3.3 根据 禁用角色Id 获取 绑定的权限 [ 因禁用的角色Id 级联禁用的 权限 ]
-
-        // 4. 根据 用户有效部门Id 查询 绑定的租户权限
-
-        // 5. 根据 用户有效角色Id 获取 绑定的租户权限
-
-        // 6. 根据 组合用户Id 查询 直接绑定的组合权限
-
-        // 7. 组合用户 绑定的租户权限 [ 所属 有效部门权限 + 有效角色权限 + 本身权限 ]
-
-        // 8. 根据 用户 绑定的租户权限Id 查询 绑定的 系统权限信息
-
-        // 8.1 获取 禁用系统权限Id [ 禁用权限 系统级 ]
-
-        // 8.2 获取 有效系统权限Id [ 有效权限 系统级 ]
-
-        // 8.3 获取 因系统权限禁用 级联禁用的对应的租户权限Id
-
-        // 9 获取 禁用租户权限Id [ 禁用权限 租户级 ]
-
-        // 9.1 获取 有效租户权限Id [ 有效权限 租户级 ]
-
-        // 10. 获取 禁用租户权限Id [ 禁用权限 部门级 ]
-
-        // 10.1 获取 有效租户权限Id [ 有效权限 部门级 ]
-
-        // 11. 获取 禁用租户权限Id [ 禁用权限 角色级 ]
-
-        // 11.1 获取 有效租户权限Id [ 有效权限 角色级 ]
-
-        // 12. 获取 禁用租户权限Id [ 禁用权限 用户级 ]
-
-        // 12.1 获取 有效租户权限Id [ 有效权限 用户级 ]
-
-        // 13. 组装 权限认证结果
-
+    public CheckPermVO checkPerm(List<Long> tUserIds, List<Long> sTenantIds) {
         return null;
-
     }
 
     /**
@@ -161,11 +102,11 @@ public class IdentityAuth {
 
     /**
      * 部门认证
-     * @param tUserId 租户用户ID
+     * @param tUserIds 租户用户ID 列表
      * @param sTenantIds 租户ID 列表
      * @return 部门认证结果
      */
-    public CheckDeptVO checkDept(Long tUserId, List<Long> sTenantIds) {
+    public CheckDeptVO checkDept(List<Long> tUserIds, List<Long> sTenantIds) {
         // 1. 调用 租户认证
         CheckTenantVO checkTenantVO = checkTenant(sTenantIds);
 
@@ -186,15 +127,22 @@ public class IdentityAuth {
         List<Map<Long, List<DeptTenantVO>>> deptTenantsBySTenantIds = iDeptTenantCommonService.getDeptTenantsBySTenantIds(allTenantIds);
 
         // 2.1 根据租户用户Id 查询 绑定 租户部门Id
-        Set<Long> deptIdsByUserId = iDeptUserCommonService.getDeptIdsByUserId(tUserId);
+        List<Map<Long, List<DeptUserVO>>> deptIdsByUserId = iDeptUserCommonService.getDeptUsersByUserIds(tUserIds);
 
         // 2.2 排除 其余租户部门信息 只保留 用户 绑定的部门信息（无论有效或禁用的租户）
+        // 首先提取用户绑定的所有部门ID
+        Set<Long> userDeptIds = deptIdsByUserId.stream()
+                .flatMap(map -> map.values().stream())
+                .flatMap(List::stream)
+                .map(DeptUserVO::getTDeptId)
+                .collect(Collectors.toSet());
+
         deptTenantsBySTenantIds = deptTenantsBySTenantIds.stream()
                 .map(tenantDeptMap -> tenantDeptMap.entrySet().stream()
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey,
                                 entry -> entry.getValue().stream()
-                                        .filter(deptTenant -> deptIdsByUserId.contains(deptTenant.getId()))
+                                        .filter(deptTenant -> userDeptIds.contains(deptTenant.getId()))
                                         .collect(Collectors.toList())
                         )))
                 .filter(map -> !map.isEmpty() || map.values().stream().anyMatch(list -> !list.isEmpty()))
@@ -265,10 +213,12 @@ public class IdentityAuth {
         ).distinct().toList();
 
         // 5. 根据 租户用户Id 查询 绑定 租户部门信息
-        List<DeptUserVO> deptUsersByUserId = iDeptUserCommonService.getDeptUsersByUserId(tUserId);
+        List<Map<Long, List<DeptUserVO>>> deptUsersByUserId = iDeptUserCommonService.getDeptUsersByUserIds(tUserIds);
 
         // 5.1 获取 禁用的 用户租户部门Id [ 禁用部门 用户级 ]
         List<Long> disabledUserDeptIds = deptUsersByUserId.stream()
+                .flatMap(map -> map.values().stream())
+                .flatMap(List::stream)
                 .filter(deptUser -> deptUser.getState() == null || !deptUser.getState())
                 .map(DeptUserVO::getTDeptId)
                 .toList();
@@ -462,7 +412,7 @@ public class IdentityAuth {
                         Collectors.mapping(
                                 entry -> entry.getValue().stream()
                                         // 只包含用户绑定的部门
-                                        .filter(deptTenant -> deptIdsByUserId.contains(deptTenant.getId()))
+                                        .filter(deptTenant -> userDeptIds.contains(deptTenant.getId()))
                                         .map(deptTenant -> {
                                             SysDeptVO originalDept = sysDeptsByIds.get(deptTenant.getSDeptId());
                                             // 设置级联禁用标识为 "tenant"
@@ -556,11 +506,11 @@ public class IdentityAuth {
 
     /**
      * 角色认证
-     * @param tUserId 租户用户ID
+     * @param tUserIds 租户用户ID 列表
      * @param sTenantIds 有效租户ID 列表
      * @return 角色认证结果
      */
-    public CheckRoleVO checkRole(Long tUserId, List<Long> sTenantIds) {
+    public CheckRoleVO checkRole(List<Long> tUserIds, List<Long> sTenantIds) {
         // 1. 调用 租户认证
         CheckTenantVO checkTenantVO = checkTenant(sTenantIds);
 
@@ -581,15 +531,22 @@ public class IdentityAuth {
         List<Map<Long, List<RoleTenantVO>>> roleTenantsBySTenantIds = iRoleTenantCommonService.getRoleTenantsByTenantIds(allTenantIds);
 
         // 2.1 根据租户用户Id 查询 绑定 租户角色Id
-        Set<Long> roleIdsByUserId = iRoleUserCommonService.getRoleIdsByUserId(tUserId);
+        List<Map<Long, List<RoleUserVO>>> roleIdsByUserId = iRoleUserCommonService.getRoleUsersByUserIds(tUserIds);
 
         // 2.2 排除 其余租户角色信息 只保留 用户 绑定的角色信息（无论有效或禁用的租户）
+        // 首先提取用户绑定的所有角色ID
+        Set<Long> userRoleIds = roleIdsByUserId.stream()
+                .flatMap(map -> map.values().stream())
+                .flatMap(List::stream)
+                .map(RoleUserVO::getTRoleId)
+                .collect(Collectors.toSet());
+
         roleTenantsBySTenantIds = roleTenantsBySTenantIds.stream()
                 .map(tenantRoleMap -> tenantRoleMap.entrySet().stream()
                         .collect(Collectors.toMap(
                                 Map.Entry::getKey,
                                 entry -> entry.getValue().stream()
-                                        .filter(roleTenant -> roleIdsByUserId.contains(roleTenant.getId()))
+                                        .filter(roleTenant -> userRoleIds.contains(roleTenant.getId()))
                                         .collect(Collectors.toList())
                         )))
                 .filter(map -> !map.isEmpty() || map.values().stream().anyMatch(list -> !list.isEmpty()))
@@ -660,10 +617,12 @@ public class IdentityAuth {
         ).distinct().toList();
 
         // 5. 根据 租户用户Id 查询 绑定 租户角色信息
-        List<RoleUserVO> roleUsersByUserId = iRoleUserCommonService.getRoleUsersByUserId(tUserId);
+        List<Map<Long, List<RoleUserVO>>> roleUsersByUserId = iRoleUserCommonService.getRoleUsersByUserIds(tUserIds);
 
         // 5.1 获取 禁用的 用户租户角色Id [ 禁用角色 用户级 ]
         List<Long> disabledUserRoleIds = roleUsersByUserId.stream()
+                .flatMap(map -> map.values().stream())
+                .flatMap(List::stream)
                 .filter(roleUser -> roleUser.getState() == null || !roleUser.getState())
                 .map(RoleUserVO::getTRoleId)
                 .toList();
@@ -860,7 +819,7 @@ public class IdentityAuth {
                         Collectors.mapping(
                                 entry -> entry.getValue().stream()
                                         // 只包含用户绑定的角色
-                                        .filter(roleTenant -> roleIdsByUserId.contains(roleTenant.getId()))
+                                        .filter(roleTenant -> userRoleIds.contains(roleTenant.getId()))
                                         .map(roleTenant -> {
                                             SysRoleVO originalRole = sysRolesByIds.get(roleTenant.getSRoleId());
                                             // 设置级联禁用标识为 "tenant"

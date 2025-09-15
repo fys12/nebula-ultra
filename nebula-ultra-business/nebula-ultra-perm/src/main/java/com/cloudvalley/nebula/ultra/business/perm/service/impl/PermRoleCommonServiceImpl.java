@@ -160,4 +160,52 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * 根据多个租户角色ID查询所有绑定的租户权限ID列表
+     * @param roleIds 租户角色ID列表
+     * @return Map结构，键为租户角色ID，值为该角色绑定的租户权限ID集合
+     */
+    @Override
+    public Map<Long, Set<Long>> getPermIdsByRoleIds(List<Long> roleIds) {
+        if (roleIds == null || roleIds.isEmpty()) {
+            return java.util.Collections.emptyMap();
+        }
+
+        LambdaQueryWrapper<PermRole> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(PermRole::getTRoleId, roleIds)
+                .eq(PermRole::getDeleted, false)
+                .select(PermRole::getTRoleId, PermRole::getTPermId);
+
+        List<PermRole> permRoles = this.list(queryWrapper);
+        return permRoles.stream()
+                .collect(Collectors.groupingBy(
+                        PermRole::getTRoleId,
+                        Collectors.mapping(PermRole::getTPermId, Collectors.toSet())
+                ));
+    }
+
+    /**
+     * 根据多个租户权限ID查询所有绑定的租户角色ID列表
+     * @param permIds 租户权限ID列表
+     * @return Map结构，键为租户权限ID，值为该权限绑定的租户角色ID集合
+     */
+    @Override
+    public Map<Long, Set<Long>> getRoleIdsByPermIds(List<Long> permIds) {
+        if (permIds == null || permIds.isEmpty()) {
+            return java.util.Collections.emptyMap();
+        }
+
+        LambdaQueryWrapper<PermRole> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(PermRole::getTPermId, permIds)
+                .eq(PermRole::getDeleted, false)
+                .select(PermRole::getTPermId, PermRole::getTRoleId);
+
+        List<PermRole> permRoles = this.list(queryWrapper);
+        return permRoles.stream()
+                .collect(Collectors.groupingBy(
+                        PermRole::getTPermId,
+                        Collectors.mapping(PermRole::getTRoleId, Collectors.toSet())
+                ));
+    }
+
 }

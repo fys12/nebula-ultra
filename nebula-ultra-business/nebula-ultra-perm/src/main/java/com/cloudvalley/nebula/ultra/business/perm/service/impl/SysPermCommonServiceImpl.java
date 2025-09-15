@@ -10,7 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.perm.service.ISysPermCommonServic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 public class SysPermCommonServiceImpl extends ServiceImpl<SysPermMapper, SysPerm> implements ISysPermCommonService {

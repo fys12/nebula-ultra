@@ -751,7 +751,10 @@ public class IdentityAuth {
                  disabledDeptPermByTenant, // disabledPermByDept
                  disabledRolePermByTenant, // disabledPermByRole
                  validGlobalPerm,
-                 disabledGlobalPerm
+                 disabledGlobalPerm,
+                 checkTenantVO,
+                 checkDeptVO,
+                 checkRoleVO
          );
      }
 
@@ -1125,10 +1128,25 @@ public class IdentityAuth {
                             List<SysDeptVO> tenantDepts = validTenantDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
                             List<SysDeptVO> userDepts = validUserDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
 
-                            // 合并所有有效部门并去重
-                            return Stream.of(sysDepts, tenantDepts, userDepts)
+                            // 合并所有有效部门
+                            List<SysDeptVO> allValidDepts = Stream.of(sysDepts, tenantDepts, userDepts)
                                     .flatMap(List::stream)
                                     .distinct()
+                                    .collect(Collectors.toList());
+
+                            // 获取需要排除的禁用部门（三个禁用集合的合并去重）
+                            List<SysDeptVO> disabledSysDepts = disabledSysDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysDeptVO> disabledTenantDepts = disabledTenantDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysDeptVO> disabledUserDepts = disabledUserDeptByTenant.getOrDefault(tenantId, Collections.emptyList());
+
+                            Set<Long> disabledDeptIds = Stream.of(disabledSysDepts, disabledTenantDepts, disabledUserDepts)
+                                    .flatMap(List::stream)
+                                    .map(SysDeptVO::getId)
+                                    .collect(Collectors.toSet());
+
+                            // 从所有有效部门中排除禁用部门
+                            return allValidDepts.stream()
+                                    .filter(dept -> !disabledDeptIds.contains(dept.getId()))
                                     .collect(Collectors.toList());
                         }
                 ));
@@ -1147,7 +1165,13 @@ public class IdentityAuth {
                             // 合并所有禁用部门并去重
                             return Stream.of(sysDepts, tenantDepts, userDepts, tenantCascadeDepts)
                                     .flatMap(List::stream)
-                                    .distinct()
+                                    .collect(Collectors.toMap(
+                                            SysDeptVO::getId, // 使用ID作为键
+                                            dept -> dept,     // 使用对象作为值
+                                            (existing, replacement) -> existing // 如果ID重复，保留第一个
+                                    ))
+                                    .values()
+                                    .stream()
                                     .collect(Collectors.toList());
                         }
                 ));
@@ -1533,10 +1557,25 @@ public class IdentityAuth {
                             List<SysRoleVO> tenantRoles = validTenantRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
                             List<SysRoleVO> userRoles = validUserRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
 
-                            // 合并所有有效角色并去重
-                            return Stream.of(sysRoles, tenantRoles, userRoles)
+                            // 合并所有有效角色
+                            List<SysRoleVO> allValidRoles = Stream.of(sysRoles, tenantRoles, userRoles)
                                     .flatMap(List::stream)
                                     .distinct()
+                                    .collect(Collectors.toList());
+
+                            // 获取需要排除的禁用角色（三个禁用集合的合并去重）
+                            List<SysRoleVO> disabledSysRoles = disabledSysRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysRoleVO> disabledTenantRoles = disabledTenantRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
+                            List<SysRoleVO> disabledUserRoles = disabledUserRoleByTenant.getOrDefault(tenantId, Collections.emptyList());
+
+                            Set<Long> disabledRoleIds = Stream.of(disabledSysRoles, disabledTenantRoles, disabledUserRoles)
+                                    .flatMap(List::stream)
+                                    .map(SysRoleVO::getId)
+                                    .collect(Collectors.toSet());
+
+                            // 从所有有效角色中排除禁用角色
+                            return allValidRoles.stream()
+                                    .filter(role -> !disabledRoleIds.contains(role.getId()))
                                     .collect(Collectors.toList());
                         }
                 ));

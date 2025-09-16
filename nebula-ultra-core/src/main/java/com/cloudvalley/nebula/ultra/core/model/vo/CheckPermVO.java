@@ -89,4 +89,19 @@ public class CheckPermVO {
      */
     Map<Long, List<SysPermVO>> disabledGlobalPerm;
 
+    /**
+     * 租户认证
+     */
+    CheckTenantVO checkTenantVO;
+
+    /**
+     * 部门认证
+     */
+    CheckDeptVO checkDeptVO;
+
+    /**
+     * 角色认证
+     */
+    CheckRoleVO checkRoleVO;
+
 }

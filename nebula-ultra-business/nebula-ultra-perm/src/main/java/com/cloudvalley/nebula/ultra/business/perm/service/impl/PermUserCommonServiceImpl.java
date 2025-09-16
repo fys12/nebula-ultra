@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.perm.service.IPermUserCommonServi
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class PermUserCommonServiceImpl extends ServiceImpl<PermUserMapper, PermU
     @Override
     public List<PermUserVO> getPermUsersByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<PermUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermUser::getId, ids)
@@ -77,7 +78,7 @@ public class PermUserCommonServiceImpl extends ServiceImpl<PermUserMapper, PermU
     @Override
     public List<Map<Long, List<PermUserVO>>> getPermUsersByTUserIds(List<Long> tUserIds) {
         if (tUserIds == null || tUserIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<PermUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermUser::getTUserId, tUserIds)
@@ -85,8 +86,8 @@ public class PermUserCommonServiceImpl extends ServiceImpl<PermUserMapper, PermU
                 .orderByDesc(PermUser::getCreatedAt);
         List<PermUser> entities = this.list(queryWrapper);
         List<PermUserVO> voList = permUserConverter.EnListToVOList(entities);
-        Map<Long, List<PermUserVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(PermUserVO::getTUserId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<PermUserVO>> grouped = voList.stream().collect(Collectors.groupingBy(PermUserVO::getTUserId));
+        return Collections.singletonList(grouped);
     }
 
     /**
@@ -112,7 +113,7 @@ public class PermUserCommonServiceImpl extends ServiceImpl<PermUserMapper, PermU
     @Override
     public List<Map<Long, List<PermUserVO>>> getPermUsersByTPermIds(List<Long> tPermIds) {
         if (tPermIds == null || tPermIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<PermUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermUser::getTPermId, tPermIds)
@@ -120,8 +121,8 @@ public class PermUserCommonServiceImpl extends ServiceImpl<PermUserMapper, PermU
                 .orderByDesc(PermUser::getCreatedAt);
         List<PermUser> entities = this.list(queryWrapper);
         List<PermUserVO> voList = permUserConverter.EnListToVOList(entities);
-        Map<Long, List<PermUserVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(PermUserVO::getTPermId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<PermUserVO>> grouped = voList.stream().collect(Collectors.groupingBy(PermUserVO::getTPermId));
+        return Collections.singletonList(grouped);
     }
 
     /**

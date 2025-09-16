@@ -40,7 +40,7 @@ public class PermUserVO {
     /**
      * 状态
      */
-    Boolean status;
+    Boolean state;
 
     /**
      * 软删

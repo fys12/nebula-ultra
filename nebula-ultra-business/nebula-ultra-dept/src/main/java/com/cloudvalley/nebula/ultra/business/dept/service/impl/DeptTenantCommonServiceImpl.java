@@ -75,9 +75,9 @@ public class DeptTenantCommonServiceImpl extends ServiceImpl<DeptTenantMapper, D
      * @return List<Map<Long, List<DeptTenantVO>>> 分组结果列表（单个Map，key：系统租户ID，value：对应租户的部门绑定VO列表；sTenantIds为空时返回空列表）
      */
     @Override
-    public List<Map<Long, List<DeptTenantVO>>> getDeptTenantsBySTenantIds(List<Long> sTenantIds) {
+    public Map<Long, List<DeptTenantVO>> getDeptTenantsBySTenantIds(List<Long> sTenantIds) {
         if (sTenantIds == null || sTenantIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<DeptTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(DeptTenant::getSTenantId, sTenantIds)
@@ -85,8 +85,7 @@ public class DeptTenantCommonServiceImpl extends ServiceImpl<DeptTenantMapper, D
                 .orderByDesc(DeptTenant::getCreatedAt);
         List<DeptTenant> entities = this.list(queryWrapper);
         List<DeptTenantVO> voList = deptTenantConverter.EnListToVOList(entities);
-        Map<Long, List<DeptTenantVO>> grouped = voList.stream().collect(Collectors.groupingBy(DeptTenantVO::getSTenantId));
-        return Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(DeptTenantVO::getSTenantId));
     }
 
     /**
@@ -110,9 +109,9 @@ public class DeptTenantCommonServiceImpl extends ServiceImpl<DeptTenantMapper, D
      * @return List<Map<Long, List<DeptTenantVO>>> 分组结果列表（单个Map，key：系统部门ID，value：对应部门的租户绑定VO列表；sDeptIds为空时返回空列表）
      */
     @Override
-    public List<Map<Long, List<DeptTenantVO>>> getDeptTenantsBySDeptIds(List<Long> sDeptIds) {
+    public Map<Long, List<DeptTenantVO>> getDeptTenantsBySDeptIds(List<Long> sDeptIds) {
         if (sDeptIds == null || sDeptIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<DeptTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(DeptTenant::getSDeptId, sDeptIds)
@@ -120,8 +119,7 @@ public class DeptTenantCommonServiceImpl extends ServiceImpl<DeptTenantMapper, D
                 .orderByDesc(DeptTenant::getCreatedAt);
         List<DeptTenant> entities = this.list(queryWrapper);
         List<DeptTenantVO> voList = deptTenantConverter.EnListToVOList(entities);
-        Map<Long, List<DeptTenantVO>> grouped = voList.stream().collect(Collectors.groupingBy(DeptTenantVO::getSDeptId));
-        return Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(DeptTenantVO::getSDeptId));
     }
 
     /**
@@ -202,6 +200,31 @@ public class DeptTenantCommonServiceImpl extends ServiceImpl<DeptTenantMapper, D
                         DeptTenant::getSDeptId,
                         Collectors.mapping(DeptTenant::getSTenantId, Collectors.toSet())
                 ));
+    }
+
+    /**
+     * 根据 租户Id列表 和 部门Id列表 查询 租户部门信息
+     * @param sTenantIds 租户Id列表
+     * @param sDeptIds 部门Id列表
+     * @return 按租户Id分组的绑定关系映射列表
+     */
+    @Override
+    public Map<Long, List<DeptTenantVO>> getDeptTenantsBySTenantIdsAndSDeptIds(List<Long> sTenantIds, List<Long> sDeptIds) {
+        if (sTenantIds == null || sTenantIds.isEmpty() || sDeptIds == null || sDeptIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        LambdaQueryWrapper<DeptTenant> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(DeptTenant::getSTenantId, sTenantIds)
+                .in(DeptTenant::getSDeptId, sDeptIds)
+                .eq(DeptTenant::getDeleted, false)
+                .orderByDesc(DeptTenant::getCreatedAt);
+
+        List<DeptTenant> entities = this.list(queryWrapper);
+        List<DeptTenantVO> voList = deptTenantConverter.EnListToVOList(entities);
+
+        return voList.stream()
+                .collect(Collectors.groupingBy(DeptTenantVO::getSTenantId));
     }
 
 }

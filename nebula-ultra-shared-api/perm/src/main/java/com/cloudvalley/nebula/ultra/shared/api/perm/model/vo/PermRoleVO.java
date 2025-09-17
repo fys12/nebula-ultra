@@ -43,6 +43,11 @@ public class PermRoleVO {
     LocalDateTime updatedAt;
 
     /**
+     * 标识颜色
+     */
+    String color;
+
+    /**
      * 是否启用
      */
     Boolean state;

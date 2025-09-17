@@ -48,7 +48,7 @@ public interface IPermRoleCommonService {
      * @param roleIds 租户角色ID列表
      * @return 包含一个 Map 的列表，键为 tRoleId，值为对应角色绑定的权限VO列表；输入为空时返回空列表
      */
-    List<Map<Long, List<PermRoleVO>>> getPermRolesByRoleIds(List<Long> roleIds);
+    Map<Long, List<PermRoleVO>> getPermRolesByRoleIds(List<Long> roleIds);
 
     /**
      * 根据租户权限ID查询所有绑定的租户角色ID列表

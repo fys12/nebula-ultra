@@ -79,9 +79,9 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
      * @return 单元素列表，包含一个 Map，key 为用户 ID，value 为该用户对应的部门 VO 列表
      */
     @Override
-    public List<Map<Long, List<DeptUserVO>>> getDeptUsersByUserIds(List<Long> userIds) {
+    public Map<Long, List<DeptUserVO>> getDeptUsersByUserIds(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return java.util.Collections.emptyMap();
         }
         LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(DeptUser::getTUserId, userIds)
@@ -89,8 +89,7 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
                 .orderByDesc(DeptUser::getCreatedAt);
         List<DeptUser> entities = this.list(queryWrapper);
         List<DeptUserVO> voList = deptUserConverter.EnListToVOList(entities);
-        Map<Long, List<DeptUserVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(DeptUserVO::getTUserId));
-        return java.util.Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(DeptUserVO::getTUserId));
     }
 
     /**

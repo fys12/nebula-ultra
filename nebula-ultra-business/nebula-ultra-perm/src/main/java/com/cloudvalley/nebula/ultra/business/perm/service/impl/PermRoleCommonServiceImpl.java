@@ -110,9 +110,9 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
      * @return 包含一个 Map 的列表，键为 tRoleId，值为对应角色的 PermRoleVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<PermRoleVO>>> getPermRolesByRoleIds(List<Long> roleIds) {
+    public Map<Long, List<PermRoleVO>> getPermRolesByRoleIds(List<Long> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return java.util.Collections.emptyMap();
         }
         LambdaQueryWrapper<PermRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermRole::getTRoleId, roleIds)
@@ -120,8 +120,7 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
                 .orderByDesc(PermRole::getCreatedAt);
         List<PermRole> entities = this.list(queryWrapper);
         List<PermRoleVO> voList = permRoleConverter.EnListToVOList(entities);
-        Map<Long, List<PermRoleVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(PermRoleVO::getTRoleId));
-        return java.util.Collections.singletonList(grouped);
+        return voList.stream().collect(java.util.stream.Collectors.groupingBy(PermRoleVO::getTRoleId));
     }
 
     /**

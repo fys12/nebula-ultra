@@ -34,7 +34,7 @@ public interface IDeptUserCommonService {
      * @param userIds 租户用户的主键ID列表（雪花算法ID）
      * @return List<Map<Long, List<DeptUserVO>>> 分组结果列表（单个Map，key为租户用户ID，value为该用户的部门分配VO列表）
      */
-    List<Map<Long, List<DeptUserVO>>> getDeptUsersByUserIds(List<Long> userIds);
+    Map<Long, List<DeptUserVO>> getDeptUsersByUserIds(List<Long> userIds);
 
     /**
      * 根据租户部门ID，全量查询该部门的租户用户分配关系

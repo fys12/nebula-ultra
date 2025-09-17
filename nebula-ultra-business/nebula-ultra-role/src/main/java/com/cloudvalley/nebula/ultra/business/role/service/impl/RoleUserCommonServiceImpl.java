@@ -75,9 +75,9 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
      * @return 包含一个 Map 的列表，键为 tUserId，值为对应用户的 RoleUserVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<RoleUserVO>>> getRoleUsersByUserIds(List<Long> userIds) {
+    public Map<Long, List<RoleUserVO>> getRoleUsersByUserIds(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return java.util.Collections.emptyMap();
         }
         LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(RoleUser::getTUserId, userIds)
@@ -85,8 +85,7 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
                 .orderByDesc(RoleUser::getCreatedAt);
         List<RoleUser> entities = this.list(queryWrapper);
         List<RoleUserVO> voList = roleUserConverter.EnListToVOList(entities);
-        Map<Long, List<RoleUserVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(RoleUserVO::getTUserId));
-        return java.util.Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(RoleUserVO::getTUserId));
     }
 
     /**

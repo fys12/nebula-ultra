@@ -64,9 +64,9 @@ public class PermTenantCommonServiceImpl extends ServiceImpl<PermTenantMapper, P
 
     /** 根据租户ID批量查询权限租户 [全量] - 批量返回分组结果 */
     @Override
-    public List<Map<Long, List<PermTenantVO>>> getPermTenantsByTenantIds(List<Long> tenantIds) {
+    public Map<Long, List<PermTenantVO>> getPermTenantsByTenantIds(List<Long> tenantIds) {
         if (tenantIds == null || tenantIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<PermTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermTenant::getSTenantId, tenantIds)
@@ -74,8 +74,7 @@ public class PermTenantCommonServiceImpl extends ServiceImpl<PermTenantMapper, P
                 .orderByDesc(PermTenant::getCreatedAt);
         List<PermTenant> entities = this.list(queryWrapper);
         List<PermTenantVO> voList = permTenantConverter.EnListToVOList(entities);
-        Map<Long, List<PermTenantVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(PermTenantVO::getSTenantId));
-        return java.util.Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(PermTenantVO::getSTenantId));
     }
 
     /** 根据权限ID查询权限租户 [全量] */

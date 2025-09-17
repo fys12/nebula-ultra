@@ -36,7 +36,7 @@ public interface IDeptTenantCommonService {
      * @param sTenantIds 系统租户ID列表
      * @return 按系统租户ID分组的绑定关系映射列表
      */
-    List<Map<Long, List<DeptTenantVO>>> getDeptTenantsBySTenantIds(List<Long> sTenantIds);
+    Map<Long, List<DeptTenantVO>> getDeptTenantsBySTenantIds(List<Long> sTenantIds);
 
     /**
      * 根据系统部门 id 查询绑定关系 [全量]
@@ -50,7 +50,7 @@ public interface IDeptTenantCommonService {
      * @param sDeptIds 系统部门ID列表
      * @return 按系统部门ID分组的绑定关系映射列表
      */
-    List<Map<Long, List<DeptTenantVO>>> getDeptTenantsBySDeptIds(List<Long> sDeptIds);
+    Map<Long, List<DeptTenantVO>> getDeptTenantsBySDeptIds(List<Long> sDeptIds);
 
     /**
      * 根据系统租户 ID 查询系统部门 ID 列表
@@ -80,4 +80,11 @@ public interface IDeptTenantCommonService {
      */
     Map<Long, Set<Long>> getSTenantIdsBySDeptIds(List<Long> sDeptIds);
 
+    /**
+     * 根据 租户Id列表 和 部门Id列表 查询 租户部门信息
+     * @param sTenantIds 租户Id列表
+     * @param sDeptIds 部门Id列表
+     * @return 按租户Id分组的绑定关系映射列表
+     */
+    Map<Long, List<DeptTenantVO>> getDeptTenantsBySTenantIdsAndSDeptIds(List<Long> sTenantIds, List<Long> sDeptIds);
 }

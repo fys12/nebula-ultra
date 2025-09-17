@@ -76,9 +76,9 @@ public class PermDeptCommonServiceImpl extends ServiceImpl<PermDeptMapper, PermD
      * @return 包含一个 Map 的列表，键为 tDeptId，值为对应部门的 PermDeptVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<PermDeptVO>>> getPermDeptsByTDeptIds(List<Long> tDeptIds) {
+    public Map<Long, List<PermDeptVO>> getPermDeptsByTDeptIds(List<Long> tDeptIds) {
         if (tDeptIds == null || tDeptIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<PermDept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermDept::getTDeptId, tDeptIds)
@@ -86,8 +86,7 @@ public class PermDeptCommonServiceImpl extends ServiceImpl<PermDeptMapper, PermD
                 .orderByDesc(PermDept::getCreatedAt);
         List<PermDept> entities = this.list(queryWrapper);
         List<PermDeptVO> voList = permDeptConverter.EnListToVOList(entities);
-        Map<Long, List<PermDeptVO>> grouped = voList.stream().collect(Collectors.groupingBy(PermDeptVO::getTDeptId));
-        return Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(PermDeptVO::getTDeptId));
     }
 
     /**
@@ -111,9 +110,9 @@ public class PermDeptCommonServiceImpl extends ServiceImpl<PermDeptMapper, PermD
      * @return 包含一个 Map 的列表，键为 tPermId，值为对应权限的部门VO列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<PermDeptVO>>> getPermDeptsByTPermIds(List<Long> tPermIds) {
+    public Map<Long, List<PermDeptVO>> getPermDeptsByTPermIds(List<Long> tPermIds) {
         if (tPermIds == null || tPermIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<PermDept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermDept::getTPermId, tPermIds)
@@ -121,8 +120,7 @@ public class PermDeptCommonServiceImpl extends ServiceImpl<PermDeptMapper, PermD
                 .orderByDesc(PermDept::getCreatedAt);
         List<PermDept> entities = this.list(queryWrapper);
         List<PermDeptVO> voList = permDeptConverter.EnListToVOList(entities);
-        Map<Long, List<PermDeptVO>> grouped = voList.stream().collect(Collectors.groupingBy(PermDeptVO::getTPermId));
-        return Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(PermDeptVO::getTPermId));
     }
 
     /**

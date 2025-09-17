@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.role.service.IRoleTenantCommonSer
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,9 +76,9 @@ public class RoleTenantCommonServiceImpl extends ServiceImpl<RoleTenantMapper, R
      * @return 包含一个 Map 的列表，键为 sTenantId，值为对应租户的 RoleTenantVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<RoleTenantVO>>> getRoleTenantsByTenantIds(List<Long> tenantIds) {
+    public Map<Long, List<RoleTenantVO>> getRoleTenantsByTenantIds(List<Long> tenantIds) {
         if (tenantIds == null || tenantIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<RoleTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(RoleTenant::getSTenantId, tenantIds)
@@ -85,8 +86,7 @@ public class RoleTenantCommonServiceImpl extends ServiceImpl<RoleTenantMapper, R
                 .orderByDesc(RoleTenant::getCreatedAt);
         List<RoleTenant> entities = this.list(queryWrapper);
         List<RoleTenantVO> voList = roleTenantConverter.EnListToVOList(entities);
-        Map<Long, List<RoleTenantVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(RoleTenantVO::getSTenantId));
-        return java.util.Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(RoleTenantVO::getSTenantId));
     }
 
     /**
@@ -110,9 +110,9 @@ public class RoleTenantCommonServiceImpl extends ServiceImpl<RoleTenantMapper, R
      * @return 包含一个 Map 的列表，键为 sRoleId，值为对应角色的 RoleTenantVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<RoleTenantVO>>> getRoleTenantsByRoleIds(List<Long> roleIds) {
+    public Map<Long, List<RoleTenantVO>> getRoleTenantsByRoleIds(List<Long> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<RoleTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(RoleTenant::getSRoleId, roleIds)
@@ -120,8 +120,7 @@ public class RoleTenantCommonServiceImpl extends ServiceImpl<RoleTenantMapper, R
                 .orderByDesc(RoleTenant::getCreatedAt);
         List<RoleTenant> entities = this.list(queryWrapper);
         List<RoleTenantVO> voList = roleTenantConverter.EnListToVOList(entities);
-        Map<Long, List<RoleTenantVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(RoleTenantVO::getSRoleId));
-        return java.util.Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(RoleTenantVO::getSRoleId));
     }
 
     /**
@@ -158,6 +157,31 @@ public class RoleTenantCommonServiceImpl extends ServiceImpl<RoleTenantMapper, R
         return roleTenants.stream()
                 .map(RoleTenant::getSTenantId)
                 .collect(Collectors.toSet());
+    }
+
+    /**
+     * 根据 有效租户Id列表 和 有效角色Id列表 查询 租户角色信息
+     * @param sTenantIds 租户Id列表
+     * @param sRoleIds 角色Id列表
+     * @return 按租户Id分组的绑定关系映射列表
+     */
+    @Override
+    public Map<Long, List<RoleTenantVO>> getRoleTenantsBySTenantIdsAndSRoleIds(List<Long> sTenantIds, List<Long> sRoleIds) {
+        if (sTenantIds == null || sTenantIds.isEmpty() || sRoleIds == null || sRoleIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        LambdaQueryWrapper<RoleTenant> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(RoleTenant::getSTenantId, sTenantIds)
+                .in(RoleTenant::getSRoleId, sRoleIds)
+                .eq(RoleTenant::getDeleted, false)
+                .orderByDesc(RoleTenant::getCreatedAt);
+
+        List<RoleTenant> entities = this.list(queryWrapper);
+        List<RoleTenantVO> voList = roleTenantConverter.EnListToVOList(entities);
+
+        return voList.stream()
+                .collect(Collectors.groupingBy(RoleTenantVO::getSTenantId));
     }
 
 }

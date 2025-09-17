@@ -76,9 +76,9 @@ public class PermUserCommonServiceImpl extends ServiceImpl<PermUserMapper, PermU
      * @return 包含一个 Map 的列表，键为 tUserId，值为对应用户的 PermUserVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<PermUserVO>>> getPermUsersByTUserIds(List<Long> tUserIds) {
+    public Map<Long, List<PermUserVO>> getPermUsersByTUserIds(List<Long> tUserIds) {
         if (tUserIds == null || tUserIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<PermUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermUser::getTUserId, tUserIds)
@@ -86,8 +86,7 @@ public class PermUserCommonServiceImpl extends ServiceImpl<PermUserMapper, PermU
                 .orderByDesc(PermUser::getCreatedAt);
         List<PermUser> entities = this.list(queryWrapper);
         List<PermUserVO> voList = permUserConverter.EnListToVOList(entities);
-        Map<Long, List<PermUserVO>> grouped = voList.stream().collect(Collectors.groupingBy(PermUserVO::getTUserId));
-        return Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(PermUserVO::getTUserId));
     }
 
     /**

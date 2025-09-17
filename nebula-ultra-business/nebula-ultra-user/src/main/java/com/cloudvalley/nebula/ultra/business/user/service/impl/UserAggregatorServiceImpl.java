@@ -133,8 +133,7 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
                 .toList();
 
         // 9. 根据租户部门ID查询部门-租户绑定关系，得到系统部门ID
-        List<Map<Long, List<DeptTenantVO>>> deptTenantMaps = iDeptTenantCommonService.getDeptTenantsBySTenantIds(new ArrayList<>(tenantIds));
-        Map<Long, List<DeptTenantVO>> deptTenantMap = deptTenantMaps.isEmpty() ? Map.of() : deptTenantMaps.get(0);
+        Map<Long, List<DeptTenantVO>> deptTenantMap = iDeptTenantCommonService.getDeptTenantsBySTenantIds(new ArrayList<>(tenantIds));
 
         // 10. 建立租户部门ID到系统部门ID的映射关系
         Map<Long, Long> tenantDeptToSystemDeptMap = deptTenantMap.values().stream()
@@ -162,8 +161,7 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
                 .toList();
 
         // 15. 根据租户角色ID查询角色-租户绑定关系，得到系统角色ID
-        List<Map<Long, List<RoleTenantVO>>> roleTenantMaps = iRoleTenantCommonService.getRoleTenantsByTenantIds(new ArrayList<>(tenantIds));
-        Map<Long, List<RoleTenantVO>> roleTenantMap = roleTenantMaps.isEmpty() ? Map.of() : roleTenantMaps.get(0);
+        Map<Long, List<RoleTenantVO>> roleTenantMap = iRoleTenantCommonService.getRoleTenantsByTenantIds(new ArrayList<>(tenantIds));
 
         // 16. 建立租户角色ID到系统角色ID的映射关系
         Map<Long, Long> tenantRoleToSystemRoleMap = roleTenantMap.values().stream()

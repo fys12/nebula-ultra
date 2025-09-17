@@ -34,7 +34,7 @@ public interface IPermDeptCommonService {
      * @param tDeptIds 租户部门ID列表
      * @return 列表中包含一个 Map，键为 tDeptId，值为对应部门的 PermDeptVO 列表
      */
-    List<Map<Long, List<PermDeptVO>>> getPermDeptsByTDeptIds(List<Long> tDeptIds);
+    Map<Long, List<PermDeptVO>> getPermDeptsByTDeptIds(List<Long> tDeptIds);
 
     /**
      * 根据租户权限ID全量查询使用该权限的部门列表
@@ -48,7 +48,7 @@ public interface IPermDeptCommonService {
      * @param tPermIds 租户权限ID列表
      * @return 列表中包含一个 Map，键为 tPermId，值为对应权限的部门VO列表
      */
-    List<Map<Long, List<PermDeptVO>>> getPermDeptsByTPermIds(List<Long> tPermIds);
+    Map<Long, List<PermDeptVO>> getPermDeptsByTPermIds(List<Long> tPermIds);
 
     /**
      * 根据租户部门ID查询其拥有的所有租户权限ID列表

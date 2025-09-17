@@ -34,7 +34,7 @@ public interface IRoleTenantCommonService {
      * @param tenantIds 系统租户ID列表
      * @return 包含一个 Map 的列表，键为 sTenantId，值为对应租户的 RoleTenantVO 列表；输入为空时返回空列表
      */
-    List<Map<Long, List<RoleTenantVO>>> getRoleTenantsByTenantIds(List<Long> tenantIds);
+    Map<Long, List<RoleTenantVO>> getRoleTenantsByTenantIds(List<Long> tenantIds);
 
     /**
      * 根据系统角色ID全量查询其绑定的租户列表（查看某角色被哪些租户使用）
@@ -48,7 +48,7 @@ public interface IRoleTenantCommonService {
      * @param roleIds 系统角色ID列表
      * @return 包含一个 Map 的列表，键为 sRoleId，值为对应角色的 RoleTenantVO 列表；输入为空时返回空列表
      */
-    List<Map<Long, List<RoleTenantVO>>> getRoleTenantsByRoleIds(List<Long> roleIds);
+    Map<Long, List<RoleTenantVO>> getRoleTenantsByRoleIds(List<Long> roleIds);
 
     /**
      * 根据系统租户ID查询其拥有的所有系统角色ID列表
@@ -63,5 +63,13 @@ public interface IRoleTenantCommonService {
      * @return 绑定该角色的系统租户ID去重集合（仅包含未软删且启用的记录）
      */
     Set<Long> getTenantIdsByRoleId(Long roleId);
+
+    /**
+     * 根据 有效租户Id列表 和 有效角色Id列表 查询 租户角色信息
+     * @param sTenantIds 租户Id列表
+     * @param sRoleIds 角色Id列表
+     * @return 按租户Id分组的绑定关系映射列表
+     */
+    Map<Long, List<RoleTenantVO>> getRoleTenantsBySTenantIdsAndSRoleIds(List<Long> sTenantIds, List<Long> sRoleIds);
 
 }

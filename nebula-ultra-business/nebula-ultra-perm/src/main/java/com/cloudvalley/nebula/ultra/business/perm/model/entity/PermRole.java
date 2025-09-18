@@ -42,11 +42,6 @@ public class PermRole implements Serializable {
     private Long tRoleId;
 
     /**
-     * 软删
-     */
-    private Boolean deleted;
-
-    /**
      * 创建时间
      */
     private LocalDateTime createdAt;
@@ -57,9 +52,19 @@ public class PermRole implements Serializable {
     private LocalDateTime updatedAt;
 
     /**
+     * 色标
+     */
+    private String color;
+
+    /**
      * 是否启用
      */
     private Boolean state;
+
+    /**
+     * 软删
+     */
+    private Boolean deleted;
 
 
 }

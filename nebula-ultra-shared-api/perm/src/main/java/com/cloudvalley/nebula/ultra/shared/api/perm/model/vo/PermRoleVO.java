@@ -28,11 +28,6 @@ public class PermRoleVO {
     Long tRoleId;
 
     /**
-     * 软删
-     */
-    Boolean deleted;
-
-    /**
      * 创建时间
      */
     LocalDateTime createdAt;
@@ -51,5 +46,10 @@ public class PermRoleVO {
      * 是否启用
      */
     Boolean state;
+
+    /**
+     * 软删
+     */
+    Boolean deleted;
 
 }

@@ -74,7 +74,7 @@ public class TenantSubscribe implements Serializable {
     /**
      * 状态：active/expired/cancelled/pending
      */
-    private String status;
+    private String state;
 
     /**
      * 软删

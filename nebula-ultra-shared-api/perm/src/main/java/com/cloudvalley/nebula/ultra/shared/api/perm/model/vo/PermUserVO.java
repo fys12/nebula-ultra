@@ -38,6 +38,11 @@ public class PermUserVO {
     LocalDateTime updatedAt;
 
     /**
+     * 标识颜色
+     */
+    String color;
+
+    /**
      * 状态
      */
     Boolean state;

@@ -206,7 +206,7 @@ public class TenantSubscribeServiceImpl extends ServiceImpl<TenantSubscribeMappe
             tenantSubscribe.setDeleted(false);
         }
         if (tenantSubscribeRTO.getStatus() == null) {
-            tenantSubscribe.setStatus("pending");
+            tenantSubscribe.setState("pending");
         }
 
         return this.save(tenantSubscribe);
@@ -247,7 +247,7 @@ public class TenantSubscribeServiceImpl extends ServiceImpl<TenantSubscribeMappe
         LambdaUpdateWrapper<TenantSubscribe> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(TenantSubscribe::getId, id)
                 .eq(TenantSubscribe::getDeleted, false)
-                .set(TenantSubscribe::getStatus, status)
+                .set(TenantSubscribe::getState, status)
                 .set(TenantSubscribe::getUpdatedAt, GeneratorUtils.generateCurrentTime());
 
         return this.update(updateWrapper);

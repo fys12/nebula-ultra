@@ -37,6 +37,11 @@ public class PermDeptRTO {
     private LocalDateTime updatedAt;
 
     /**
+     * 色标
+     */
+    private String color;
+
+    /**
      * 是否启用
      */
     private Boolean state;

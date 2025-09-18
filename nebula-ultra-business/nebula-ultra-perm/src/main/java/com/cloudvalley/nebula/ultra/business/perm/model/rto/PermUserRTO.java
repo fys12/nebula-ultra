@@ -37,9 +37,14 @@ public class PermUserRTO {
     private LocalDateTime updatedAt;
 
     /**
+     * 色标
+     */
+    private String color;
+
+    /**
      * 状态
      */
-    private Boolean status;
+    private Boolean state;
 
     /**
      * 软删

@@ -35,7 +35,7 @@ public interface IGroupBindDeptCommonService {
      * @param sGroupIds 系统组ID列表
      * @return 分组结果
      */
-    List<Map<Long, List<GroupBindDeptVO>>> getGroupBindDeptsBySGroupIds(List<Long> sGroupIds);
+    Map<Long, List<GroupBindDeptVO>> getGroupBindDeptsBySGroupIds(List<Long> sGroupIds);
 
     /**
      * 根据租户部门ID查询绑定关系 [全量]
@@ -49,7 +49,7 @@ public interface IGroupBindDeptCommonService {
      * @param tDeptIds 租户部门ID列表
      * @return 分组结果
      */
-    List<Map<Long, List<GroupBindDeptVO>>> getGroupBindDeptsByTDeptIds(List<Long> tDeptIds);
+    Map<Long, List<GroupBindDeptVO>> getGroupBindDeptsByTDeptIds(List<Long> tDeptIds);
 
     /**
      * 根据系统组ID查询租户部门ID列表

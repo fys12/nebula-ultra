@@ -79,9 +79,9 @@ public class ComboRoleCommonServiceImpl extends ServiceImpl<ComboRoleMapper, Com
      * @return 按系统套餐ID分组的套餐-角色绑定关系VO列表，若ID列表为空则返回空列表
      */
     @Override
-    public List<Map<Long, List<ComboRoleVO>>> getComboRolesBySComboIds(List<Long> sComboIds) {
+    public Map<Long, List<ComboRoleVO>> getComboRolesBySComboIds(List<Long> sComboIds) {
         if (sComboIds == null || sComboIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<ComboRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ComboRole::getSComboId, sComboIds)
@@ -90,7 +90,7 @@ public class ComboRoleCommonServiceImpl extends ServiceImpl<ComboRoleMapper, Com
         List<ComboRole> entities = this.list(queryWrapper);
         List<ComboRoleVO> voList = comboRoleConverter.EnListToVOList(entities);
         Map<Long, List<ComboRoleVO>> grouped = voList.stream().collect(Collectors.groupingBy(ComboRoleVO::getSComboId));
-        return Collections.singletonList(grouped);
+        return grouped;
     }
 
     /**
@@ -116,9 +116,9 @@ public class ComboRoleCommonServiceImpl extends ServiceImpl<ComboRoleMapper, Com
      * @return 按系统角色ID分组的套餐-角色绑定关系VO列表，若ID列表为空则返回空列表
      */
     @Override
-    public List<Map<Long, List<ComboRoleVO>>> getComboRolesBySRoleIds(List<Long> sRoleIds) {
+    public Map<Long, List<ComboRoleVO>> getComboRolesBySRoleIds(List<Long> sRoleIds) {
         if (sRoleIds == null || sRoleIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<ComboRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ComboRole::getSRoleId, sRoleIds)
@@ -127,7 +127,7 @@ public class ComboRoleCommonServiceImpl extends ServiceImpl<ComboRoleMapper, Com
         List<ComboRole> entities = this.list(queryWrapper);
         List<ComboRoleVO> voList = comboRoleConverter.EnListToVOList(entities);
         Map<Long, List<ComboRoleVO>> grouped = voList.stream().collect(Collectors.groupingBy(ComboRoleVO::getSRoleId));
-        return Collections.singletonList(grouped);
+        return grouped;
     }
 
     /**

@@ -10,8 +10,10 @@ import com.cloudvalley.nebula.ultra.shared.api.role.service.ISysRoleCommonServic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SysRoleCommonServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> implements ISysRoleCommonService {
@@ -42,7 +44,7 @@ public class SysRoleCommonServiceImpl extends ServiceImpl<SysRoleMapper, SysRole
     @Override
     public Map<Long, SysRoleVO> getSysRolesByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<SysRole> queryWrapper = new LambdaQueryWrapper<>();
@@ -54,7 +56,7 @@ public class SysRoleCommonServiceImpl extends ServiceImpl<SysRoleMapper, SysRole
         List<SysRoleVO> voList = sysRoleConverter.EnListToVOList(list);
 
         return voList.stream()
-                .collect(java.util.stream.Collectors.toMap(
+                .collect(Collectors.toMap(
                         SysRoleVO::getId,
                         vo -> vo
                 ));

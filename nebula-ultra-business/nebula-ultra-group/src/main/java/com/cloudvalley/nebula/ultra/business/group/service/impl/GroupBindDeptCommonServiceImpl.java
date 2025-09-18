@@ -80,9 +80,9 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public List<Map<Long, List<GroupBindDeptVO>>> getGroupBindDeptsBySGroupIds(List<Long> sGroupIds) {
+    public Map<Long, List<GroupBindDeptVO>> getGroupBindDeptsBySGroupIds(List<Long> sGroupIds) {
         if (sGroupIds == null || sGroupIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupBindDept::getSGroupId, sGroupIds)
@@ -91,7 +91,7 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
         List<GroupBindDept> entities = this.list(queryWrapper);
         List<GroupBindDeptVO> voList = groupBindDeptConverter.EnListToVOList(entities);
         Map<Long, List<GroupBindDeptVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupBindDeptVO::getSGroupId));
-        return Collections.singletonList(grouped);
+        return grouped;
     }
 
 
@@ -119,9 +119,9 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public List<Map<Long, List<GroupBindDeptVO>>> getGroupBindDeptsByTDeptIds(List<Long> tDeptIds) {
+    public Map<Long, List<GroupBindDeptVO>> getGroupBindDeptsByTDeptIds(List<Long> tDeptIds) {
         if (tDeptIds == null || tDeptIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupBindDept::getTDeptId, tDeptIds)
@@ -130,7 +130,7 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
         List<GroupBindDept> entities = this.list(queryWrapper);
         List<GroupBindDeptVO> voList = groupBindDeptConverter.EnListToVOList(entities);
         Map<Long, List<GroupBindDeptVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupBindDeptVO::getTDeptId));
-        return Collections.singletonList(grouped);
+        return grouped;
     }
 
 

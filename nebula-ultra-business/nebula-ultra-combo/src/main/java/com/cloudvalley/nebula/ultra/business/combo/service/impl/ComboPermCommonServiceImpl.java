@@ -79,9 +79,9 @@ public class ComboPermCommonServiceImpl extends ServiceImpl<ComboPermMapper, Com
      * @return 包含一个Map的列表，Map中key为系统套餐ID，value为对应的绑定关系VO列表；若参数为空则返回空列表
      */
     @Override
-    public List<Map<Long, List<ComboPermVO>>> getComboPermsBySComboIds(List<Long> sComboIds) {
+    public Map<Long, List<ComboPermVO>> getComboPermsBySComboIds(List<Long> sComboIds) {
         if (sComboIds == null || sComboIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();  // 修改1：返回空Map而不是空List
         }
 
         // 构建查询条件
@@ -100,8 +100,7 @@ public class ComboPermCommonServiceImpl extends ServiceImpl<ComboPermMapper, Com
         Map<Long, List<ComboPermVO>> groupedMap = voList.stream()
                 .collect(Collectors.groupingBy(ComboPermVO::getSComboId));
 
-        // 将Map包装在List中返回，保持与分页方法返回类型的一致性
-        return Collections.singletonList(groupedMap);
+        return groupedMap;
     }
 
     /**
@@ -127,9 +126,9 @@ public class ComboPermCommonServiceImpl extends ServiceImpl<ComboPermMapper, Com
      * @return 包含一个Map的列表，Map中key为系统权限ID，value为对应的绑定关系VO列表；若参数为空则返回空列表
      */
     @Override
-    public List<Map<Long, List<ComboPermVO>>> getComboPermsBySPermIds(List<Long> sPermIds) {
+    public Map<Long, List<ComboPermVO>> getComboPermsBySPermIds(List<Long> sPermIds) {
         if (sPermIds == null || sPermIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();  // 修改1：返回空Map而不是空List
         }
 
         // 构建查询条件
@@ -148,8 +147,7 @@ public class ComboPermCommonServiceImpl extends ServiceImpl<ComboPermMapper, Com
         Map<Long, List<ComboPermVO>> groupedMap = voList.stream()
                 .collect(Collectors.groupingBy(ComboPermVO::getSPermId));
 
-        // 将Map包装在List中返回，保持与分页方法返回类型的一致性
-        return Collections.singletonList(groupedMap);
+        return groupedMap;
     }
 
     /**

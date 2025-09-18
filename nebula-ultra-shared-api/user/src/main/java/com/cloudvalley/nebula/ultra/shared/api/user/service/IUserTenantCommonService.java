@@ -37,7 +37,7 @@ public interface IUserTenantCommonService {
      * @param tenantIds 租户ID列表
      * @return 单元素列表，包含一个 Map<Long, List<UserTenantVO>>，键为租户ID，值为对应用户列表
      */
-    List<Map<Long, List<UserTenantVO>>> getUserTenantsByTenantIds(List<Long> tenantIds);
+    Map<Long, List<UserTenantVO>> getUserTenantsByTenantIds(List<Long> tenantIds);
 
     /**
      * 根据用户ID查询该用户所属的所有租户关联信息（全量数据）。
@@ -53,7 +53,7 @@ public interface IUserTenantCommonService {
      * @param userIds 用户ID列表
      * @return 单元素列表，包含一个 Map<Long, List<UserTenantVO>>，键为用户ID，值为对应租户列表
      */
-    List<Map<Long, List<UserTenantVO>>> getUserTenantsByUserIds(List<Long> userIds);
+    Map<Long, List<UserTenantVO>> getUserTenantsByUserIds(List<Long> userIds);
 
     /**
      * 根据租户ID查询用户ID列表

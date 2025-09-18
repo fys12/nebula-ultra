@@ -34,7 +34,7 @@ public interface IComboQuotaCommonService {
      * @param sComboIds 系统套餐ID列表
      * @return 分组结果
      */
-    List<Map<Long, List<ComboQuotaVO>>> getComboQuotasBySComboIds(List<Long> sComboIds);
+    Map<Long, List<ComboQuotaVO>> getComboQuotasBySComboIds(List<Long> sComboIds);
 
     /**
      * 根据系统配额 id 查询配额配置 [全量]
@@ -48,7 +48,7 @@ public interface IComboQuotaCommonService {
      * @param sQuotaIds 系统配额ID列表
      * @return 分组结果
      */
-    List<Map<Long, List<ComboQuotaVO>>> getComboQuotasBySQuotaIds(List<Long> sQuotaIds);
+    Map<Long, List<ComboQuotaVO>> getComboQuotasBySQuotaIds(List<Long> sQuotaIds);
 
     /**
      * 根据系统套餐 ID 查询系统配额 ID 列表

@@ -10,8 +10,10 @@ import com.cloudvalley.nebula.ultra.shared.api.dept.service.ISysDeptCommonServic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SysDeptCommonServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> implements ISysDeptCommonService {
@@ -42,7 +44,7 @@ public class SysDeptCommonServiceImpl extends ServiceImpl<SysDeptMapper, SysDept
     @Override
     public Map<Long, SysDeptVO> getSysDeptsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<SysDept> queryWrapper = new LambdaQueryWrapper<>();
@@ -53,7 +55,7 @@ public class SysDeptCommonServiceImpl extends ServiceImpl<SysDeptMapper, SysDept
         List<SysDeptVO> voList = sysDeptConverter.EnListToVOList(entities);
 
         return voList.stream()
-                .collect(java.util.stream.Collectors.toMap(
+                .collect(Collectors.toMap(
                         SysDeptVO::getId,
                         vo -> vo
                 ));

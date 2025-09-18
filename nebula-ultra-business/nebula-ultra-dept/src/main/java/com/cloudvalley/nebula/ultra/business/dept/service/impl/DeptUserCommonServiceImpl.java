@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.dept.service.IDeptUserCommonServi
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +47,7 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
     @Override
     public List<DeptUserVO> getDeptUsersByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(DeptUser::getId, ids)
@@ -81,7 +82,7 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
     @Override
     public Map<Long, List<DeptUserVO>> getDeptUsersByUserIds(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(DeptUser::getTUserId, userIds)
@@ -115,9 +116,9 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
      * @return 单元素列表，包含一个 Map，key 为部门 ID，value 为该部门下的用户 VO 列表
      */
     @Override
-    public List<Map<Long, List<DeptUserVO>>> getDeptUsersByDeptIds(List<Long> deptIds) {
+    public Map<Long, List<DeptUserVO>> getDeptUsersByDeptIds(List<Long> deptIds) {
         if (deptIds == null || deptIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(DeptUser::getTDeptId, deptIds)
@@ -125,8 +126,8 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
                 .orderByDesc(DeptUser::getCreatedAt);
         List<DeptUser> entities = this.list(queryWrapper);
         List<DeptUserVO> voList = deptUserConverter.EnListToVOList(entities);
-        Map<Long, List<DeptUserVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(DeptUserVO::getTDeptId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<DeptUserVO>> grouped = voList.stream().collect(Collectors.groupingBy(DeptUserVO::getTDeptId));
+        return grouped;
     }
 
     /**
@@ -175,7 +176,7 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
     @Override
     public Map<Long, Set<Long>> getDeptIdsByUserIds(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();
@@ -199,7 +200,7 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
     @Override
     public Map<Long, Set<Long>> getUserIdsByDeptIds(List<Long> deptIds) {
         if (deptIds == null || deptIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();

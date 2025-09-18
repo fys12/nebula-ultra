@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.quoat.service.ISysQuotaCommonServ
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -41,7 +42,7 @@ public class SysQuotaCommonServiceImpl extends ServiceImpl<SysQuotaMapper, SysQu
     @Override
     public List<SysQuotaVO> getSysQuotasByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<SysQuota> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(SysQuota::getId, ids)

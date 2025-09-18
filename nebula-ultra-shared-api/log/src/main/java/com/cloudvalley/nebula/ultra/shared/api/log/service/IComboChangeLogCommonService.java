@@ -33,7 +33,7 @@ public interface IComboChangeLogCommonService {
      * @param sTenantIds 系统租户ID列表
      * @return 分组结果列表，每个元素是一个Map，键为sTenantId，值为对应的日志VO列表
      */
-    List<Map<Long, List<ComboChangeLogVO>>> getComboChangeLogsBySTenantIds(List<Long> sTenantIds);
+    Map<Long, List<ComboChangeLogVO>> getComboChangeLogsBySTenantIds(List<Long> sTenantIds);
 
     /**
      * 根据旧系统套餐ID查询所有关联的套餐变更日志（全量数据）
@@ -47,7 +47,7 @@ public interface IComboChangeLogCommonService {
      * @param oldSComboIds 旧系统套餐ID列表
      * @return 分组结果列表，每个元素是一个Map，键为oldSComboId，值为对应的日志VO列表
      */
-    List<Map<Long, List<ComboChangeLogVO>>> getComboChangeLogsByOldSComboIds(List<Long> oldSComboIds);
+    Map<Long, List<ComboChangeLogVO>> getComboChangeLogsByOldSComboIds(List<Long> oldSComboIds);
 
     /**
      * 根据新系统套餐ID查询所有关联的套餐变更日志（全量数据）

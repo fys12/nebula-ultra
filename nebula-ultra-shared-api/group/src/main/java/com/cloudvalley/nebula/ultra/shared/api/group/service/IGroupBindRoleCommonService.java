@@ -38,7 +38,7 @@ public interface IGroupBindRoleCommonService {
      * @param groupIds 系统组ID列表
      * @return 分组结果列表，每个元素为 Map<groupId, VO列表>
      */
-    List<Map<Long, List<GroupBindRoleVO>>> getGroupBindRolesByGroupIds(List<Long> groupIds);
+    Map<Long, List<GroupBindRoleVO>> getGroupBindRolesByGroupIds(List<Long> groupIds);
 
     /**
      * 根据租户角色ID查询所有绑定该角色的系统组 [全量]
@@ -54,7 +54,7 @@ public interface IGroupBindRoleCommonService {
      * @param roleIds 租户角色ID列表
      * @return 分组结果列表，每个元素为 Map<roleId, VO列表>
      */
-    List<Map<Long, List<GroupBindRoleVO>>> getGroupBindRolesByRoleIds(List<Long> roleIds);
+    Map<Long, List<GroupBindRoleVO>> getGroupBindRolesByRoleIds(List<Long> roleIds);
 
     /**
      * 根据系统组ID查询租户角色ID列表

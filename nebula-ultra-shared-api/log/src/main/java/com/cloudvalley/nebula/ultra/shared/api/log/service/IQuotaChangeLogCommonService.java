@@ -33,7 +33,7 @@ public interface IQuotaChangeLogCommonService {
      * @param tQuotaIds 租户配额ID列表
      * @return 包含一个Map的列表，Map的键为tQuotaId，值为对应配额的变更日志VO列表
      */
-    List<Map<Long, List<QuotaChangeLogVO>>> getQuotaChangeLogsByTQuotaIds(List<Long> tQuotaIds);
+    Map<Long, List<QuotaChangeLogVO>> getQuotaChangeLogsByTQuotaIds(List<Long> tQuotaIds);
 
     /**
      * 根据申请人系统用户ID查询其申请的所有配额变更日志（全量数据）
@@ -47,7 +47,7 @@ public interface IQuotaChangeLogCommonService {
      * @param applicantSUserIds 申请人系统用户ID列表
      * @return 包含一个Map的列表，Map的键为applicantSUserId，值为对应用户的申请日志VO列表
      */
-    List<Map<Long, List<QuotaChangeLogVO>>> getQuotaChangeLogsByApplicantSUserIds(List<Long> applicantSUserIds);
+    Map<Long, List<QuotaChangeLogVO>> getQuotaChangeLogsByApplicantSUserIds(List<Long> applicantSUserIds);
 
     /**
      * 根据审批人系统用户ID查询其审批相关的所有配额变更日志（全量数据）
@@ -61,6 +61,6 @@ public interface IQuotaChangeLogCommonService {
      * @param approverSUserIds 审批人系统用户ID列表
      * @return 包含一个Map的列表，Map的键为approverSUserId，值为对应用户的审批日志VO列表
      */
-    List<Map<Long, List<QuotaChangeLogVO>>> getQuotaChangeLogsByApproverSUserIds(List<Long> approverSUserIds);
+    Map<Long, List<QuotaChangeLogVO>> getQuotaChangeLogsByApproverSUserIds(List<Long> approverSUserIds);
 
 }

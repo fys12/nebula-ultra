@@ -33,7 +33,7 @@ public interface IQuotaUsageLogCommonService {
      * @param tQuotaIds 租户配额ID列表
      * @return 包含一个Map的列表，Map的键为tQuotaId，值为对应配额的使用流水VO列表
      */
-    List<Map<Long, List<QuotaUsageLogVO>>> getQuotaUsageLogsByTQuotaIds(List<Long> tQuotaIds);
+    Map<Long, List<QuotaUsageLogVO>> getQuotaUsageLogsByTQuotaIds(List<Long> tQuotaIds);
 
     /**
      * 根据操作人用户ID查询其操作的所有配额使用流水（全量数据）
@@ -47,6 +47,6 @@ public interface IQuotaUsageLogCommonService {
      * @param userIds 操作人用户ID列表
      * @return 包含一个Map的列表，Map的键为userId，值为对应用户的使用流水VO列表
      */
-    List<Map<Long, List<QuotaUsageLogVO>>> getQuotaUsageLogsByUserIds(List<Long> userIds);
+    Map<Long, List<QuotaUsageLogVO>> getQuotaUsageLogsByUserIds(List<Long> userIds);
 
 }

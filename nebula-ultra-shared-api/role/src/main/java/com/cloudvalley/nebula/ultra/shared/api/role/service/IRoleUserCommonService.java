@@ -48,7 +48,7 @@ public interface IRoleUserCommonService {
      * @param roleIds 租户角色ID列表
      * @return 包含一个 Map 的列表，键为 tRoleId，值为对应角色的 RoleUserVO 列表；输入为空时返回空列表
      */
-    List<Map<Long, List<RoleUserVO>>> getRoleUsersByRoleIds(List<Long> roleIds);
+    Map<Long, List<RoleUserVO>> getRoleUsersByRoleIds(List<Long> roleIds);
 
     /**
      * 根据租户用户ID查询其拥有的所有租户角色ID列表

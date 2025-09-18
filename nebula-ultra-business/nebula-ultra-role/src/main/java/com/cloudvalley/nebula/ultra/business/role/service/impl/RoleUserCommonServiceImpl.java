@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.role.service.IRoleUserCommonServi
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
     @Override
     public List<RoleUserVO> getRoleUsersByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(RoleUser::getId, ids)
@@ -77,7 +78,7 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
     @Override
     public Map<Long, List<RoleUserVO>> getRoleUsersByUserIds(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(RoleUser::getTUserId, userIds)
@@ -109,9 +110,9 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
      * @return 包含一个 Map 的列表，键为 tRoleId，值为对应角色的 RoleUserVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<RoleUserVO>>> getRoleUsersByRoleIds(List<Long> roleIds) {
+    public Map<Long, List<RoleUserVO>> getRoleUsersByRoleIds(List<Long> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(RoleUser::getTRoleId, roleIds)
@@ -119,8 +120,8 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
                 .orderByDesc(RoleUser::getCreatedAt);
         List<RoleUser> entities = this.list(queryWrapper);
         List<RoleUserVO> voList = roleUserConverter.EnListToVOList(entities);
-        Map<Long, List<RoleUserVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(RoleUserVO::getTRoleId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<RoleUserVO>> grouped = voList.stream().collect(Collectors.groupingBy(RoleUserVO::getTRoleId));
+        return grouped;
     }
 
     /**
@@ -167,7 +168,7 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
     @Override
     public Map<Long, Set<Long>> getRoleIdsByUserIds(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();
@@ -191,7 +192,7 @@ public class RoleUserCommonServiceImpl extends ServiceImpl<RoleUserMapper, RoleU
     @Override
     public Map<Long, Set<Long>> getUserIdsByRoleIds(List<Long> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<RoleUser> queryWrapper = new LambdaQueryWrapper<>();

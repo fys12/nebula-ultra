@@ -110,9 +110,9 @@ public class PermUserCommonServiceImpl extends ServiceImpl<PermUserMapper, PermU
      * @return 包含一个 Map 的列表，键为 tPermId，值为对应权限的 PermUserVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<PermUserVO>>> getPermUsersByTPermIds(List<Long> tPermIds) {
+    public Map<Long, List<PermUserVO>> getPermUsersByTPermIds(List<Long> tPermIds) {
         if (tPermIds == null || tPermIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<PermUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermUser::getTPermId, tPermIds)
@@ -121,7 +121,7 @@ public class PermUserCommonServiceImpl extends ServiceImpl<PermUserMapper, PermU
         List<PermUser> entities = this.list(queryWrapper);
         List<PermUserVO> voList = permUserConverter.EnListToVOList(entities);
         Map<Long, List<PermUserVO>> grouped = voList.stream().collect(Collectors.groupingBy(PermUserVO::getTPermId));
-        return Collections.singletonList(grouped);
+        return grouped;
     }
 
     /**

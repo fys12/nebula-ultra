@@ -10,8 +10,10 @@ import com.cloudvalley.nebula.ultra.shared.api.log.service.IQuotaChangeLogCommon
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class QuotaChangeLogServiceCommonImpl extends ServiceImpl<QuotaChangeLogMapper, QuotaChangeLog> implements IQuotaChangeLogCommonService {
@@ -42,7 +44,7 @@ public class QuotaChangeLogServiceCommonImpl extends ServiceImpl<QuotaChangeLogM
     @Override
     public List<QuotaChangeLogVO> getQuotaChangeLogsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<QuotaChangeLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(QuotaChangeLog::getId, ids)
@@ -73,9 +75,9 @@ public class QuotaChangeLogServiceCommonImpl extends ServiceImpl<QuotaChangeLogM
      * @return 包含一个Map的列表，Map的键为tQuotaId，值为对应配额的变更日志VO列表，按申请时间倒序排列；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<QuotaChangeLogVO>>> getQuotaChangeLogsByTQuotaIds(List<Long> tQuotaIds) {
+    public Map<Long, List<QuotaChangeLogVO>> getQuotaChangeLogsByTQuotaIds(List<Long> tQuotaIds) {
         if (tQuotaIds == null || tQuotaIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<QuotaChangeLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(QuotaChangeLog::getTQuotaId, tQuotaIds)
@@ -83,8 +85,8 @@ public class QuotaChangeLogServiceCommonImpl extends ServiceImpl<QuotaChangeLogM
                 .orderByDesc(QuotaChangeLog::getAppliedAt);
         List<QuotaChangeLog> entities = this.list(queryWrapper);
         List<QuotaChangeLogVO> voList = quotaChangeLogConverter.EnListToVOList(entities);
-        Map<Long, List<QuotaChangeLogVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(QuotaChangeLogVO::getTQuotaId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<QuotaChangeLogVO>> grouped = voList.stream().collect(Collectors.groupingBy(QuotaChangeLogVO::getTQuotaId));
+        return grouped;
     }
 
     /**
@@ -108,9 +110,9 @@ public class QuotaChangeLogServiceCommonImpl extends ServiceImpl<QuotaChangeLogM
      * @return 包含一个Map的列表，Map的键为applicantSUserId，值为对应用户的申请日志VO列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<QuotaChangeLogVO>>> getQuotaChangeLogsByApplicantSUserIds(List<Long> applicantSUserIds) {
+    public Map<Long, List<QuotaChangeLogVO>> getQuotaChangeLogsByApplicantSUserIds(List<Long> applicantSUserIds) {
         if (applicantSUserIds == null || applicantSUserIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<QuotaChangeLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(QuotaChangeLog::getApplicantSUserId, applicantSUserIds)
@@ -118,8 +120,8 @@ public class QuotaChangeLogServiceCommonImpl extends ServiceImpl<QuotaChangeLogM
                 .orderByDesc(QuotaChangeLog::getAppliedAt);
         List<QuotaChangeLog> entities = this.list(queryWrapper);
         List<QuotaChangeLogVO> voList = quotaChangeLogConverter.EnListToVOList(entities);
-        Map<Long, List<QuotaChangeLogVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(QuotaChangeLogVO::getApplicantSUserId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<QuotaChangeLogVO>> grouped = voList.stream().collect(Collectors.groupingBy(QuotaChangeLogVO::getApplicantSUserId));
+        return grouped;
     }
 
     /**
@@ -143,9 +145,9 @@ public class QuotaChangeLogServiceCommonImpl extends ServiceImpl<QuotaChangeLogM
      * @return 包含一个Map的列表，Map的键为approverSUserId，值为对应用户的审批日志VO列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<QuotaChangeLogVO>>> getQuotaChangeLogsByApproverSUserIds(List<Long> approverSUserIds) {
+    public Map<Long, List<QuotaChangeLogVO>> getQuotaChangeLogsByApproverSUserIds(List<Long> approverSUserIds) {
         if (approverSUserIds == null || approverSUserIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<QuotaChangeLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(QuotaChangeLog::getApproverSUserId, approverSUserIds)
@@ -153,8 +155,8 @@ public class QuotaChangeLogServiceCommonImpl extends ServiceImpl<QuotaChangeLogM
                 .orderByDesc(QuotaChangeLog::getAppliedAt);
         List<QuotaChangeLog> entities = this.list(queryWrapper);
         List<QuotaChangeLogVO> voList = quotaChangeLogConverter.EnListToVOList(entities);
-        Map<Long, List<QuotaChangeLogVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(QuotaChangeLogVO::getApproverSUserId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<QuotaChangeLogVO>> grouped = voList.stream().collect(Collectors.groupingBy(QuotaChangeLogVO::getApproverSUserId));
+        return grouped;
     }
 
 }

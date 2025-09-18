@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.group.service.IGroupBindRoleCommo
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +47,7 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
     @Override
     public List<GroupBindRoleVO> getGroupBindRolesByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupBindRole::getId, ids)
@@ -79,9 +80,9 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public List<Map<Long, List<GroupBindRoleVO>>> getGroupBindRolesByGroupIds(List<Long> groupIds) {
+    public Map<Long, List<GroupBindRoleVO>> getGroupBindRolesByGroupIds(List<Long> groupIds) {
         if (groupIds == null || groupIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupBindRole::getSGroupId, groupIds)
@@ -89,8 +90,8 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
                 .orderByDesc(GroupBindRole::getCreatedAt);
         List<GroupBindRole> entities = this.list(queryWrapper);
         List<GroupBindRoleVO> voList = groupBindRoleConverter.EnListToVOList(entities);
-        Map<Long, List<GroupBindRoleVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(GroupBindRoleVO::getSGroupId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<GroupBindRoleVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupBindRoleVO::getSGroupId));
+        return grouped;
     }
 
     /**
@@ -117,9 +118,9 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public List<Map<Long, List<GroupBindRoleVO>>> getGroupBindRolesByRoleIds(List<Long> roleIds) {
+    public Map<Long, List<GroupBindRoleVO>> getGroupBindRolesByRoleIds(List<Long> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupBindRole::getTRoleId, roleIds)
@@ -127,8 +128,8 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
                 .orderByDesc(GroupBindRole::getCreatedAt);
         List<GroupBindRole> entities = this.list(queryWrapper);
         List<GroupBindRoleVO> voList = groupBindRoleConverter.EnListToVOList(entities);
-        Map<Long, List<GroupBindRoleVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(GroupBindRoleVO::getTRoleId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<GroupBindRoleVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupBindRoleVO::getTRoleId));
+        return grouped;
     }
     
     /**

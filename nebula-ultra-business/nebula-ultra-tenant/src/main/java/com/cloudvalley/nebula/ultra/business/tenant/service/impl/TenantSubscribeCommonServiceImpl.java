@@ -10,8 +10,10 @@ import com.cloudvalley.nebula.ultra.shared.api.tenant.service.ITenantSubscribeCo
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TenantSubscribeCommonServiceImpl extends ServiceImpl<TenantSubscribeMapper, TenantSubscribe> implements ITenantSubscribeCommonService {
@@ -42,7 +44,7 @@ public class TenantSubscribeCommonServiceImpl extends ServiceImpl<TenantSubscrib
     @Override
     public List<TenantSubscribeVO> getTenantSubscribesByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<TenantSubscribe> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(TenantSubscribe::getId, ids)
@@ -73,9 +75,9 @@ public class TenantSubscribeCommonServiceImpl extends ServiceImpl<TenantSubscrib
      * @return 包含一个 Map 的列表，键为 sTenantId，值为对应租户的 TenantSubscribeVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<TenantSubscribeVO>>> getTenantSubscribesByTenantIds(List<Long> tenantIds) {
+    public Map<Long, List<TenantSubscribeVO>> getTenantSubscribesByTenantIds(List<Long> tenantIds) {
         if (tenantIds == null || tenantIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<TenantSubscribe> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(TenantSubscribe::getSTenantId, tenantIds)
@@ -83,8 +85,8 @@ public class TenantSubscribeCommonServiceImpl extends ServiceImpl<TenantSubscrib
                 .orderByDesc(TenantSubscribe::getCreatedAt);
         List<TenantSubscribe> entities = this.list(queryWrapper);
         List<TenantSubscribeVO> voList = tenantSubscribeConverter.EnListToVOList(entities);
-        Map<Long, List<TenantSubscribeVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(TenantSubscribeVO::getSTenantId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<TenantSubscribeVO>> grouped = voList.stream().collect(Collectors.groupingBy(TenantSubscribeVO::getSTenantId));
+        return grouped;
     }
 
     /**
@@ -108,9 +110,9 @@ public class TenantSubscribeCommonServiceImpl extends ServiceImpl<TenantSubscrib
      * @return 包含一个 Map 的列表，键为 sComboId，值为对应套餐的 TenantSubscribeVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<TenantSubscribeVO>>> getTenantSubscribesByComboIds(List<Long> comboIds) {
+    public Map<Long, List<TenantSubscribeVO>> getTenantSubscribesByComboIds(List<Long> comboIds) {
         if (comboIds == null || comboIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<TenantSubscribe> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(TenantSubscribe::getSComboId, comboIds)
@@ -118,8 +120,8 @@ public class TenantSubscribeCommonServiceImpl extends ServiceImpl<TenantSubscrib
                 .orderByDesc(TenantSubscribe::getCreatedAt);
         List<TenantSubscribe> entities = this.list(queryWrapper);
         List<TenantSubscribeVO> voList = tenantSubscribeConverter.EnListToVOList(entities);
-        Map<Long, List<TenantSubscribeVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(TenantSubscribeVO::getSComboId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<TenantSubscribeVO>> grouped = voList.stream().collect(Collectors.groupingBy(TenantSubscribeVO::getSComboId));
+        return grouped;
     }
 
 }

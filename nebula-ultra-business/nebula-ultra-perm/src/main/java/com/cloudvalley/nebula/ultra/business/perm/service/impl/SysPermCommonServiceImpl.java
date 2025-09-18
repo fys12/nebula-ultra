@@ -41,7 +41,7 @@ public class SysPermCommonServiceImpl extends ServiceImpl<SysPermMapper, SysPerm
     @Override
     public List<SysPermVO> getSysPermsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<SysPerm> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(SysPerm::getId, ids)

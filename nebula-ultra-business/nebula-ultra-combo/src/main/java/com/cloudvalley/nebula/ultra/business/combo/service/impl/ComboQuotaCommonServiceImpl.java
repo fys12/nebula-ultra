@@ -83,9 +83,9 @@ public class ComboQuotaCommonServiceImpl extends ServiceImpl<ComboQuotaMapper, C
      * @return 分组结果列表，键为系统套餐ID，值为对应的配额VO列表，若ID列表为空则返回空列表
      */
     @Override
-    public List<Map<Long, List<ComboQuotaVO>>> getComboQuotasBySComboIds(List<Long> sComboIds) {
+    public Map<Long, List<ComboQuotaVO>> getComboQuotasBySComboIds(List<Long> sComboIds) {
         if (sComboIds == null || sComboIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<ComboQuota> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ComboQuota::getSComboId, sComboIds)
@@ -94,7 +94,7 @@ public class ComboQuotaCommonServiceImpl extends ServiceImpl<ComboQuotaMapper, C
         List<ComboQuota> entities = this.list(queryWrapper);
         List<ComboQuotaVO> voList = comboQuotaConverter.EnListToVOList(entities);
         Map<Long, List<ComboQuotaVO>> grouped = voList.stream().collect(Collectors.groupingBy(ComboQuotaVO::getSComboId));
-        return Collections.singletonList(grouped);
+        return grouped;
     }
 
     /**
@@ -122,9 +122,9 @@ public class ComboQuotaCommonServiceImpl extends ServiceImpl<ComboQuotaMapper, C
      * @return 分组结果列表，键为系统配额ID，值为对应的配额VO列表，若ID列表为空则返回空列表
      */
     @Override
-    public List<Map<Long, List<ComboQuotaVO>>> getComboQuotasBySQuotaIds(List<Long> sQuotaIds) {
+    public Map<Long, List<ComboQuotaVO>> getComboQuotasBySQuotaIds(List<Long> sQuotaIds) {
         if (sQuotaIds == null || sQuotaIds.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<ComboQuota> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ComboQuota::getSQuotaId, sQuotaIds)
@@ -133,7 +133,7 @@ public class ComboQuotaCommonServiceImpl extends ServiceImpl<ComboQuotaMapper, C
         List<ComboQuota> entities = this.list(queryWrapper);
         List<ComboQuotaVO> voList = comboQuotaConverter.EnListToVOList(entities);
         Map<Long, List<ComboQuotaVO>> grouped = voList.stream().collect(Collectors.groupingBy(ComboQuotaVO::getSQuotaId));
-        return Collections.singletonList(grouped);
+        return grouped;
     }
 
     /**

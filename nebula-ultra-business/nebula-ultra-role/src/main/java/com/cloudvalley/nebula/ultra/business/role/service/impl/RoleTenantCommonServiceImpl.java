@@ -45,7 +45,7 @@ public class RoleTenantCommonServiceImpl extends ServiceImpl<RoleTenantMapper, R
     @Override
     public List<RoleTenantVO> getRoleTenantsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<RoleTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(RoleTenant::getId, ids)

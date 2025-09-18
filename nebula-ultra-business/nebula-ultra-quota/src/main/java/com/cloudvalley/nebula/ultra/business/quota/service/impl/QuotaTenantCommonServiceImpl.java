@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.quoat.service.IQuotaTenantCommonS
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class QuotaTenantCommonServiceImpl extends ServiceImpl<QuotaTenantMapper,
     @Override
     public List<QuotaTenantVO> getQuotaTenantsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<QuotaTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(QuotaTenant::getId, ids)
@@ -75,9 +76,9 @@ public class QuotaTenantCommonServiceImpl extends ServiceImpl<QuotaTenantMapper,
      * @return 包含一个 Map 的列表，键为 sTenantId，值为对应租户的 QuotaTenantVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<QuotaTenantVO>>> getQuotaTenantsByTenantIds(List<Long> tenantIds) {
+    public Map<Long, List<QuotaTenantVO>> getQuotaTenantsByTenantIds(List<Long> tenantIds) {
         if (tenantIds == null || tenantIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<QuotaTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(QuotaTenant::getSTenantId, tenantIds)
@@ -85,8 +86,8 @@ public class QuotaTenantCommonServiceImpl extends ServiceImpl<QuotaTenantMapper,
                 .orderByDesc(QuotaTenant::getCreatedAt);
         List<QuotaTenant> entities = this.list(queryWrapper);
         List<QuotaTenantVO> voList = quotaTenantConverter.EnListToVOList(entities);
-        Map<Long, List<QuotaTenantVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(QuotaTenantVO::getSTenantId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<QuotaTenantVO>> grouped = voList.stream().collect(Collectors.groupingBy(QuotaTenantVO::getSTenantId));
+        return grouped;
     }
 
     /**
@@ -110,9 +111,9 @@ public class QuotaTenantCommonServiceImpl extends ServiceImpl<QuotaTenantMapper,
      * @return 包含一个 Map 的列表，键为 sQuotaId，值为对应配额的 QuotaTenantVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<QuotaTenantVO>>> getQuotaTenantsByQuotaIds(List<Long> quotaIds) {
+    public Map<Long, List<QuotaTenantVO>> getQuotaTenantsByQuotaIds(List<Long> quotaIds) {
         if (quotaIds == null || quotaIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<QuotaTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(QuotaTenant::getSQuotaId, quotaIds)
@@ -120,8 +121,8 @@ public class QuotaTenantCommonServiceImpl extends ServiceImpl<QuotaTenantMapper,
                 .orderByDesc(QuotaTenant::getCreatedAt);
         List<QuotaTenant> entities = this.list(queryWrapper);
         List<QuotaTenantVO> voList = quotaTenantConverter.EnListToVOList(entities);
-        Map<Long, List<QuotaTenantVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(QuotaTenantVO::getSQuotaId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<QuotaTenantVO>> grouped = voList.stream().collect(Collectors.groupingBy(QuotaTenantVO::getSQuotaId));
+        return grouped;
     }
 
     /**

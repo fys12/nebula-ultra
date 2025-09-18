@@ -33,7 +33,7 @@ public interface ITenantSubscribeCommonService {
      * @param tenantIds 租户ID列表
      * @return 包含一个 Map 的列表，键为 sTenantId，值为对应租户的 TenantSubscribeVO 列表；输入为空时返回空列表
      */
-    List<Map<Long, List<TenantSubscribeVO>>> getTenantSubscribesByTenantIds(List<Long> tenantIds);
+    Map<Long, List<TenantSubscribeVO>> getTenantSubscribesByTenantIds(List<Long> tenantIds);
 
     /**
      * 根据套餐ID全量查询其被订阅情况（查看某套餐被哪些租户订阅）
@@ -47,6 +47,6 @@ public interface ITenantSubscribeCommonService {
      * @param comboIds 套餐ID列表
      * @return 包含一个 Map 的列表，键为 sComboId，值为对应套餐的 TenantSubscribeVO 列表；输入为空时返回空列表
      */
-    List<Map<Long, List<TenantSubscribeVO>>> getTenantSubscribesByComboIds(List<Long> comboIds);
+    Map<Long, List<TenantSubscribeVO>> getTenantSubscribesByComboIds(List<Long> comboIds);
 
 }

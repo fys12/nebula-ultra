@@ -48,7 +48,7 @@ public interface IPermTenantCommonService {
      * @param permIds 权限ID列表
      * @return 包含一个 Map 的列表，键为 sPermId，值为对应权限的 PermTenantVO 列表；输入为空时返回空列表
      */
-    List<Map<Long, List<PermTenantVO>>> getPermTenantsByPermIds(List<Long> permIds);
+    Map<Long, List<PermTenantVO>> getPermTenantsByPermIds(List<Long> permIds);
 
     /**
      * 根据租户ID查询其拥有的所有权限ID列表

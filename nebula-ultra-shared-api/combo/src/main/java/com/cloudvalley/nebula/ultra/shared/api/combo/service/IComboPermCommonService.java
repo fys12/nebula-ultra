@@ -38,7 +38,7 @@ public interface IComboPermCommonService {
      * @param sComboIds 系统套餐ID列表
      * @return 分组结果列表，每个Map包含一个套餐ID与对应的绑定关系列表
      */
-    List<Map<Long, List<ComboPermVO>>> getComboPermsBySComboIds(List<Long> sComboIds);
+    Map<Long, List<ComboPermVO>> getComboPermsBySComboIds(List<Long> sComboIds);
 
     /**
      * 根据系统权限ID查询所有相关的套餐-权限绑定关系（全量，不分页）
@@ -54,7 +54,7 @@ public interface IComboPermCommonService {
      * @param sPermIds 系统权限ID列表
      * @return 分组结果列表，每个Map包含一个权限ID与对应的套餐绑定关系列表
      */
-    List<Map<Long, List<ComboPermVO>>> getComboPermsBySPermIds(List<Long> sPermIds);
+    Map<Long, List<ComboPermVO>> getComboPermsBySPermIds(List<Long> sPermIds);
 
     /**
      * 根据系统套餐ID查询其所关联的所有系统权限ID

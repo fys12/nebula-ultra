@@ -10,8 +10,10 @@ import com.cloudvalley.nebula.ultra.shared.api.tenant.service.ISysTenantCommonSe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SysTenantCommonServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant> implements ISysTenantCommonService {
@@ -42,7 +44,7 @@ public class SysTenantCommonServiceImpl extends ServiceImpl<SysTenantMapper, Sys
     @Override
     public Map<Long, SysTenantVO> getSysTenantsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<SysTenant> queryWrapper = new LambdaQueryWrapper<>();
@@ -54,7 +56,7 @@ public class SysTenantCommonServiceImpl extends ServiceImpl<SysTenantMapper, Sys
         List<SysTenantVO> voList = sysTenantConverter.EnListToVOList(list);
 
         return voList.stream()
-                .collect(java.util.stream.Collectors.toMap(
+                .collect(Collectors.toMap(
                         SysTenantVO::getId,
                         vo -> vo
                 ));

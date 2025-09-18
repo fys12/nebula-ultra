@@ -48,7 +48,7 @@ public interface IPermUserCommonService {
      * @param tPermIds
      * @return 包含一个 Map 的列表，键为 tPermId，值为对应用户的 PermUserVO 列表；输入为空时返回空列表
      */
-    List<Map<Long, List<PermUserVO>>> getPermUsersByTPermIds(List<Long> tPermIds);
+    Map<Long, List<PermUserVO>> getPermUsersByTPermIds(List<Long> tPermIds);
 
     /**
      * 根据租户用户ID查询其拥有的所有租户权限ID列表

@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.group.service.IGroupPermCommonSer
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
     @Override
     public List<GroupPermVO> getGroupPermsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupPerm::getId, ids)
@@ -80,9 +81,9 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public List<Map<Long, List<GroupPermVO>>> getGroupPermsByGroupIds(List<Long> groupIds) {
+    public Map<Long, List<GroupPermVO>> getGroupPermsByGroupIds(List<Long> groupIds) {
         if (groupIds == null || groupIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupPerm::getSGroupId, groupIds)
@@ -90,8 +91,8 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
                 .orderByDesc(GroupPerm::getCreatedAt);
         List<GroupPerm> entities = this.list(queryWrapper);
         List<GroupPermVO> voList = groupPermConverter.EnListToVOList(entities);
-        Map<Long, List<GroupPermVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(GroupPermVO::getSGroupId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<GroupPermVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupPermVO::getSGroupId));
+        return grouped;
     }
 
     /**
@@ -117,9 +118,9 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public List<Map<Long, List<GroupPermVO>>> getGroupPermsByPermIds(List<Long> permIds) {
+    public Map<Long, List<GroupPermVO>> getGroupPermsByPermIds(List<Long> permIds) {
         if (permIds == null || permIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupPerm::getTPermId, permIds)
@@ -127,8 +128,8 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
                 .orderByDesc(GroupPerm::getCreatedAt);
         List<GroupPerm> entities = this.list(queryWrapper);
         List<GroupPermVO> voList = groupPermConverter.EnListToVOList(entities);
-        Map<Long, List<GroupPermVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(GroupPermVO::getTPermId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<GroupPermVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupPermVO::getTPermId));
+        return grouped;
     }
 
     /**

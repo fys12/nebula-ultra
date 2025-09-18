@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.user.service.IUserTenantCommonSer
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +47,7 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
     @Override
     public List<UserTenantVO> getUserTenantsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<UserTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(UserTenant::getId, ids)
@@ -79,9 +80,9 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
      * @return 单元素列表，包含一个 Map<租户ID, 用户VO列表>
      */
     @Override
-    public List<Map<Long, List<UserTenantVO>>> getUserTenantsByTenantIds(List<Long> tenantIds) {
+    public Map<Long, List<UserTenantVO>> getUserTenantsByTenantIds(List<Long> tenantIds) {
         if (tenantIds == null || tenantIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<UserTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(UserTenant::getSTenantId, tenantIds)
@@ -89,8 +90,8 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
                 .orderByDesc(UserTenant::getCreatedAt);
         List<UserTenant> entities = this.list(queryWrapper);
         List<UserTenantVO> voList = userTenantConverter.EnListToVOList(entities);
-        Map<Long, List<UserTenantVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(UserTenantVO::getSTenantId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<UserTenantVO>> grouped = voList.stream().collect(Collectors.groupingBy(UserTenantVO::getSTenantId));
+        return grouped;
     }
 
     /**
@@ -116,9 +117,9 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
      * @return 单元素列表，包含一个 Map<用户ID, 租户用户VO列表>
      */
     @Override
-    public List<Map<Long, List<UserTenantVO>>> getUserTenantsByUserIds(List<Long> userIds) {
+    public Map<Long, List<UserTenantVO>> getUserTenantsByUserIds(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<UserTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(UserTenant::getSUserId, userIds)
@@ -126,8 +127,7 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
                 .orderByDesc(UserTenant::getCreatedAt);
         List<UserTenant> entities = this.list(queryWrapper);
         List<UserTenantVO> voList = userTenantConverter.EnListToVOList(entities);
-        Map<Long, List<UserTenantVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(UserTenantVO::getSUserId));
-        return java.util.Collections.singletonList(grouped);
+        return voList.stream().collect(Collectors.groupingBy(UserTenantVO::getSUserId));
     }
 
     /**
@@ -176,7 +176,7 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
     @Override
     public Map<Long, Set<Long>> getUserIdsByTenantIds(List<Long> tenantIds) {
         if (tenantIds == null || tenantIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<UserTenant> queryWrapper = new LambdaQueryWrapper<>();
@@ -200,7 +200,7 @@ public class UserTenantCommonServiceImpl extends ServiceImpl<UserTenantMapper, U
     @Override
     public Map<Long, Set<Long>> getTenantIdsByUserIds(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<UserTenant> queryWrapper = new LambdaQueryWrapper<>();

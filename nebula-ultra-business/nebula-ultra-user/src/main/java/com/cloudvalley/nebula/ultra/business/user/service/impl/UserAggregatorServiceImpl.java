@@ -103,8 +103,7 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
                 .toList();
 
         // 3. 根据系统用户ID查询用户-租户绑定关系，得到租户用户关联信息
-        List<Map<Long, List<UserTenantVO>>> userTenantMaps = iUserTenantCommonService.getUserTenantsByUserIds(systemUserIds);
-        Map<Long, List<UserTenantVO>> userTenantMap = userTenantMaps.isEmpty() ? Map.of() : userTenantMaps.get(0);
+        Map<Long, List<UserTenantVO>> userTenantMap = iUserTenantCommonService.getUserTenantsByUserIds(systemUserIds);
 
         // 4. 获取所有租户用户ID（UserTenant表的主键，作为tUserId使用）
         List<Long> tenantUserIds = userTenantMap.values().stream()

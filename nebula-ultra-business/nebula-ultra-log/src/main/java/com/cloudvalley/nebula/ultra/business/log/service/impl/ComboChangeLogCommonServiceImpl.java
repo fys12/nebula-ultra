@@ -10,8 +10,10 @@ import com.cloudvalley.nebula.ultra.shared.api.log.service.IComboChangeLogCommon
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ComboChangeLogCommonServiceImpl extends ServiceImpl<ComboChangeLogMapper, ComboChangeLog> implements IComboChangeLogCommonService {
@@ -42,7 +44,7 @@ public class ComboChangeLogCommonServiceImpl extends ServiceImpl<ComboChangeLogM
     @Override
     public List<ComboChangeLogVO> getComboChangeLogsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<ComboChangeLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ComboChangeLog::getId, ids)
@@ -73,9 +75,9 @@ public class ComboChangeLogCommonServiceImpl extends ServiceImpl<ComboChangeLogM
      * @return 包含一个Map的列表，Map的键为sTenantId，值为对应租户的日志VO列表，按更改时间倒序排列
      */
     @Override
-    public List<Map<Long, List<ComboChangeLogVO>>> getComboChangeLogsBySTenantIds(List<Long> sTenantIds) {
+    public Map<Long, List<ComboChangeLogVO>> getComboChangeLogsBySTenantIds(List<Long> sTenantIds) {
         if (sTenantIds == null || sTenantIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<ComboChangeLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ComboChangeLog::getSTenantId, sTenantIds)
@@ -83,8 +85,8 @@ public class ComboChangeLogCommonServiceImpl extends ServiceImpl<ComboChangeLogM
                 .orderByDesc(ComboChangeLog::getChangedAt);
         List<ComboChangeLog> entities = this.list(queryWrapper);
         List<ComboChangeLogVO> voList = comboChangeLogConverter.EnListToVOList(entities);
-        Map<Long, List<ComboChangeLogVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(ComboChangeLogVO::getSTenantId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<ComboChangeLogVO>> grouped = voList.stream().collect(Collectors.groupingBy(ComboChangeLogVO::getSTenantId));
+        return grouped;
     }
 
     /**
@@ -108,9 +110,9 @@ public class ComboChangeLogCommonServiceImpl extends ServiceImpl<ComboChangeLogM
      * @return 包含一个Map的列表，Map的键为oldSComboId，值为对应套餐的日志VO列表，按更改时间倒序排列
      */
     @Override
-    public List<Map<Long, List<ComboChangeLogVO>>> getComboChangeLogsByOldSComboIds(List<Long> oldSComboIds) {
+    public Map<Long, List<ComboChangeLogVO>> getComboChangeLogsByOldSComboIds(List<Long> oldSComboIds) {
         if (oldSComboIds == null || oldSComboIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<ComboChangeLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ComboChangeLog::getOldSComboId, oldSComboIds)
@@ -118,8 +120,8 @@ public class ComboChangeLogCommonServiceImpl extends ServiceImpl<ComboChangeLogM
                 .orderByDesc(ComboChangeLog::getChangedAt);
         List<ComboChangeLog> entities = this.list(queryWrapper);
         List<ComboChangeLogVO> voList = comboChangeLogConverter.EnListToVOList(entities);
-        Map<Long, List<ComboChangeLogVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(ComboChangeLogVO::getOldSComboId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<ComboChangeLogVO>> grouped = voList.stream().collect(Collectors.groupingBy(ComboChangeLogVO::getOldSComboId));
+        return grouped;
     }
 
     /**
@@ -145,7 +147,7 @@ public class ComboChangeLogCommonServiceImpl extends ServiceImpl<ComboChangeLogM
     @Override
     public List<Map<Long, List<ComboChangeLogVO>>> getComboChangeLogsByNewSComboIds(List<Long> newSComboIds) {
         if (newSComboIds == null || newSComboIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<ComboChangeLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ComboChangeLog::getNewSComboId, newSComboIds)
@@ -153,8 +155,8 @@ public class ComboChangeLogCommonServiceImpl extends ServiceImpl<ComboChangeLogM
                 .orderByDesc(ComboChangeLog::getChangedAt);
         List<ComboChangeLog> entities = this.list(queryWrapper);
         List<ComboChangeLogVO> voList = comboChangeLogConverter.EnListToVOList(entities);
-        Map<Long, List<ComboChangeLogVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(ComboChangeLogVO::getNewSComboId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<ComboChangeLogVO>> grouped = voList.stream().collect(Collectors.groupingBy(ComboChangeLogVO::getNewSComboId));
+        return Collections.singletonList(grouped);
     }
 
     /**
@@ -180,7 +182,7 @@ public class ComboChangeLogCommonServiceImpl extends ServiceImpl<ComboChangeLogM
     @Override
     public List<Map<Long, List<ComboChangeLogVO>>> getComboChangeLogsByOperatorUserIds(List<Long> operatorUserIds) {
         if (operatorUserIds == null || operatorUserIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<ComboChangeLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ComboChangeLog::getOperatorUserId, operatorUserIds)
@@ -188,8 +190,8 @@ public class ComboChangeLogCommonServiceImpl extends ServiceImpl<ComboChangeLogM
                 .orderByDesc(ComboChangeLog::getChangedAt);
         List<ComboChangeLog> entities = this.list(queryWrapper);
         List<ComboChangeLogVO> voList = comboChangeLogConverter.EnListToVOList(entities);
-        Map<Long, List<ComboChangeLogVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(ComboChangeLogVO::getOperatorUserId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<ComboChangeLogVO>> grouped = voList.stream().collect(Collectors.groupingBy(ComboChangeLogVO::getOperatorUserId));
+        return Collections.singletonList(grouped);
     }
 
 

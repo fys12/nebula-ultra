@@ -10,8 +10,10 @@ import com.cloudvalley.nebula.ultra.shared.api.log.service.IQuotaUsageLogCommonS
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class QuotaUsageLogServiceCommonImpl extends ServiceImpl<QuotaUsageLogMapper, QuotaUsageLog> implements IQuotaUsageLogCommonService {
@@ -42,7 +44,7 @@ public class QuotaUsageLogServiceCommonImpl extends ServiceImpl<QuotaUsageLogMap
     @Override
     public List<QuotaUsageLogVO> getQuotaUsageLogsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<QuotaUsageLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(QuotaUsageLog::getId, ids)
@@ -73,9 +75,9 @@ public class QuotaUsageLogServiceCommonImpl extends ServiceImpl<QuotaUsageLogMap
      * @return 包含一个Map的列表，Map的键为tQuotaId，值为对应配额的使用流水VO列表，按使用时间倒序排列；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<QuotaUsageLogVO>>> getQuotaUsageLogsByTQuotaIds(List<Long> tQuotaIds) {
+    public Map<Long, List<QuotaUsageLogVO>> getQuotaUsageLogsByTQuotaIds(List<Long> tQuotaIds) {
         if (tQuotaIds == null || tQuotaIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<QuotaUsageLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(QuotaUsageLog::getTQuotaId, tQuotaIds)
@@ -83,8 +85,8 @@ public class QuotaUsageLogServiceCommonImpl extends ServiceImpl<QuotaUsageLogMap
                 .orderByDesc(QuotaUsageLog::getUsedAt);
         List<QuotaUsageLog> entities = this.list(queryWrapper);
         List<QuotaUsageLogVO> voList = quotaUsageLogConverter.EnListToVOList(entities);
-        Map<Long, List<QuotaUsageLogVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(QuotaUsageLogVO::getTQuotaId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<QuotaUsageLogVO>> grouped = voList.stream().collect(Collectors.groupingBy(QuotaUsageLogVO::getTQuotaId));
+        return grouped;
     }
 
     /**
@@ -108,9 +110,9 @@ public class QuotaUsageLogServiceCommonImpl extends ServiceImpl<QuotaUsageLogMap
      * @return 包含一个Map的列表，Map的键为userId，值为对应用户的使用流水VO列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<QuotaUsageLogVO>>> getQuotaUsageLogsByUserIds(List<Long> userIds) {
+    public Map<Long, List<QuotaUsageLogVO>> getQuotaUsageLogsByUserIds(List<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<QuotaUsageLog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(QuotaUsageLog::getUserId, userIds)
@@ -118,8 +120,8 @@ public class QuotaUsageLogServiceCommonImpl extends ServiceImpl<QuotaUsageLogMap
                 .orderByDesc(QuotaUsageLog::getUsedAt);
         List<QuotaUsageLog> entities = this.list(queryWrapper);
         List<QuotaUsageLogVO> voList = quotaUsageLogConverter.EnListToVOList(entities);
-        Map<Long, List<QuotaUsageLogVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(QuotaUsageLogVO::getUserId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<QuotaUsageLogVO>> grouped = voList.stream().collect(Collectors.groupingBy(QuotaUsageLogVO::getUserId));
+        return grouped;
     }
 
 }

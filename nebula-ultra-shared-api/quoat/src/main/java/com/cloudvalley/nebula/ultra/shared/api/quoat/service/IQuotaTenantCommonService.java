@@ -34,7 +34,7 @@ public interface IQuotaTenantCommonService {
      * @param tenantIds 系统租户ID列表
      * @return 包含一个 Map 的列表，键为 sTenantId，值为对应租户的 QuotaTenantVO 列表；输入为空时返回空列表
      */
-    List<Map<Long, List<QuotaTenantVO>>> getQuotaTenantsByTenantIds(List<Long> tenantIds);
+    Map<Long, List<QuotaTenantVO>> getQuotaTenantsByTenantIds(List<Long> tenantIds);
 
     /**
      * 根据系统配额ID全量查询其绑定的租户列表（查看某配额被哪些租户使用）
@@ -48,7 +48,7 @@ public interface IQuotaTenantCommonService {
      * @param quotaIds 系统配额ID列表
      * @return 包含一个 Map 的列表，键为 sQuotaId，值为对应配额的 QuotaTenantVO 列表；输入为空时返回空列表
      */
-    List<Map<Long, List<QuotaTenantVO>>> getQuotaTenantsByQuotaIds(List<Long> quotaIds);
+    Map<Long, List<QuotaTenantVO>> getQuotaTenantsByQuotaIds(List<Long> quotaIds);
 
     /**
      * 根据系统租户ID查询其拥有的所有系统配额ID列表

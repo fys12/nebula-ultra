@@ -39,7 +39,7 @@ public interface IGroupTenantCommonService {
      * @param sTenantIds 系统租户ID列表
      * @return 包含分组结果的列表（单个 Map）
      */
-    List<Map<Long, List<GroupTenantVO>>> getGroupTenantsBySTenantIds(List<Long> sTenantIds);
+    Map<Long, List<GroupTenantVO>> getGroupTenantsBySTenantIds(List<Long> sTenantIds);
 
     /**
      * 根据系统组ID查询所有绑定该组的系统租户 [全量]
@@ -55,7 +55,7 @@ public interface IGroupTenantCommonService {
      * @param sGroupIds 系统组ID列表
      * @return 包含分组结果的列表（单个 Map）
      */
-    List<Map<Long, List<GroupTenantVO>>> getGroupTenantsBySGroupIds(List<Long> sGroupIds);
+    Map<Long, List<GroupTenantVO>> getGroupTenantsBySGroupIds(List<Long> sGroupIds);
 
     /**
      * 根据系统租户ID查询其绑定的所有系统组ID

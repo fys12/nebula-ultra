@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.group.service.IGroupTenantCommonS
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class GroupTenantCommonServiceImpl extends ServiceImpl<GroupTenantMapper,
     @Override
     public List<GroupTenantVO> getGroupTenantsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<GroupTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupTenant::getId, ids)
@@ -81,9 +82,9 @@ public class GroupTenantCommonServiceImpl extends ServiceImpl<GroupTenantMapper,
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public List<Map<Long, List<GroupTenantVO>>> getGroupTenantsBySTenantIds(List<Long> sTenantIds) {
+    public Map<Long, List<GroupTenantVO>> getGroupTenantsBySTenantIds(List<Long> sTenantIds) {
         if (sTenantIds == null || sTenantIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupTenant::getSTenantId, sTenantIds)
@@ -91,8 +92,8 @@ public class GroupTenantCommonServiceImpl extends ServiceImpl<GroupTenantMapper,
                 .orderByDesc(GroupTenant::getCreatedAt);
         List<GroupTenant> entities = this.list(queryWrapper);
         List<GroupTenantVO> voList = groupTenantConverter.EnListToVOList(entities);
-        Map<Long, List<GroupTenantVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(GroupTenantVO::getSTenantId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<GroupTenantVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupTenantVO::getSTenantId));
+        return grouped;
     }
 
     /**
@@ -118,9 +119,9 @@ public class GroupTenantCommonServiceImpl extends ServiceImpl<GroupTenantMapper,
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public List<Map<Long, List<GroupTenantVO>>> getGroupTenantsBySGroupIds(List<Long> sGroupIds) {
+    public Map<Long, List<GroupTenantVO>> getGroupTenantsBySGroupIds(List<Long> sGroupIds) {
         if (sGroupIds == null || sGroupIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(GroupTenant::getSGroupId, sGroupIds)
@@ -128,8 +129,8 @@ public class GroupTenantCommonServiceImpl extends ServiceImpl<GroupTenantMapper,
                 .orderByDesc(GroupTenant::getCreatedAt);
         List<GroupTenant> entities = this.list(queryWrapper);
         List<GroupTenantVO> voList = groupTenantConverter.EnListToVOList(entities);
-        Map<Long, List<GroupTenantVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(GroupTenantVO::getSGroupId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<GroupTenantVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupTenantVO::getSGroupId));
+        return grouped;
     }
 
     /**

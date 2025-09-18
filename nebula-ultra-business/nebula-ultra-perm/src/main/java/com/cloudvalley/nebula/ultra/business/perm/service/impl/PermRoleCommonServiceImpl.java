@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.perm.service.IPermRoleCommonServi
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
     @Override
     public List<PermRoleVO> getPermRolesByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<PermRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermRole::getId, ids)
@@ -75,9 +76,9 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
      * @return 包含一个 Map 的列表，键为 tPermId，值为对应权限的 PermRoleVO 列表；输入为空时返回空列表
      */
     @Override
-    public List<Map<Long, List<PermRoleVO>>> getPermRolesByPermIds(List<Long> permIds) {
+    public Map<Long, List<PermRoleVO>> getPermRolesByPermIds(List<Long> permIds) {
         if (permIds == null || permIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<PermRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermRole::getTPermId, permIds)
@@ -85,8 +86,8 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
                 .orderByDesc(PermRole::getCreatedAt);
         List<PermRole> entities = this.list(queryWrapper);
         List<PermRoleVO> voList = permRoleConverter.EnListToVOList(entities);
-        Map<Long, List<PermRoleVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(PermRoleVO::getTPermId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<PermRoleVO>> grouped = voList.stream().collect(Collectors.groupingBy(PermRoleVO::getTPermId));
+        return grouped;
     }
 
     /**
@@ -112,7 +113,7 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
     @Override
     public Map<Long, List<PermRoleVO>> getPermRolesByRoleIds(List<Long> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<PermRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermRole::getTRoleId, roleIds)
@@ -120,7 +121,7 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
                 .orderByDesc(PermRole::getCreatedAt);
         List<PermRole> entities = this.list(queryWrapper);
         List<PermRoleVO> voList = permRoleConverter.EnListToVOList(entities);
-        return voList.stream().collect(java.util.stream.Collectors.groupingBy(PermRoleVO::getTRoleId));
+        return voList.stream().collect(Collectors.groupingBy(PermRoleVO::getTRoleId));
     }
 
     /**
@@ -167,7 +168,7 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
     @Override
     public Map<Long, Set<Long>> getPermIdsByRoleIds(List<Long> roleIds) {
         if (roleIds == null || roleIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<PermRole> queryWrapper = new LambdaQueryWrapper<>();
@@ -191,7 +192,7 @@ public class PermRoleCommonServiceImpl extends ServiceImpl<PermRoleMapper, PermR
     @Override
     public Map<Long, Set<Long>> getRoleIdsByPermIds(List<Long> permIds) {
         if (permIds == null || permIds.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<PermRole> queryWrapper = new LambdaQueryWrapper<>();

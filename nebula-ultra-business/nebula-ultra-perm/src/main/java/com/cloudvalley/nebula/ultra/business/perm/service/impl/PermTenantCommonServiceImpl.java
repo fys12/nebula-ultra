@@ -41,7 +41,7 @@ public class PermTenantCommonServiceImpl extends ServiceImpl<PermTenantMapper, P
     @Override
     public List<PermTenantVO> getPermTenantsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<PermTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermTenant::getId, ids)
@@ -90,9 +90,9 @@ public class PermTenantCommonServiceImpl extends ServiceImpl<PermTenantMapper, P
 
     /** 根据权限ID批量查询权限租户 [全量] - 批量返回分组结果 */
     @Override
-    public List<Map<Long, List<PermTenantVO>>> getPermTenantsByPermIds(List<Long> permIds) {
+    public Map<Long, List<PermTenantVO>> getPermTenantsByPermIds(List<Long> permIds) {
         if (permIds == null || permIds.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<PermTenant> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(PermTenant::getSPermId, permIds)
@@ -100,8 +100,8 @@ public class PermTenantCommonServiceImpl extends ServiceImpl<PermTenantMapper, P
                 .orderByDesc(PermTenant::getCreatedAt);
         List<PermTenant> entities = this.list(queryWrapper);
         List<PermTenantVO> voList = permTenantConverter.EnListToVOList(entities);
-        Map<Long, List<PermTenantVO>> grouped = voList.stream().collect(java.util.stream.Collectors.groupingBy(PermTenantVO::getSPermId));
-        return java.util.Collections.singletonList(grouped);
+        Map<Long, List<PermTenantVO>> grouped = voList.stream().collect(Collectors.groupingBy(PermTenantVO::getSPermId));
+        return grouped;
     }
 
     /**

@@ -10,6 +10,7 @@ import com.cloudvalley.nebula.ultra.shared.api.combo.model.vo.SysComboVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -42,7 +43,7 @@ public class SysComboCommonServiceImpl extends ServiceImpl<SysComboMapper, SysCo
     @Override
     public List<SysComboVO> getSysCombosByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<SysCombo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(SysCombo::getId, ids)

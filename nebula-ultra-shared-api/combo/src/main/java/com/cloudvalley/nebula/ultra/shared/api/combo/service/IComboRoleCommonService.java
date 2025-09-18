@@ -35,7 +35,7 @@ public interface IComboRoleCommonService {
      * @param sComboIds 系统套餐ID列表
      * @return 分组结果
      */
-    List<Map<Long, List<ComboRoleVO>>> getComboRolesBySComboIds(List<Long> sComboIds);
+    Map<Long, List<ComboRoleVO>> getComboRolesBySComboIds(List<Long> sComboIds);
 
     /**
      * 根据系统角色 id 查询绑定关系 [全量]
@@ -49,7 +49,7 @@ public interface IComboRoleCommonService {
      * @param sRoleIds 系统角色ID列表
      * @return 分组结果
      */
-    List<Map<Long, List<ComboRoleVO>>> getComboRolesBySRoleIds(List<Long> sRoleIds);
+    Map<Long, List<ComboRoleVO>> getComboRolesBySRoleIds(List<Long> sRoleIds);
 
     /**
      * 根据系统套餐 ID 查询系统角色 ID 列表

@@ -10,8 +10,10 @@ import com.cloudvalley.nebula.ultra.shared.api.user.service.ISysUserCommonServic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SysUserCommonServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements ISysUserCommonService {
@@ -43,7 +45,7 @@ public class SysUserCommonServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     @Override
     public Map<Long, SysUserVO> getUsersByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return java.util.Collections.emptyMap();
+            return Collections.emptyMap();
         }
 
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
@@ -54,7 +56,7 @@ public class SysUserCommonServiceImpl extends ServiceImpl<SysUserMapper, SysUser
         List<SysUserVO> voList = sysUserConverter.EnListToVOList(users);
 
         return voList.stream()
-                .collect(java.util.stream.Collectors.toMap(
+                .collect(Collectors.toMap(
                         SysUserVO::getId,
                         vo -> vo
                 ));

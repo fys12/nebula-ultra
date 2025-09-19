@@ -2,7 +2,6 @@ package com.cloudvalley.nebula.ultra.business.tenant.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.cloudvalley.nebula.ultra.business.tenant.model.entity.SysTenant;
 import com.cloudvalley.nebula.ultra.business.tenant.model.vo.TenantDetailsVO;
 import com.cloudvalley.nebula.ultra.business.tenant.service.ISysTenantService;
 import com.cloudvalley.nebula.ultra.business.tenant.service.ITenantAggregatorService;
@@ -54,7 +53,7 @@ public class TenantAggregatorServiceImpl implements ITenantAggregatorService {
 
         // 4. 对分页结果中的每个租户构建完整的树形结构
         return sysTenantList.getRecords().stream()
-                .map(tenant -> buildTenantTree(tenant, tenantMap, parentToChildrenMap))
+                .map(tenant -> buildTenantTree(tenant, tenantMap, parentToChildrenMap, 0))
                 .collect(Collectors.toList());
     }
 
@@ -66,13 +65,13 @@ public class TenantAggregatorServiceImpl implements ITenantAggregatorService {
      * @return 租户树
      */
     private TenantDetailsVO buildTenantTree(SysTenantVO tenant, Map<Long, SysTenantVO> tenantMap,
-                                            Map<Long, List<SysTenantVO>> parentToChildrenMap) {
+                                            Map<Long, List<SysTenantVO>> parentToChildrenMap, int depth) {
         // 1. 获取当前租户的子租户列表
         List<SysTenantVO> childTenants = parentToChildrenMap.getOrDefault(tenant.getId(), new ArrayList<>());
 
         // 2. 递归构建子租户树
         List<TenantDetailsVO> childTenantVOs = childTenants.stream()
-                .map(childTenant -> buildTenantTree(childTenant, tenantMap, parentToChildrenMap))
+                .map(childTenant -> buildTenantTree(childTenant, tenantMap, parentToChildrenMap, depth + 1))
                 .collect(Collectors.toList());
 
         // 3. 获取父租户名称
@@ -105,6 +104,7 @@ public class TenantAggregatorServiceImpl implements ITenantAggregatorService {
         // 6. 构建当前租户的TenantDetailsVO
         return new TenantDetailsVO(
                 tenant.getId(),
+                depth> 0 ? tenant.getId() + "-" + depth : tenant.getId().toString(),
                 parentTenantName,
                 tenant.getName(),
                 tenant.getDesc(),

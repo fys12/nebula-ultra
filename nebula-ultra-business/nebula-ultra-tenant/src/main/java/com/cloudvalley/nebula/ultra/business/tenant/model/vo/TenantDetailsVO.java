@@ -17,6 +17,11 @@ public class TenantDetailsVO {
     Long id;
 
     /**
+     * 用于前端树形结构的唯一标识，带层级后缀
+     */
+    String displayId;
+
+    /**
      * 父租户
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -87,7 +92,7 @@ public class TenantDetailsVO {
     /**
      * 子租户
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     List<TenantDetailsVO> childTenant;
 
 }

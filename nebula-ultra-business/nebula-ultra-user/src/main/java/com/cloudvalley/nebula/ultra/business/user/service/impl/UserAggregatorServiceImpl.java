@@ -3,6 +3,7 @@ package com.cloudvalley.nebula.ultra.business.user.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cloudvalley.nebula.ultra.business.user.model.dto.LoginDTO;
 import com.cloudvalley.nebula.ultra.business.user.model.vo.UserAggregatorInfoVO;
 import com.cloudvalley.nebula.ultra.business.user.service.ISysUserService;
 import com.cloudvalley.nebula.ultra.business.user.service.IUserAggregatorService;
@@ -75,58 +76,76 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
 
     /**
      * 用户登录
-     * @param username 用户名
-     * @param passwordHash 密码
+     * @param loginDTO 登录参数
      * @return 登录用户信息
      */
     @Override
-    public SysUserVO login(String username, String passwordHash) {
+    public SysUserVO login(LoginDTO loginDTO) {
         // 1. 登录 根据用户名和密码(hash加密后)查询用户信息
-        SysUserVO userInfo = iSysUserService.getUserByUsernameAndPasswordHash(username, passwordHash);
+        SysUserVO userInfo = iSysUserService.getUserByUsernameAndPasswordHash(loginDTO.getUsername(), loginDTO.getPasswordHash());
 
-        // 2. 登录失败
+        // 2. 用户名或密码错误
         if (userInfo == null) {
             return null;
         }
 
-        // 3. 登录成功(用户信息不为空) 根据 用户信息 查询 用户租户信息
+        // 3. 判断是否已经进行过登录
+        if (StpUtil.isLogin()) {
+            return userInfo;
+        }
+
+        // 4. 登录成功(用户信息不为空) 根据 用户信息 查询 用户租户信息
         List<UserTenantVO> userTenants = iUserTenantCommonService.getUserTenantsByUserId(userInfo.getId());
 
-        // 3.1 获取 用户租户Id
+        // 4.1 获取 用户租户Id
         List<Long> tUserIds = userTenants.stream()
                 .map(UserTenantVO::getId)
                 .toList();
 
-        // 3.2 获取 系统租户Id
+        // 4.2 获取 系统租户Id
         List<Long> sTenantIds = userTenants.stream()
                 .map(UserTenantVO::getSTenantId)
                 .toList();
 
-        // 3.3 租户认证 确保该用户 有 有效的租户
+        // 4.3 租户认证 确保该用户 有 有效的租户
         CheckTenantVO checkTenantVO = identityAuthService.checkTenant(sTenantIds);
 
-        // 3.4 获取 有效租户
+        // 4.4 获取 有效租户
         List<SysTenantVO> validSysTenants = checkTenantVO.getValidSysTenant();
 
+        // 4.5 无有效租户 禁止登录
         if (validSysTenants.isEmpty()) {
-            return null;
+            return new SysUserVO(
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
         }
 
-        // 4. 登录
+        // 5. 登录
         StpUtil.login(userInfo.getId());
 
-        // 5. 权限、部门、角色认证
+        // 6. 权限、部门、角色认证
         CheckPermVO checkPermVO = identityAuthService.checkPerm(tUserIds, sTenantIds);
 
-        // 6. 将认证信息进行缓存 redis
+        // 7. 将认证信息进行缓存 redis
         String permRedisKey = userInfo.getId() + ":" + "perm:";
 
         String roleRedisKey = userInfo.getId() + ":" + "role:";
 
-        // 6.1 存入权限
+        // 7.1 存入权限
         checkPermVO.getValidGlobalPerm().entrySet().stream()
                 .forEach(entry -> {
-                    String tenantRedisKey = permRedisKey + entry.getKey() + ":";
+                    String tenantRedisKey = entry.getKey() + ":" + permRedisKey;
                     // 取出所有 权限别名
                     List<String> sysPermAlias = entry.getValue().stream()
                                     .map(SysPermVO::getAlias)
@@ -136,10 +155,10 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
                     stringRedisTemplate.opsForList().leftPushAll(tenantRedisKey, sysPermAlias);
                 });
 
-        // 6.2 存入角色
+        // 7.2 存入角色
         checkPermVO.getCheckRoleVO().getValidGlobalRole().entrySet().stream()
                 .forEach(entry -> {
-                    String tenantRedisKey = roleRedisKey + entry.getKey() + ":";
+                    String tenantRedisKey = entry.getKey() + ":" + roleRedisKey;
                     // 取出所有 角色别名
                     List<String> sysRoleAlias = entry.getValue().stream()
                             .map(SysRoleVO::getAlias)

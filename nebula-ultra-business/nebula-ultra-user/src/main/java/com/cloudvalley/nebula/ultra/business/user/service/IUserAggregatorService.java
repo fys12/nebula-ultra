@@ -1,6 +1,7 @@
 package com.cloudvalley.nebula.ultra.business.user.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.cloudvalley.nebula.ultra.business.user.model.dto.LoginDTO;
 import com.cloudvalley.nebula.ultra.business.user.model.vo.UserAggregatorInfoVO;
 import com.cloudvalley.nebula.ultra.shared.api.user.model.vo.SysUserVO;
 
@@ -8,11 +9,10 @@ public interface IUserAggregatorService {
 
     /**
      * 用户登录
-     * @param username 用户名
-     * @param passwordHash 密码
+     * @param loginDTO 登录参数
      * @return 登录用户信息
      */
-    SysUserVO login(String username, String passwordHash);
+    SysUserVO login(LoginDTO loginDTO);
 
     /**
      * 获取用户聚合信息 [ 用户 所属部门 角色 ] 分页

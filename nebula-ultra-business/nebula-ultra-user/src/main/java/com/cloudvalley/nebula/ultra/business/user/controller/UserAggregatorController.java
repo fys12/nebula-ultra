@@ -33,9 +33,16 @@ public class UserAggregatorController {
      */
     @PostMapping("/login")
     public SaResult login(@RequestBody LoginDTO loginDTO) {
-        SysUserVO user = iUserAggregatorService.login(loginDTO.getUsername(), loginDTO.getPasswordHash());
+        if (loginDTO.getUsername().isEmpty() || loginDTO.getPasswordHash().isEmpty() || loginDTO.getRememberMe() == null || loginDTO.getSevenDaysAutoLogin() == null) {
+            return SaResult.error("登录参数缺失！");
+        }
+
+        SysUserVO user = iUserAggregatorService.login(loginDTO);
         if (user == null) {
-            return SaResult.error("用户名或密码错误");
+            return SaResult.error("用户名或密码错误！");
+        }
+        if (user.getId() == null && user.getUsername() == null && user.getPasswordHash() == null) {
+            return SaResult.error("用户无有效租户，禁止登录！");
         }
         return SaResult.ok("登录成功").setData(user);
     }

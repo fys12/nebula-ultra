@@ -1,15 +1,20 @@
 package com.cloudvalley.nebula.ultra.business.user.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cloudvalley.nebula.ultra.business.user.model.vo.UserAggregatorInfoVO;
 import com.cloudvalley.nebula.ultra.business.user.service.ISysUserService;
 import com.cloudvalley.nebula.ultra.business.user.service.IUserAggregatorService;
+import com.cloudvalley.nebula.ultra.core.auth.IdentityAuth;
+import com.cloudvalley.nebula.ultra.core.model.vo.CheckPermVO;
+import com.cloudvalley.nebula.ultra.core.model.vo.CheckTenantVO;
 import com.cloudvalley.nebula.ultra.shared.api.dept.model.vo.DeptTenantVO;
 import com.cloudvalley.nebula.ultra.shared.api.dept.model.vo.SysDeptVO;
 import com.cloudvalley.nebula.ultra.shared.api.dept.service.IDeptTenantCommonService;
 import com.cloudvalley.nebula.ultra.shared.api.dept.service.IDeptUserCommonService;
 import com.cloudvalley.nebula.ultra.shared.api.dept.service.ISysDeptCommonService;
+import com.cloudvalley.nebula.ultra.shared.api.perm.model.vo.SysPermVO;
 import com.cloudvalley.nebula.ultra.shared.api.role.model.vo.RoleTenantVO;
 import com.cloudvalley.nebula.ultra.shared.api.role.model.vo.SysRoleVO;
 import com.cloudvalley.nebula.ultra.shared.api.role.service.IRoleTenantCommonService;
@@ -22,6 +27,7 @@ import com.cloudvalley.nebula.ultra.shared.api.user.model.vo.UserTenantVO;
 import com.cloudvalley.nebula.ultra.shared.api.user.service.ISysUserCommonService;
 import com.cloudvalley.nebula.ultra.shared.api.user.service.IUserTenantCommonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -61,6 +67,12 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
     @Autowired
     private IRoleTenantCommonService iRoleTenantCommonService;
 
+    @Autowired
+    private IdentityAuth identityAuthService;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
     /**
      * 用户登录
      * @param username 用户名
@@ -77,13 +89,67 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
             return null;
         }
 
-        // 3. 登录成功(用户信息不为空)  权限校验
+        // 3. 登录成功(用户信息不为空) 根据 用户信息 查询 用户租户信息
+        List<UserTenantVO> userTenants = iUserTenantCommonService.getUserTenantsByUserId(userInfo.getId());
 
-        // 4. 部门校验
+        // 3.1 获取 用户租户Id
+        List<Long> tUserIds = userTenants.stream()
+                .map(UserTenantVO::getId)
+                .toList();
 
-        // 5. 角色校验
+        // 3.2 获取 系统租户Id
+        List<Long> sTenantIds = userTenants.stream()
+                .map(UserTenantVO::getSTenantId)
+                .toList();
 
-        return null;
+        // 3.3 租户认证 确保该用户 有 有效的租户
+        CheckTenantVO checkTenantVO = identityAuthService.checkTenant(sTenantIds);
+
+        // 3.4 获取 有效租户
+        List<SysTenantVO> validSysTenants = checkTenantVO.getValidSysTenant();
+
+        if (validSysTenants.isEmpty()) {
+            return null;
+        }
+
+        // 4. 登录
+        StpUtil.login(userInfo.getId());
+
+        // 5. 权限、部门、角色认证
+        CheckPermVO checkPermVO = identityAuthService.checkPerm(tUserIds, sTenantIds);
+
+        // 6. 将认证信息进行缓存 redis
+        String permRedisKey = userInfo.getId() + ":" + "perm:";
+
+        String roleRedisKey = userInfo.getId() + ":" + "role:";
+
+        // 6.1 存入权限
+        checkPermVO.getValidGlobalPerm().entrySet().stream()
+                .forEach(entry -> {
+                    String tenantRedisKey = permRedisKey + entry.getKey() + ":";
+                    // 取出所有 权限别名
+                    List<String> sysPermAlias = entry.getValue().stream()
+                                    .map(SysPermVO::getAlias)
+                                    .toList();
+
+                    // 存储
+                    stringRedisTemplate.opsForList().leftPushAll(tenantRedisKey, sysPermAlias);
+                });
+
+        // 6.2 存入角色
+        checkPermVO.getCheckRoleVO().getValidGlobalRole().entrySet().stream()
+                .forEach(entry -> {
+                    String tenantRedisKey = roleRedisKey + entry.getKey() + ":";
+                    // 取出所有 角色别名
+                    List<String> sysRoleAlias = entry.getValue().stream()
+                            .map(SysRoleVO::getAlias)
+                            .toList();
+
+                    // 存储
+                    stringRedisTemplate.opsForList().leftPushAll(tenantRedisKey, sysRoleAlias);
+                });
+
+        return userInfo;
     }
 
     /**

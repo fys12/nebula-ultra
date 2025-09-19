@@ -62,4 +62,14 @@ public class SysTenantCommonServiceImpl extends ServiceImpl<SysTenantMapper, Sys
                 ));
     }
 
+    /**
+     * 查询 所有 系统租户信息
+     * @return 系统租户列表
+     */
+    @Override
+    public List<SysTenantVO> getSysTenants() {
+        List<SysTenant> list = this.list();
+        return sysTenantConverter.EnListToVOList(list);
+    }
+
 }

@@ -216,4 +216,16 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         return this.update(updateWrapper);
     }
 
+    /**
+     * 根据 租户Id 查询 子租户
+     * @param id 系统租户Id
+     * @return 子租户Id列表
+     */
+    @Override
+    public List<SysTenant> getChildTenantIds(Long id) {
+        LambdaUpdateWrapper<SysTenant> queryWrapper = new LambdaUpdateWrapper<>();
+        queryWrapper.eq(SysTenant::getParentId, id);
+        return this.list(queryWrapper);
+    }
+
 }

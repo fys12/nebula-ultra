@@ -21,5 +21,11 @@ public interface ISysTenantCommonService {
      */
     Map<Long, SysTenantVO> getSysTenantsByIds(List<Long> ids);
 
+    /**
+     * 查询 所有 系统租户信息
+     * @return 系统租户列表
+     */
+    List<SysTenantVO> getSysTenants();
+
 
 }

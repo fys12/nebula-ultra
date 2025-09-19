@@ -84,4 +84,11 @@ public interface ISysTenantService extends IService<SysTenant> {
      */
     boolean batchSoftDeleteSysTenants(List<Long> ids);
 
+    /**
+     * 根据 租户Id 查询 子租户
+     * @param id 系统租户Id
+     * @return 子租户Id列表
+     */
+    List<SysTenant> getChildTenantIds(Long id);
+
 }

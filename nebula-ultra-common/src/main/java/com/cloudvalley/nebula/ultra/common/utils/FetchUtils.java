@@ -1,5 +1,6 @@
 package com.cloudvalley.nebula.ultra.common.utils;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,8 +21,7 @@ public class FetchUtils {
      * TODO: 实际项目中应该从Spring Security或其他认证框架的上下文中获取
      */
     public static Long getCurrentUserId() {
-        // 这里应该从认证上下文中获取当前登录用户的ID
-        return 1L;
+        return StpUtil.getLoginIdAsLong();
     }
 
     /**

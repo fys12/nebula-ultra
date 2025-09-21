@@ -87,6 +87,21 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
+     * 根据 用户名 模糊查询 系统用户信息
+     * @param username 用户名
+     * @return 用户信息
+     */
+    @Override
+    public List<SysUserVO> getUserByUsername(String username) {
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(SysUser::getUsername, username)
+                .eq(SysUser::getDeleted, false);
+
+        List<SysUser> user = this.list(queryWrapper);
+        return user != null ? sysUserConverter.EnListToVOList(user) : null;
+    }
+
+    /**
      * 根据用户名 和 密码 查询系统用户
      * @param username 用户名
      * @param passwordHash 密码(hash加密后)

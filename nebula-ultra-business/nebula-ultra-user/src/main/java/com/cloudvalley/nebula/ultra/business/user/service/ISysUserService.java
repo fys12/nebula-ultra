@@ -35,6 +35,13 @@ public interface ISysUserService extends IService<SysUser> {
     IPage<SysUserVO> getUsersByIds(List<Long> ids, Page<SysUser> page);
 
     /**
+     * 根据 用户名 模糊查询 系统用户信息
+     * @param username 用户名
+     * @return 用户信息
+     */
+    List<SysUserVO> getUserByUsername(String username);
+
+    /**
      * 根据用户名 和 密码 查询系统用户
      * @param username 用户名
      * @param passwordHash 密码(hash加密后)
@@ -91,5 +98,4 @@ public interface ISysUserService extends IService<SysUser> {
      * @return 操作结果
      */
     boolean batchSoftDeleteUsers(List<Long> ids);
-
 }

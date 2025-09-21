@@ -67,6 +67,25 @@ public class SysUserController {
     }
 
     /**
+     * 根据 用户名 模糊查询 系统用户信息
+     * @param username 用户名
+     * @return 用户信息
+     */
+    @GetMapping("/username/{username}")
+    public SaResult getUserByUsername(@PathVariable String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return SaResult.error("用户名不能为空");
+        }
+
+        List<SysUserVO> result = sysUserService.getUserByUsername(username);
+
+        if (result == null) {
+            return SaResult.ok("未找到匹配的用户").setData(null);
+        }
+        return SaResult.ok("查询用户成功").setData(result);
+    }
+
+    /**
      * 根据用户名和密码哈希值查询系统用户
      * @param username 用户名
      * @param passwordHash 密码哈希值

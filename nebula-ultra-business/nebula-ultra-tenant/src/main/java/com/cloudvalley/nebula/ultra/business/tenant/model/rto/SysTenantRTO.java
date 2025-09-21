@@ -1,6 +1,7 @@
 package com.cloudvalley.nebula.ultra.business.tenant.model.rto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -28,7 +29,8 @@ public class SysTenantRTO {
     /**
      * 租户描述
      */
-    private String desc;
+    @JsonProperty("tDesc")
+    private String tDesc;
 
     /**
      * 联系电话

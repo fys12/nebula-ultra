@@ -103,8 +103,10 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
         sysTenant.setCreatedAt(GeneratorUtils.generateCurrentTime());
         sysTenant.setUpdatedAt(GeneratorUtils.generateCurrentTime());
         sysTenant.setCreatedById(FetchUtils.getCurrentUserId());
-        if (sysTenantRTO.getState() == null && sysTenant.getDeleted() == null) {
+        if (sysTenantRTO.getState() == null) {
             sysTenant.setState(true);
+        }
+        if (sysTenantRTO.getDeleted() == null) {
             sysTenant.setDeleted(false);
         }
 

@@ -3,6 +3,7 @@ package com.cloudvalley.nebula.ultra.business.tenant.converter;
 import com.cloudvalley.nebula.ultra.business.tenant.model.entity.SysTenant;
 import com.cloudvalley.nebula.ultra.shared.api.tenant.model.vo.SysTenantVO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface SysTenantConverter {
      * @param sysTenant 源实体对象
      * @return 转换后的 VO 对象
      */
+    @Mapping(source = "TDesc", target = "desc")
     SysTenantVO EnToVO(SysTenant sysTenant);
 
     /**

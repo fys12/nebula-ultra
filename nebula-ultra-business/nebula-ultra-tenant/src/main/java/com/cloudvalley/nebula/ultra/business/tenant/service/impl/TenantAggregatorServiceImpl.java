@@ -37,7 +37,7 @@ public class TenantAggregatorServiceImpl implements ITenantAggregatorService {
      * @return 租户详情信息
      */
     @Override
-    public List<TenantDetailsVO> getTenantInfo(Integer current, Integer size) {
+    public IPage<TenantDetailsVO> getTenantInfo(Integer current, Integer size) {
         // 1. 查询 系统租户列表 基本信息（分页）
         IPage<SysTenantVO> sysTenantList = iSysTenantService.getSysTenantList(new Page<>(current, size));
 
@@ -52,9 +52,17 @@ public class TenantAggregatorServiceImpl implements ITenantAggregatorService {
                 .collect(Collectors.groupingBy(SysTenantVO::getParentId));
 
         // 4. 对分页结果中的每个租户构建完整的树形结构
-        return sysTenantList.getRecords().stream()
+        List<TenantDetailsVO> tenantTreeList = sysTenantList.getRecords().stream()
                 .map(tenant -> buildTenantTree(tenant, tenantMap, parentToChildrenMap, 0))
                 .collect(Collectors.toList());
+
+        // 5. 创建新的分页对象并返回
+        IPage<TenantDetailsVO> resultPage = new Page<>(current, size);
+        resultPage.setRecords(tenantTreeList);
+        resultPage.setTotal(sysTenantList.getTotal());
+        resultPage.setPages(sysTenantList.getPages());
+
+        return resultPage;
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.cloudvalley.nebula.ultra.business.tenant.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloudvalley.nebula.ultra.business.tenant.model.vo.TenantDetailsVO;
 
 import java.util.List;
@@ -13,5 +14,5 @@ public interface ITenantAggregatorService {
      * @param size 每页数量
      * @return 租户详情信息
      */
-    List<TenantDetailsVO> getTenantInfo(Integer current, Integer size);
+    IPage<TenantDetailsVO> getTenantInfo(Integer current, Integer size);
 }

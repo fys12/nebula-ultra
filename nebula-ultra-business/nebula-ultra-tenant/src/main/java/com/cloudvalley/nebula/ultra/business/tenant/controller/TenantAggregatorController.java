@@ -1,6 +1,7 @@
 package com.cloudvalley.nebula.ultra.business.tenant.controller;
 
 import cn.dev33.satoken.util.SaResult;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloudvalley.nebula.ultra.business.tenant.model.vo.TenantDetailsVO;
 import com.cloudvalley.nebula.ultra.business.tenant.service.ITenantAggregatorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ public class TenantAggregatorController {
         if (current == null || size == null) {
             return SaResult.error("参数缺失");
         }
-        List<TenantDetailsVO> tenantDetailsVO = iTenantAggregatorService.getTenantInfo(current, size);
+        IPage<TenantDetailsVO> tenantDetailsVO = iTenantAggregatorService.getTenantInfo(current, size);
         return SaResult.ok("租户详情信息列表获取成功").setData(tenantDetailsVO);
     }
 

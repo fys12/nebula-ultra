@@ -48,6 +48,21 @@ public class SysTenantController {
     }
 
     /**
+     * 根据系统租户名称 模糊查询 系统租户
+     * @param name 系统租户名称
+     * @return 匹配的系统租户记录
+     */
+    @GetMapping("/{name}")
+    public SaResult getSysTenantByName(@PathVariable String name) {
+        List<SysTenantVO> result = sysTenantService.getSysTenantByName(name);
+
+        if (result.isEmpty()) {
+            return SaResult.ok("暂无系统租户数据").setData(new Page<>(1, 10, 0));
+        }
+        return SaResult.ok("获取系统租户列表成功").setData(result);
+    }
+
+    /**
      * 根据多个ID分页批量查询系统租户
      * @param ids 系统租户ID列表
      * @param current 当前页码

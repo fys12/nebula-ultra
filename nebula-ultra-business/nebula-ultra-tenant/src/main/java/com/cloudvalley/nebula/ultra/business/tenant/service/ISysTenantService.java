@@ -35,6 +35,13 @@ public interface ISysTenantService extends IService<SysTenant> {
     IPage<SysTenantVO> getSysTenantsByIds(List<Long> ids, Page<SysTenant> page);
 
     /**
+     * 根据系统租户名称 模糊查询 系统租户
+     * @param name 系统租户名称
+     * @return 匹配的系统租户记录
+     */
+    List<SysTenantVO> getSysTenantByName(String name);
+
+    /**
      * 新增系统租户
      * @param sysTenantRTO 系统租户信息
      * @return 是否成功
@@ -90,5 +97,4 @@ public interface ISysTenantService extends IService<SysTenant> {
      * @return 子租户Id列表
      */
     List<SysTenant> getChildTenantIds(Long id);
-
 }

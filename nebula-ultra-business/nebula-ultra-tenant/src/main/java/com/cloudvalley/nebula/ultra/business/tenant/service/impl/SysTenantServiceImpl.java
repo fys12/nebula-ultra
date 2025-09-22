@@ -88,6 +88,20 @@ public class SysTenantServiceImpl extends ServiceImpl<SysTenantMapper, SysTenant
     }
 
     /**
+     * 根据系统租户名称 模糊查询 系统租户
+     * @param name 系统租户名称
+     * @return 匹配的系统租户记录
+     */
+    @Override
+    public List<SysTenantVO> getSysTenantByName(String name) {
+        LambdaQueryWrapper<SysTenant> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(SysTenant::getName, name);
+
+        List<SysTenant> sysTenantList = this.list(queryWrapper);
+        return sysTenantConverter.EnListToVOList(sysTenantList);
+    }
+
+    /**
      * 新增系统租户
      * @param sysTenantRTO 请求传输对象，包含租户编码、名称、联系人、联系方式等信息
      * @return 成功返回 true，失败返回 false；生成ID与时间戳，设置默认状态和创建人信息

@@ -1,5 +1,6 @@
 package com.cloudvalley.nebula.ultra.shared.api.user.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Value;
 
@@ -12,6 +13,7 @@ public class SysUserVO {
     /**
      * 主键ID（雪花算法ID）
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long id;
 
     /**
@@ -47,11 +49,13 @@ public class SysUserVO {
     /**
      * 创建人用户ID
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long createdById;
 
     /**
      * 更新人用户ID
      */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long updatedById;
 
     /**

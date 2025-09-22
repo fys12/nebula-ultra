@@ -1,5 +1,6 @@
 package com.cloudvalley.nebula.ultra.business.tenant.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Value;
 
@@ -13,7 +14,7 @@ public class TenantDetailsVO {
     /**
      * 主键ID（雪花算法ID）
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long id;
 
     /**

@@ -1,5 +1,6 @@
 package com.cloudvalley.nebula.ultra.shared.api.tenant.model.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Value;
 
@@ -12,13 +13,13 @@ public class SysTenantVO {
     /**
      * 主键ID（雪花算法ID）
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long id;
 
     /**
      * 父租户ID
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long parentId;
 
     /**
@@ -44,7 +45,7 @@ public class SysTenantVO {
     /**
      * 负责人用户ID
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long ownerUserId;
 
     /**
@@ -70,7 +71,7 @@ public class SysTenantVO {
     /**
      * 创建人用户ID
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long createdById;
 
     /**

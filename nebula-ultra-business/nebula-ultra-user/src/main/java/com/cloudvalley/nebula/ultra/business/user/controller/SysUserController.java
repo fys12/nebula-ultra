@@ -34,9 +34,9 @@ public class SysUserController {
      * @param size 每页大小
      * @return 系统用户列表
      */
-    @GetMapping
-    public SaResult getUserList(@RequestParam(value = "current", defaultValue = "1") Integer current,
-                                @RequestParam(value = "size", defaultValue = "10") Integer size) {
+    @GetMapping("/{current}/{size}")
+    public SaResult getUserList(@PathVariable(value = "current") Integer current,
+                                @PathVariable(value = "size") Integer size) {
         Page<SysUser> page = new Page<>(current, size);
         IPage<SysUserVO> result = sysUserService.getUserList(page);
 

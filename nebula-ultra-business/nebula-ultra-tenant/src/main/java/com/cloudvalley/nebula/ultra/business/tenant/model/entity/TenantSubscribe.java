@@ -72,9 +72,9 @@ public class TenantSubscribe implements Serializable {
     private Long createdById;
 
     /**
-     * 状态：active/expired/cancelled/pending
+     * 状态
      */
-    private String state;
+    private Boolean state;
 
     /**
      * 软删

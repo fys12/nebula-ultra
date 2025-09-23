@@ -190,8 +190,8 @@ public class TenantSubscribeController {
      * @return 操作成功返回 ok，失败返回 error
      */
     @PatchMapping("/{id}/status")
-    public SaResult updateTenantSubscribeStatus(@PathVariable Long id, @RequestParam String status) {
-        boolean result = tenantSubscribeService.updateTenantSubscribeStatus(id, status);
+    public SaResult updateTenantSubscribeState(@PathVariable Long id, @RequestParam Boolean status) {
+        boolean result = tenantSubscribeService.updateTenantSubscribeState(id, status);
         if (result) {
             return SaResult.ok("更新租户订阅状态成功");
         }

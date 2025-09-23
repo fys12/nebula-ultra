@@ -4,6 +4,7 @@ package com.cloudvalley.nebula.ultra.shared.api.combo.service;
 import com.cloudvalley.nebula.ultra.shared.api.combo.model.vo.SysComboVO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ISysComboCommonService {
 
@@ -21,6 +22,6 @@ public interface ISysComboCommonService {
      * @param ids 套餐ID列表
      * @return 系统套餐信息
      */
-    List<SysComboVO> getSysCombosByIds(List<Long> ids);
+    Map<Long, SysComboVO> getSysCombosByIds(List<Long> ids);
 
 }

@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SysComboCommonServiceImpl extends ServiceImpl<SysComboMapper, SysCombo> implements ISysComboCommonService {
@@ -41,16 +43,17 @@ public class SysComboCommonServiceImpl extends ServiceImpl<SysComboMapper, SysCo
      * @return 符合条件的系统套餐VO列表，若ID列表为空则返回空列表
      */
     @Override
-    public List<SysComboVO> getSysCombosByIds(List<Long> ids) {
+    public Map<Long, SysComboVO> getSysCombosByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<SysCombo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(SysCombo::getId, ids)
                 .eq(SysCombo::getDeleted, false)
                 .orderByDesc(SysCombo::getCreatedAt);
         List<SysCombo> list = this.list(queryWrapper);
-        return sysComboConverter.EnListToVOList(list);
+        List<SysComboVO> voList = sysComboConverter.EnListToVOList(list);
+        return voList.stream().collect(Collectors.toMap(SysComboVO::getId, vo -> vo));
     }
 
 }

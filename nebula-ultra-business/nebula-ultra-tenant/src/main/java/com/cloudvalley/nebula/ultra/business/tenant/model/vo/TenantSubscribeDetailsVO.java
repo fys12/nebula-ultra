@@ -1,5 +1,8 @@
-package com.cloudvalley.nebula.ultra.shared.api.tenant.model.vo;
+package com.cloudvalley.nebula.ultra.business.tenant.model.vo;
 
+import com.cloudvalley.nebula.ultra.shared.api.combo.model.vo.SysComboVO;
+import com.cloudvalley.nebula.ultra.shared.api.tenant.model.vo.SysTenantVO;
+import com.cloudvalley.nebula.ultra.shared.api.user.model.vo.SysUserVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Value;
@@ -8,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Value
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TenantSubscribeVO {
+public class TenantSubscribeDetailsVO {
 
     /**
      * 主键ID（雪花算法ID）
@@ -17,16 +20,14 @@ public class TenantSubscribeVO {
     Long id;
 
     /**
-     * 系统租户ID
+     * 系统租户
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    Long sTenantId;
+    SysTenantVO tenant;
 
     /**
-     * 系统套餐ID
+     * 系统套餐
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    Long sComboId;
+     SysComboVO combo;
 
     /**
      * 生效时间
@@ -56,8 +57,7 @@ public class TenantSubscribeVO {
     /**
      * 创建人用户ID
      */
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    Long createdById;
+    SysUserVO createdByUser;
 
     /**
      * 状态
@@ -68,5 +68,5 @@ public class TenantSubscribeVO {
      * 软删
      */
     Boolean deleted;
-
+    
 }

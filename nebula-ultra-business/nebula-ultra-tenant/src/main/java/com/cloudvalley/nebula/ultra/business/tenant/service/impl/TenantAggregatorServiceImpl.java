@@ -3,9 +3,14 @@ package com.cloudvalley.nebula.ultra.business.tenant.service.impl;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cloudvalley.nebula.ultra.business.tenant.model.vo.TenantDetailsVO;
+import com.cloudvalley.nebula.ultra.business.tenant.model.vo.TenantSubscribeDetailsVO;
 import com.cloudvalley.nebula.ultra.business.tenant.service.ISysTenantService;
 import com.cloudvalley.nebula.ultra.business.tenant.service.ITenantAggregatorService;
+import com.cloudvalley.nebula.ultra.business.tenant.service.ITenantSubscribeService;
+import com.cloudvalley.nebula.ultra.shared.api.combo.model.vo.SysComboVO;
+import com.cloudvalley.nebula.ultra.shared.api.combo.service.ISysComboCommonService;
 import com.cloudvalley.nebula.ultra.shared.api.tenant.model.vo.SysTenantVO;
+import com.cloudvalley.nebula.ultra.shared.api.tenant.model.vo.TenantSubscribeVO;
 import com.cloudvalley.nebula.ultra.shared.api.tenant.service.ISysTenantCommonService;
 import com.cloudvalley.nebula.ultra.shared.api.user.model.vo.SysUserVO;
 import com.cloudvalley.nebula.ultra.shared.api.user.service.ISysUserCommonService;
@@ -28,6 +33,12 @@ public class TenantAggregatorServiceImpl implements ITenantAggregatorService {
 
     @Autowired
     private ISysUserCommonService iSysUserCommonService;
+
+    @Autowired
+    private ITenantSubscribeService iTenantSubscribeService;
+
+    @Autowired
+    private ISysComboCommonService iSysComboCommonService;
 
     /**
      * 获取租户详情信息
@@ -61,6 +72,77 @@ public class TenantAggregatorServiceImpl implements ITenantAggregatorService {
         resultPage.setRecords(tenantTreeList);
         resultPage.setTotal(sysTenantList.getTotal());
         resultPage.setPages(sysTenantList.getPages());
+
+        return resultPage;
+    }
+
+    /**
+     * 获取租户订阅（租户套餐）详情信息
+     * 总体将 绑定的Id 转为实体数据
+     * @param current 当前页
+     * @param size 每页数量
+     * @return 租户订阅（租户套餐）
+     */
+    @Override
+    public IPage<TenantSubscribeDetailsVO> getTenantSubscribeInfo(Integer current, Integer size) {
+        // 1. 查询 租户订阅（租户套餐）列表 基本信息（分页）
+        IPage<TenantSubscribeVO> tenantSubscribeList = iTenantSubscribeService.getTenantSubscribeList(new Page<>(current, size));
+
+        // 1.2 获取 租户Id
+        List<Long> tenantIds = tenantSubscribeList.getRecords().stream()
+                .map(TenantSubscribeVO::getSTenantId)
+                .filter(id -> id != null)
+                .toList();
+
+        // 1.3 获取 套餐Id
+        List<Long> comboIds = tenantSubscribeList.getRecords().stream()
+                .map(TenantSubscribeVO::getSComboId)
+                .filter(id -> id != null)
+                .toList();
+
+        // 1.4 获取 用户Id
+        List<Long> userIds = tenantSubscribeList.getRecords().stream()
+                .map(TenantSubscribeVO::getCreatedById)
+                .filter(id -> id != null)
+                .toList();
+
+        // 2. 根据 租户Id 查询 租户信息
+        Map<Long, SysTenantVO> tenantMap = iSysTenantCommonService.getSysTenantsByIds(tenantIds);
+
+        // 3. 根据 套餐Id 获取 套餐信息
+        Map<Long, SysComboVO> comboMap = iSysComboCommonService.getSysCombosByIds(comboIds);
+
+        // 4. 根据 用户Id 获取 用户信息
+        Map<Long, SysUserVO> userMap = iSysUserCommonService.getUsersByIds(userIds);
+
+        // 5. 组装数据
+        List<TenantSubscribeDetailsVO> detailsList = tenantSubscribeList.getRecords().stream()
+                .map(subscribe -> {
+                    SysTenantVO tenant = tenantMap.get(subscribe.getSTenantId());
+                    SysComboVO combo = comboMap.get(subscribe.getSComboId());
+                    SysUserVO createdByUser = userMap.get(subscribe.getCreatedById());
+
+                    return new TenantSubscribeDetailsVO(
+                            subscribe.getId(),
+                            tenant,
+                            combo,
+                            subscribe.getStartAt(),
+                            subscribe.getEndAt(),
+                            subscribe.getRemark(),
+                            subscribe.getCreatedAt(),
+                            subscribe.getUpdatedAt(),
+                            createdByUser,
+                            subscribe.getState(),
+                            subscribe.getDeleted()
+                    );
+                })
+                .toList();
+
+        // 6. 创建新的分页对象并返回
+        IPage<TenantSubscribeDetailsVO> resultPage = new Page<>(current, size);
+        resultPage.setRecords(detailsList);
+        resultPage.setTotal(tenantSubscribeList.getTotal());
+        resultPage.setPages(tenantSubscribeList.getPages());
 
         return resultPage;
     }

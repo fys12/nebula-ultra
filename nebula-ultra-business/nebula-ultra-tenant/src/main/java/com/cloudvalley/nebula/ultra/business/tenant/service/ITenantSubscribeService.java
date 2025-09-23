@@ -87,7 +87,7 @@ public interface ITenantSubscribeService extends IService<TenantSubscribe> {
      * @param status 状态
      * @return 是否成功
      */
-    boolean updateTenantSubscribeStatus(Long id, String status);
+    boolean updateTenantSubscribeState(Long id, Boolean status);
 
     /**
      * 删除订阅（真删）

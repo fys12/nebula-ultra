@@ -55,7 +55,7 @@ public class TenantSubscribeDetailsVO {
     LocalDateTime updatedAt;
 
     /**
-     * 创建人用户ID
+     * 创建人用户
      */
     SysUserVO createdByUser;
 

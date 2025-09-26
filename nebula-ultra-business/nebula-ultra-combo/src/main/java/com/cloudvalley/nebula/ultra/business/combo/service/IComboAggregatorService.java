@@ -6,7 +6,7 @@ import com.cloudvalley.nebula.ultra.business.combo.model.vo.ComboDetailsVO;
 public interface IComboAggregatorService {
 
     /**
-     * 获取租 套餐 详情信息
+     * 获取租户 套餐 详情信息
      * 包含 套餐 包含的 权限、角色、配额
      * @param current 当前页
      * @param size 每页数量

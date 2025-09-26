@@ -18,13 +18,13 @@ public class ComboAggregatorController {
     private IComboAggregatorService iComboAggregatorService;
 
     /**
-     * 获取租 套餐 详情信息
+     * 获取租户 套餐 详情信息
      * 包含 套餐 包含的 权限、角色、配额
      * @param current 当前页
      * @param size 每页数量
      * @return 套餐详情信息
      */
-    @GetMapping("/combo/{current}/{size}")
+    @GetMapping("/tenant/combo/{current}/{size}")
     public SaResult getComboInfo(@PathVariable Integer current, @PathVariable Integer size) {
         if (current == null || size == null) {
             return SaResult.error("参数缺失");

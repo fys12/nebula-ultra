@@ -16,7 +16,7 @@ public interface GroupPermConverter {
      * @param groupPerm 源实体对象
      * @return 转换后的 GroupPermVO 对象
      */
-    @Mapping(source = "SGroupId", target = "sGroupId")
+    @Mapping(source = "TGroupId", target = "tGroupId")
     @Mapping(source = "TPermId", target = "tPermId")
     GroupPermVO EnToVO(GroupPerm groupPerm);
 

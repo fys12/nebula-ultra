@@ -68,19 +68,19 @@ public class GroupBindDeptController {
     }
 
     /**
-     * 根据系统组ID查询绑定关系 [分页] - 查看某组关联的租户部门
+     * 根据租户组ID查询绑定关系 [分页] - 查看某组关联的租户部门
      *
-     * @param sGroupId 系统组ID
+     * @param tGroupId 租户组ID
      * @param current 当前页码，默认为1
      * @param size 每页大小，默认为10
      * @return SaResult 返回分页的 GroupBindDeptVO 列表，表示该组绑定的租户部门，封装在 SaResult 中
      */
-    @GetMapping("/by-sgroup/{sGroupId}")
-    public SaResult getGroupBindDeptsBySGroupId(@PathVariable Long sGroupId,
+    @GetMapping("/by-sgroup/{tGroupId}")
+    public SaResult getGroupBindDeptsBySGroupId(@PathVariable Long tGroupId,
                                             @RequestParam(value = "current", defaultValue = "1") Integer current,
                                             @RequestParam(value = "size", defaultValue = "10") Integer size) {
         Page<GroupBindDept> page = new Page<>(current, size);
-        IPage<GroupBindDeptVO> result = groupBindDeptService.getGroupBindDeptsBySGroupId(sGroupId, page);
+        IPage<GroupBindDeptVO> result = groupBindDeptService.getGroupBindDeptsBySGroupId(tGroupId, page);
         if (result.getRecords().isEmpty()) {
             return SaResult.ok("该组暂无绑定的租户部门").setData(new Page<>(current, size, 0));
         }
@@ -88,19 +88,19 @@ public class GroupBindDeptController {
     }
 
     /**
-     * 根据系统组ID批量查询绑定关系 [分页] - 返回分组结果
+     * 根据租户组ID批量查询绑定关系 [分页] - 返回分组结果
      *
-     * @param sGroupIds 系统组ID列表
+     * @param tGroupIds 租户组ID列表
      * @param current 当前页码，默认为1
      * @param size 每页大小，默认为10
      * @return SaResult 返回分页的 Map，键为系统组ID，值为对应绑定的 GroupBindDeptVO 列表，封装在 SaResult 中
      */
     @GetMapping("/by-sgroups")
-    public SaResult getGroupBindDeptsBySGroupIds(@RequestParam List<Long> sGroupIds,
+    public SaResult getGroupBindDeptsBySGroupIds(@RequestParam List<Long> tGroupIds,
                                              @RequestParam(value = "current", defaultValue = "1") Integer current,
                                              @RequestParam(value = "size", defaultValue = "10") Integer size) {
         Page<GroupBindDept> page = new Page<>(current, size);
-        IPage<Map<Long, List<GroupBindDeptVO>>> result = groupBindDeptService.getGroupBindDeptsBySGroupIds(sGroupIds, page);
+        IPage<Map<Long, List<GroupBindDeptVO>>> result = groupBindDeptService.getGroupBindDeptsBySGroupIds(tGroupIds, page);
         if (result.getRecords().isEmpty()) {
             return SaResult.ok("这些组暂无绑定的租户部门").setData(new Page<>(current, size, 0));
         }

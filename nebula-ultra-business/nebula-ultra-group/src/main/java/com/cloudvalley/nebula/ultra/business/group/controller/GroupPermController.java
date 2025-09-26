@@ -70,19 +70,19 @@ public class GroupPermController {
     }
 
     /**
-     * 根据系统组ID查询其绑定的权限 [分页]
+     * 根据租户组ID查询其绑定的权限 [分页]
      *
-     * @param groupId 系统组ID
+     * @param tGroupId 租户组ID
      * @param current 当前页码，默认为1
      * @param size 每页大小，默认为10
      * @return SaResult 返回该组绑定的 GroupPermVO 分页列表
      */
-    @GetMapping("/by-group/{groupId}")
-    public SaResult getGroupPermsByGroupId(@PathVariable Long groupId,
+    @GetMapping("/by-group/{tGroupId}")
+    public SaResult getGroupPermsByGroupId(@PathVariable Long tGroupId,
                                            @RequestParam(value = "current", defaultValue = "1") Integer current,
                                            @RequestParam(value = "size", defaultValue = "10") Integer size) {
         Page<GroupPerm> page = new Page<>(current, size);
-        IPage<GroupPermVO> result = groupPermService.getGroupPermsByGroupId(groupId, page);
+        IPage<GroupPermVO> result = groupPermService.getGroupPermsByGroupId(tGroupId, page);
 
         if (result.getRecords().isEmpty()) {
             return SaResult.ok("该系统组暂无权限关联").setData(new Page<>(current, size, 0));
@@ -91,19 +91,19 @@ public class GroupPermController {
     }
 
     /**
-     * 根据多个系统组ID批量查询权限关联 [分页]，并按组ID分组返回
+     * 根据多个租户组ID批量查询权限关联 [分页]，并按组ID分组返回
      *
-     * @param groupIds 系统组ID列表
+     * @param tGroupIds 租户组ID列表
      * @param current 当前页码，默认为1
      * @param size 每页大小，默认为10
      * @return SaResult 返回分页的 Map，键为 groupId，值为对应 VO 列表
      */
     @GetMapping("/by-groups")
-    public SaResult getGroupPermsByGroupIds(@RequestParam List<Long> groupIds,
+    public SaResult getGroupPermsByGroupIds(@RequestParam List<Long> tGroupIds,
                                             @RequestParam(value = "current", defaultValue = "1") Integer current,
                                             @RequestParam(value = "size", defaultValue = "10") Integer size) {
         Page<GroupPerm> page = new Page<>(current, size);
-        IPage<Map<Long, List<GroupPermVO>>> result = groupPermService.getGroupPermsByGroupIds(groupIds, page);
+        IPage<Map<Long, List<GroupPermVO>>> result = groupPermService.getGroupPermsByGroupIds(tGroupIds, page);
 
         if (result.getRecords().isEmpty()) {
             return SaResult.ok("这些系统组暂无权限关联").setData(new Page<>(current, size, 0));

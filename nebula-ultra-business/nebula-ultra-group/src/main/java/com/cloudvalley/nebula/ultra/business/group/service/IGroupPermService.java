@@ -36,20 +36,20 @@ public interface IGroupPermService extends IService<GroupPerm> {
     IPage<GroupPermVO> getGroupPermsByIds(List<Long> ids, Page<GroupPerm> page);
 
     /**
-     * 根据系统组ID查询权限组关联 [分页]
-     * @param groupId 系统组ID
+     * 根据租户组ID查询权限组关联 [分页]
+     * @param tGroupId 租户组ID
      * @param page 分页参数
      * @return 权限组关联列表
      */
-    IPage<GroupPermVO> getGroupPermsByGroupId(Long groupId, Page<GroupPerm> page);
+    IPage<GroupPermVO> getGroupPermsByGroupId(Long tGroupId, Page<GroupPerm> page);
 
     /**
-     * 根据系统组ID批量查询权限组关联 [分页] - 返回分组结果
-     * @param groupIds 系统组ID列表
+     * 根据租户组ID批量查询权限组关联 [分页] - 返回分组结果
+     * @param tGroupIds 租户组ID列表
      * @param page 分页参数
      * @return 按系统组ID分组的权限关联分页列表
      */
-    IPage<Map<Long, List<GroupPermVO>>> getGroupPermsByGroupIds(List<Long> groupIds, Page<GroupPerm> page);
+    IPage<Map<Long, List<GroupPermVO>>> getGroupPermsByGroupIds(List<Long> tGroupIds, Page<GroupPerm> page);
 
     /**
      * 根据租户权限ID查询权限组关联 [分页]

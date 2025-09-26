@@ -93,14 +93,14 @@ public class GroupBindRoleServiceImpl extends ServiceImpl<GroupBindRoleMapper, G
     /**
      * 根据系统组ID分页查询其绑定的租户角色
      *
-     * @param groupId 系统组ID
+     * @param tGroupId 租户组ID
      * @param page 分页参数
      * @return 分页的 GroupBindRoleVO 列表
      */
     @Override
-    public IPage<GroupBindRoleVO> getGroupBindRolesByGroupId(Long groupId, Page<GroupBindRole> page) {
+    public IPage<GroupBindRoleVO> getGroupBindRolesByGroupId(Long tGroupId, Page<GroupBindRole> page) {
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindRole::getSGroupId, groupId)
+        queryWrapper.eq(GroupBindRole::getSGroupId, tGroupId)
                 .eq(GroupBindRole::getDeleted, false)
                 .orderByDesc(GroupBindRole::getCreatedAt);
 
@@ -117,19 +117,19 @@ public class GroupBindRoleServiceImpl extends ServiceImpl<GroupBindRoleMapper, G
     /**
      * 根据多个系统组ID分页查询绑定关系，并按组ID分组返回
      *
-     * @param groupIds 系统组ID列表
+     * @param tGroupIds 租户组ID列表
      * @param page 分页参数
      * @return 分页的 Map，键为 groupId，值为对应 VO 列表
      */
     @Override
-    public IPage<Map<Long, List<GroupBindRoleVO>>> getGroupBindRolesByGroupIds(List<Long> groupIds, Page<GroupBindRole> page) {
+    public IPage<Map<Long, List<GroupBindRoleVO>>> getGroupBindRolesByGroupIds(List<Long> tGroupIds, Page<GroupBindRole> page) {
         return FetchUtils.pageGroupQuery(
                 // 要查询的ID列表
-                groupIds,
+                tGroupIds,
                 // 分页参数
                 page,
                 // 查询条件：按组ID批量查询，且未删除，按创建时间倒序
-                wrapper -> wrapper.in(GroupBindRole::getSGroupId, groupIds)
+                wrapper -> wrapper.in(GroupBindRole::getSGroupId, tGroupIds)
                         .eq(GroupBindRole::getDeleted, false)
                         .orderByDesc(GroupBindRole::getCreatedAt),
                 // 执行分页查询（调用当前 Service 的 page 方法）
@@ -137,7 +137,7 @@ public class GroupBindRoleServiceImpl extends ServiceImpl<GroupBindRoleMapper, G
                 // 实体列表转 VO 列表
                 groupBindRoleConverter::EnListToVOList,
                 // 按组ID分组
-                GroupBindRoleVO::getSGroupId
+                GroupBindRoleVO::getTGroupId
         );
     }
 

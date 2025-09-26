@@ -59,15 +59,15 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
     }
 
     /**
-     * 根据系统组ID查询其绑定的所有权限 [全量]
+     * 根据租户组ID查询其绑定的所有权限 [全量]
      *
-     * @param groupId 系统组ID
+     * @param tGroupId 租户组ID
      * @return 该组绑定的所有 GroupPermVO 列表
      */
     @Override
-    public List<GroupPermVO> getGroupPermsByGroupId(Long groupId) {
+    public List<GroupPermVO> getGroupPermsByGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupPerm::getSGroupId, groupId)
+        queryWrapper.eq(GroupPerm::getSGroupId, tGroupId)
                 .eq(GroupPerm::getDeleted, false)
                 .orderByDesc(GroupPerm::getCreatedAt);
         List<GroupPerm> list = this.list(queryWrapper);
@@ -75,23 +75,23 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
     }
 
     /**
-     * 根据多个系统组ID批量查询权限绑定关系，并按组ID分组返回 [全量]
+     * 根据多个租户组ID批量查询权限绑定关系，并按组ID分组返回 [全量]
      *
-     * @param groupIds 系统组ID列表
+     * @param tGroupId 租户组ID
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public Map<Long, List<GroupPermVO>> getGroupPermsByGroupIds(List<Long> groupIds) {
-        if (groupIds == null || groupIds.isEmpty()) {
+    public Map<Long, List<GroupPermVO>> getGroupPermsByGroupIds(List<Long> tGroupId) {
+        if (tGroupId == null || tGroupId.isEmpty()) {
             return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(GroupPerm::getSGroupId, groupIds)
+        queryWrapper.in(GroupPerm::getSGroupId, tGroupId)
                 .eq(GroupPerm::getDeleted, false)
                 .orderByDesc(GroupPerm::getCreatedAt);
         List<GroupPerm> entities = this.list(queryWrapper);
         List<GroupPermVO> voList = groupPermConverter.EnListToVOList(entities);
-        Map<Long, List<GroupPermVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupPermVO::getSGroupId));
+        Map<Long, List<GroupPermVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupPermVO::getTGroupId));
         return grouped;
     }
 
@@ -133,15 +133,15 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
     }
 
     /**
-     * 根据系统组ID查询其绑定的所有租户权限ID
+     * 根据租户组ID查询其绑定的所有租户权限ID
      *
-     * @param groupId 系统组ID
+     * @param tGroupId 租户组ID
      * @return 绑定的租户权限ID集合
      */
     @Override
-    public Set<Long> getPermIdsByGroupId(Long groupId) {
+    public Set<Long> getPermIdsByGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupPerm::getSGroupId, groupId)
+        queryWrapper.eq(GroupPerm::getSGroupId, tGroupId)
                 .eq(GroupPerm::getDeleted, false)
                 .select(GroupPerm::getTPermId);
 

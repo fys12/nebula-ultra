@@ -15,7 +15,7 @@ public interface GroupBindDeptConverter {
      * @param groupBindDept 要转换的实体对象
      * @return 转换后的 VO 对象
      */
-    @Mapping(source = "SGroupId", target = "sGroupId")
+    @Mapping(source = "TGroupId", target = "tGroupId")
     @Mapping(source = "TDeptId", target = "tDeptId")
     GroupBindDeptVO EnToVO(GroupBindDept groupBindDept);
 

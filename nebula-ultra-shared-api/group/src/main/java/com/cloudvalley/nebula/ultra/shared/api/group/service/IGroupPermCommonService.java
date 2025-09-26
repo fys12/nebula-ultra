@@ -25,20 +25,20 @@ public interface IGroupPermCommonService {
     List<GroupPermVO> getGroupPermsByIds(List<Long> ids);
 
     /**
-     * 根据系统组ID查询其绑定的所有权限 [全量]
+     * 根据租户组ID查询其绑定的所有权限 [全量]
      *
-     * @param groupId 系统组ID
+     * @param tGroupId 租户组ID
      * @return 该组绑定的 GroupPermVO 列表
      */
-    List<GroupPermVO> getGroupPermsByGroupId(Long groupId);
+    List<GroupPermVO> getGroupPermsByGroupId(Long tGroupId);
 
     /**
-     * 根据多个系统组ID批量查询权限绑定关系，并按组ID分组返回 [全量]
+     * 根据多个租户组ID批量查询权限绑定关系，并按组ID分组返回 [全量]
      *
-     * @param groupIds 系统组ID列表
+     * @param tGroupIds 租户组ID列表
      * @return 分组结果列表，每个元素为 Map<groupId, VO列表>
      */
-    Map<Long, List<GroupPermVO>> getGroupPermsByGroupIds(List<Long> groupIds);
+    Map<Long, List<GroupPermVO>> getGroupPermsByGroupIds(List<Long> tGroupIds);
 
     /**
      * 根据租户权限ID查询所有绑定该权限的系统组 [全量]
@@ -57,11 +57,11 @@ public interface IGroupPermCommonService {
     Map<Long, List<GroupPermVO>> getGroupPermsByPermIds(List<Long> permIds);
 
     /**
-     * 根据系统组ID查询租户权限ID列表
-     * @param groupId 系统组ID
+     * 根据租户组ID查询租户权限ID列表
+     * @param tGroupId 租户组ID
      * @return 租户权限ID列表
      */
-    Set<Long> getPermIdsByGroupId(Long groupId);
+    Set<Long> getPermIdsByGroupId(Long tGroupId);
 
     /**
      * 根据租户权限ID查询系统组ID列表

@@ -70,19 +70,19 @@ public class GroupBindRoleController {
     }
 
     /**
-     * 根据系统组ID查询其绑定的租户角色 [分页]
+     * 根据租户组ID查询其绑定的租户角色 [分页]
      *
-     * @param groupId 系统组ID
+     * @param tGroupId 租户组ID
      * @param current 当前页码，默认为1
      * @param size 每页大小，默认为10
      * @return SaResult 返回该组绑定的 GroupBindRoleVO 分页列表
      */
-    @GetMapping("/by-group/{groupId}")
-    public SaResult getGroupBindRolesByGroupId(@PathVariable Long groupId,
+    @GetMapping("/by-group/{tGroupId}")
+    public SaResult getGroupBindRolesByGroupId(@PathVariable Long tGroupId,
                                            @RequestParam(value = "current", defaultValue = "1") Integer current,
                                            @RequestParam(value = "size", defaultValue = "10") Integer size) {
         Page<GroupBindRole> page = new Page<>(current, size);
-        IPage<GroupBindRoleVO> result = groupBindRoleService.getGroupBindRolesByGroupId(groupId, page);
+        IPage<GroupBindRoleVO> result = groupBindRoleService.getGroupBindRolesByGroupId(tGroupId, page);
 
         if (result.getRecords().isEmpty()) {
             return SaResult.ok("该系统组暂未绑定任何租户角色").setData(new Page<>(current, size, 0));
@@ -91,19 +91,19 @@ public class GroupBindRoleController {
     }
     
     /**
-     * 根据多个系统组ID批量查询绑定的租户角色 [分页]
+     * 根据多个租户组ID批量查询绑定的租户角色 [分页]
      *
-     * @param groupIds 系统组ID列表
+     * @param tGroupIds 租户组ID列表
      * @param current 当前页码，默认为1
      * @param size 每页大小，默认为10
      * @return SaResult 返回分页的 Map，键为 groupId，值为对应 VO 列表
      */
     @GetMapping("/by-groups")
-    public SaResult getGroupBindRolesByGroupIds(@RequestParam List<Long> groupIds,
+    public SaResult getGroupBindRolesByGroupIds(@RequestParam List<Long> tGroupIds,
                                             @RequestParam(value = "current", defaultValue = "1") Integer current,
                                             @RequestParam(value = "size", defaultValue = "10") Integer size) {
         Page<GroupBindRole> page = new Page<>(current, size);
-        IPage<Map<Long, List<GroupBindRoleVO>>> result = groupBindRoleService.getGroupBindRolesByGroupIds(groupIds, page);
+        IPage<Map<Long, List<GroupBindRoleVO>>> result = groupBindRoleService.getGroupBindRolesByGroupIds(tGroupIds, page);
 
         if (result.getRecords().isEmpty()) {
             return SaResult.ok("这些系统组暂未绑定任何租户角色").setData(new Page<>(current, size, 0));

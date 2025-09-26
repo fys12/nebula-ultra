@@ -1,5 +1,8 @@
-package com.cloudvalley.nebula.ultra.shared.api.group.model.vo;
+package com.cloudvalley.nebula.ultra.business.group.model.vo;
 
+import com.cloudvalley.nebula.ultra.shared.api.group.model.vo.SysGroupVO;
+import com.cloudvalley.nebula.ultra.shared.api.perm.model.vo.SysPermVO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Value;
 
@@ -7,25 +10,23 @@ import java.time.LocalDateTime;
 
 @Value
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class GroupBindDeptVO {
+public class GroupPermDetailsVO {
 
     /**
      * 主键ID（雪花算法ID）
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     Long id;
 
     /**
-     * 系统组ID
+     * 系统组
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    Long tGroupId;
+    SysGroupVO sysGroup;
 
     /**
-     * 租户部门ID
+     * 权限
      */
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    Long tDeptId;
+    SysPermVO sysPerm;
 
     /**
      * 创建时间

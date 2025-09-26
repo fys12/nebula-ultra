@@ -58,15 +58,15 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
     }
     
     /**
-     * 根据系统组ID查询其绑定的所有租户角色 [全量]
+     * 根据租户组ID查询其绑定的所有租户角色 [全量]
      *
-     * @param groupId 系统组ID
+     * @param tGroupId 租户组ID
      * @return 该组绑定的所有 GroupBindRoleVO 列表
      */
     @Override
-    public List<GroupBindRoleVO> getGroupBindRolesByGroupId(Long groupId) {
+    public List<GroupBindRoleVO> getGroupBindRolesByGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindRole::getSGroupId, groupId)
+        queryWrapper.eq(GroupBindRole::getSGroupId, tGroupId)
                 .eq(GroupBindRole::getDeleted, false)
                 .orderByDesc(GroupBindRole::getCreatedAt);
         List<GroupBindRole> list = this.list(queryWrapper);
@@ -74,23 +74,23 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
     }
     
     /**
-     * 根据多个系统组ID批量查询绑定关系，并按组ID分组返回 [全量]
+     * 根据多个租户组ID批量查询绑定关系，并按组ID分组返回 [全量]
      *
-     * @param groupIds 系统组ID列表
+     * @param tGroupIds 租户组ID列表
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public Map<Long, List<GroupBindRoleVO>> getGroupBindRolesByGroupIds(List<Long> groupIds) {
-        if (groupIds == null || groupIds.isEmpty()) {
+    public Map<Long, List<GroupBindRoleVO>> getGroupBindRolesByGroupIds(List<Long> tGroupIds) {
+        if (tGroupIds == null || tGroupIds.isEmpty()) {
             return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(GroupBindRole::getSGroupId, groupIds)
+        queryWrapper.in(GroupBindRole::getSGroupId, tGroupIds)
                 .eq(GroupBindRole::getDeleted, false)
                 .orderByDesc(GroupBindRole::getCreatedAt);
         List<GroupBindRole> entities = this.list(queryWrapper);
         List<GroupBindRoleVO> voList = groupBindRoleConverter.EnListToVOList(entities);
-        Map<Long, List<GroupBindRoleVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupBindRoleVO::getSGroupId));
+        Map<Long, List<GroupBindRoleVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupBindRoleVO::getTGroupId));
         return grouped;
     }
 
@@ -133,15 +133,15 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
     }
     
     /**
-     * 根据系统组ID查询其绑定的所有租户角色ID
+     * 根据租户组ID查询其绑定的所有租户角色ID
      *
-     * @param groupId 系统组ID
+     * @param tGroupId 租户组ID
      * @return 绑定的租户角色ID集合
      */
     @Override
-    public Set<Long> getRoleIdsByGroupId(Long groupId) {
+    public Set<Long> getRoleIdsByGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindRole::getSGroupId, groupId)
+        queryWrapper.eq(GroupBindRole::getSGroupId, tGroupId)
                 .eq(GroupBindRole::getDeleted, false)
                 .select(GroupBindRole::getTRoleId);
 

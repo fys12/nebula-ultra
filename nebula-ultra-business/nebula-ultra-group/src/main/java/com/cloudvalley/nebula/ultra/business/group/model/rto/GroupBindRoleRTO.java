@@ -18,7 +18,7 @@ public class GroupBindRoleRTO {
      * 系统组ID
      */
     @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Long sGroupId;
+    private Long tGroupId;
 
     /**
      * 租户角色ID

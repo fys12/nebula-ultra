@@ -25,20 +25,20 @@ public interface IGroupBindRoleCommonService {
     List<GroupBindRoleVO> getGroupBindRolesByIds(List<Long> ids);
 
     /**
-     * 根据系统组ID查询其绑定的所有租户角色 [全量]
+     * 根据租户组ID查询其绑定的所有租户角色 [全量]
      *
-     * @param groupId 系统组ID
+     * @param tGroupId 租户组ID
      * @return 该组绑定的所有 GroupBindRoleVO 列表
      */
-    List<GroupBindRoleVO> getGroupBindRolesByGroupId(Long groupId);
+    List<GroupBindRoleVO> getGroupBindRolesByGroupId(Long tGroupId);
 
     /**
-     * 根据系统组ID列表批量查询绑定的租户角色，并按组ID分组返回 [全量]
+     * 根据租户组ID列表批量查询绑定的租户角色，并按组ID分组返回 [全量]
      *
-     * @param groupIds 系统组ID列表
+     * @param tGroupIds 租户组ID列表
      * @return 分组结果列表，每个元素为 Map<groupId, VO列表>
      */
-    Map<Long, List<GroupBindRoleVO>> getGroupBindRolesByGroupIds(List<Long> groupIds);
+    Map<Long, List<GroupBindRoleVO>> getGroupBindRolesByGroupIds(List<Long> tGroupIds);
 
     /**
      * 根据租户角色ID查询所有绑定该角色的系统组 [全量]
@@ -57,11 +57,11 @@ public interface IGroupBindRoleCommonService {
     Map<Long, List<GroupBindRoleVO>> getGroupBindRolesByRoleIds(List<Long> roleIds);
 
     /**
-     * 根据系统组ID查询租户角色ID列表
-     * @param groupId 系统组ID
+     * 根据租户组ID查询租户角色ID列表
+     * @param tGroupId 租户组ID
      * @return 租户角色ID集合
      */
-    Set<Long> getRoleIdsByGroupId(Long groupId);
+    Set<Long> getRoleIdsByGroupId(Long tGroupId);
 
     /**
      * 根据租户角色ID查询系统组ID列表

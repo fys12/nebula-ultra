@@ -19,7 +19,7 @@ public class GroupBindRoleVO {
      * 系统组ID
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    Long sGroupId;
+    Long tGroupId;
 
     /**
      * 租户角色ID

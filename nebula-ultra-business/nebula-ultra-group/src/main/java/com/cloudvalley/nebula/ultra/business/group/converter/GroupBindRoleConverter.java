@@ -16,7 +16,7 @@ public interface GroupBindRoleConverter {
      * @param groupBindRole 源实体对象
      * @return 转换后的 GroupBindRoleVO 对象
      */
-    @Mapping(source = "SGroupId", target = "sGroupId")
+    @Mapping(source = "TGroupId", target = "tGroupId")
     @Mapping(source = "TRoleId", target = "tRoleId")
     GroupBindRoleVO EnToVO(GroupBindRole groupBindRole);
 

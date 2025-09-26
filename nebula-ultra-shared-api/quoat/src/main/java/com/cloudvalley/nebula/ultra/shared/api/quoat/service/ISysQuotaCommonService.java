@@ -3,6 +3,7 @@ package com.cloudvalley.nebula.ultra.shared.api.quoat.service;
 import com.cloudvalley.nebula.ultra.shared.api.quoat.model.vo.SysQuotaVO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ISysQuotaCommonService {
 
@@ -18,7 +19,7 @@ public interface ISysQuotaCommonService {
      * @param ids 系统配额ID列表
      * @return 系统配额信息
      */
-    List<SysQuotaVO> getSysQuotasByIds(List<Long> ids);
+    Map<Long, SysQuotaVO> getSysQuotasByIds(List<Long> ids);
 
 
 }

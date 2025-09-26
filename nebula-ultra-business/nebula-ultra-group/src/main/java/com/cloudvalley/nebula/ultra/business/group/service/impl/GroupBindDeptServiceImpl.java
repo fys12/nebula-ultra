@@ -81,16 +81,16 @@ public class GroupBindDeptServiceImpl extends ServiceImpl<GroupBindDeptMapper, G
     }
 
     /**
-     * 根据系统组ID分页查询其绑定的租户部门
+     * 根据租户组ID分页查询其绑定的租户部门
      *
-     * @param sGroupId 系统组ID
+     * @param tGroupId 租户组ID
      * @param page 分页参数
      * @return 分页的 GroupBindDeptVO 列表
      */
     @Override
-    public IPage<GroupBindDeptVO> getGroupBindDeptsBySGroupId(Long sGroupId, Page<GroupBindDept> page) {
+    public IPage<GroupBindDeptVO> getGroupBindDeptsBySGroupId(Long tGroupId, Page<GroupBindDept> page) {
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindDept::getSGroupId, sGroupId)
+        queryWrapper.eq(GroupBindDept::getSGroupId, tGroupId)
                 .eq(GroupBindDept::getDeleted, false)
                 .orderByDesc(GroupBindDept::getCreatedAt);
         IPage<GroupBindDept> dataPage = this.page(page, queryWrapper);
@@ -103,23 +103,23 @@ public class GroupBindDeptServiceImpl extends ServiceImpl<GroupBindDeptMapper, G
     }
 
     /**
-     * 根据系统组ID列表分页查询绑定关系，并按组ID分组返回
+     * 根据租户组ID列表分页查询绑定关系，并按组ID分组返回
      *
-     * @param sGroupIds 系统组ID列表
+     * @param tGroupIds 租户组ID列表
      * @param page 分页参数
      * @return 分页的 Map，键为 sGroupId，值为对应 VO 列表
      */
     @Override
-    public IPage<Map<Long, List<GroupBindDeptVO>>> getGroupBindDeptsBySGroupIds(List<Long> sGroupIds, Page<GroupBindDept> page) {
+    public IPage<Map<Long, List<GroupBindDeptVO>>> getGroupBindDeptsBySGroupIds(List<Long> tGroupIds, Page<GroupBindDept> page) {
         return FetchUtils.pageGroupQuery(
-                sGroupIds,
+                tGroupIds,
                 page,
-                wrapper -> wrapper.in(GroupBindDept::getSGroupId, sGroupIds)
+                wrapper -> wrapper.in(GroupBindDept::getSGroupId, tGroupIds)
                         .eq(GroupBindDept::getDeleted, false)
                         .orderByDesc(GroupBindDept::getCreatedAt),
                 this::page,
                 groupBindDeptConverter::EnListToVOList,
-                GroupBindDeptVO::getSGroupId
+                GroupBindDeptVO::getTGroupId
         );
     }
 

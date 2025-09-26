@@ -57,15 +57,15 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
     }
 
     /**
-     * 根据系统组ID查询其绑定的租户部门 [全量]
+     * 根据租户组ID查询其绑定的租户部门 [全量]
      *
-     * @param sGroupId 系统组ID
+     * @param tGroupId 租户组ID
      * @return 该组绑定的所有 GroupBindDeptVO 列表
      */
     @Override
-    public List<GroupBindDeptVO> getGroupBindDeptsBySGroupId(Long sGroupId) {
+    public List<GroupBindDeptVO> getGroupBindDeptsBySGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindDept::getSGroupId, sGroupId)
+        queryWrapper.eq(GroupBindDept::getSGroupId, tGroupId)
                 .eq(GroupBindDept::getDeleted, false)
                 .orderByDesc(GroupBindDept::getCreatedAt);
         List<GroupBindDept> list = this.list(queryWrapper);
@@ -74,23 +74,23 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
 
 
     /**
-     * 根据系统组ID列表批量查询绑定关系，并按组ID分组返回 [全量]
+     * 根据租户组ID列表批量查询绑定关系，并按组ID分组返回 [全量]
      *
-     * @param sGroupIds 系统组ID列表
+     * @param tGroupIds 租户组ID列表
      * @return 包含分组结果的列表（单个 Map）
      */
     @Override
-    public Map<Long, List<GroupBindDeptVO>> getGroupBindDeptsBySGroupIds(List<Long> sGroupIds) {
-        if (sGroupIds == null || sGroupIds.isEmpty()) {
+    public Map<Long, List<GroupBindDeptVO>> getGroupBindDeptsBySGroupIds(List<Long> tGroupIds) {
+        if (tGroupIds == null || tGroupIds.isEmpty()) {
             return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(GroupBindDept::getSGroupId, sGroupIds)
+        queryWrapper.in(GroupBindDept::getSGroupId, tGroupIds)
                 .eq(GroupBindDept::getDeleted, false)
                 .orderByDesc(GroupBindDept::getCreatedAt);
         List<GroupBindDept> entities = this.list(queryWrapper);
         List<GroupBindDeptVO> voList = groupBindDeptConverter.EnListToVOList(entities);
-        Map<Long, List<GroupBindDeptVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupBindDeptVO::getSGroupId));
+        Map<Long, List<GroupBindDeptVO>> grouped = voList.stream().collect(Collectors.groupingBy(GroupBindDeptVO::getTGroupId));
         return grouped;
     }
 
@@ -135,15 +135,15 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
 
 
     /**
-     * 根据系统组ID查询其绑定的所有租户部门ID
+     * 根据租户组ID查询其绑定的所有租户部门ID
      *
-     * @param sGroupId 系统组ID
+     * @param tGroupId 租户组ID
      * @return 绑定的租户部门ID集合
      */
     @Override
-    public Set<Long> getTDeptIdsBySGroupId(Long sGroupId) {
+    public Set<Long> getTDeptIdsBySGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindDept::getSGroupId, sGroupId)
+        queryWrapper.eq(GroupBindDept::getSGroupId, tGroupId)
                 .eq(GroupBindDept::getDeleted, false)
                 .select(GroupBindDept::getTDeptId);
         List<GroupBindDept> list = this.list(queryWrapper);

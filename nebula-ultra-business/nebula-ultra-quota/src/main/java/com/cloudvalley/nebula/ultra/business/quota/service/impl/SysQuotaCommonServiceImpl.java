@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class SysQuotaCommonServiceImpl extends ServiceImpl<SysQuotaMapper, SysQuota> implements ISysQuotaCommonService {
@@ -40,16 +43,20 @@ public class SysQuotaCommonServiceImpl extends ServiceImpl<SysQuotaMapper, SysQu
      * @return 所有匹配的 SysQuotaVO 列表，按创建时间倒序排列；输入为空时返回空列表
      */
     @Override
-    public List<SysQuotaVO> getSysQuotasByIds(List<Long> ids) {
+    public Map<Long, SysQuotaVO> getSysQuotasByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
         LambdaQueryWrapper<SysQuota> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(SysQuota::getId, ids)
                 .eq(SysQuota::getDeleted, false)
                 .orderByDesc(SysQuota::getCreatedAt);
         List<SysQuota> list = this.list(queryWrapper);
-        return sysQuotaConverter.EnListToVOList(list);
+
+        // 使用Converter将实体列表转为VO列表后，再转换为Map
+        List<SysQuotaVO> voList = sysQuotaConverter.EnListToVOList(list);
+        return voList.stream()
+                .collect(Collectors.toMap(SysQuotaVO::getId, Function.identity()));
     }
 
 }

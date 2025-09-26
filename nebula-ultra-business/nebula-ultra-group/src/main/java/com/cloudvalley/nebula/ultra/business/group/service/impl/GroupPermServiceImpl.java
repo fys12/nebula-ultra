@@ -92,16 +92,16 @@ public class GroupPermServiceImpl extends ServiceImpl<GroupPermMapper, GroupPerm
     }
 
     /**
-     * 根据系统组ID分页查询其绑定的权限
+     * 根据租户组ID分页查询其绑定的权限
      *
-     * @param groupId 系统组ID
+     * @param tGroupId 租户组ID
      * @param page 分页参数
      * @return 分页的 GroupPermVO 列表
      */
     @Override
-    public IPage<GroupPermVO> getGroupPermsByGroupId(Long groupId, Page<GroupPerm> page) {
+    public IPage<GroupPermVO> getGroupPermsByGroupId(Long tGroupId, Page<GroupPerm> page) {
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupPerm::getSGroupId, groupId)
+        queryWrapper.eq(GroupPerm::getSGroupId, tGroupId)
                 .eq(GroupPerm::getDeleted, false)
                 .orderByDesc(GroupPerm::getCreatedAt);
 
@@ -116,21 +116,21 @@ public class GroupPermServiceImpl extends ServiceImpl<GroupPermMapper, GroupPerm
     }
 
     /**
-     * 根据多个系统组ID分页查询权限绑定关系，并按组ID分组返回
+     * 根据多个租户组ID分页查询权限绑定关系，并按组ID分组返回
      *
-     * @param groupIds 系统组ID列表
+     * @param tGroupIds 租户组ID列表
      * @param page 分页参数
      * @return 分页的 Map，键为 groupId，值为对应 VO 列表
      */
     @Override
-    public IPage<Map<Long, List<GroupPermVO>>> getGroupPermsByGroupIds(List<Long> groupIds, Page<GroupPerm> page) {
+    public IPage<Map<Long, List<GroupPermVO>>> getGroupPermsByGroupIds(List<Long> tGroupIds, Page<GroupPerm> page) {
         return FetchUtils.pageGroupQuery(
                 // 要查询的ID列表
-                groupIds,
+                tGroupIds,
                 // 分页参数
                 page,
                 // 查询条件：按系统组ID批量查询，且未删除，按创建时间倒序
-                wrapper -> wrapper.in(GroupPerm::getSGroupId, groupIds)
+                wrapper -> wrapper.in(GroupPerm::getSGroupId, tGroupIds)
                         .eq(GroupPerm::getDeleted, false)
                         .orderByDesc(GroupPerm::getCreatedAt),
                 // 执行分页查询（调用当前 Service 的 page 方法）
@@ -138,7 +138,7 @@ public class GroupPermServiceImpl extends ServiceImpl<GroupPermMapper, GroupPerm
                 // 实体列表转 VO 列表
                 groupPermConverter::EnListToVOList,
                 // 按系统组ID分组
-                GroupPermVO::getSGroupId
+                GroupPermVO::getTGroupId
         );
     }
 

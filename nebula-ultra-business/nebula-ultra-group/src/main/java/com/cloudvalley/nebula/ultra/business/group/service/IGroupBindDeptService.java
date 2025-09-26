@@ -36,20 +36,20 @@ public interface IGroupBindDeptService extends IService<GroupBindDept> {
     IPage<GroupBindDeptVO> getGroupBindDeptsByIds(List<Long> ids, Page<GroupBindDept> page);
 
     /**
-     * 根据系统组ID查询绑定关系 [分页]
-     * @param sGroupId 系统组ID
+     * 根据租户组ID查询绑定关系 [分页]
+     * @param tGroupId 租户组ID
      * @param page 分页参数
      * @return 绑定列表
      */
-    IPage<GroupBindDeptVO> getGroupBindDeptsBySGroupId(Long sGroupId, Page<GroupBindDept> page);
+    IPage<GroupBindDeptVO> getGroupBindDeptsBySGroupId(Long tGroupId, Page<GroupBindDept> page);
 
     /**
-     * 根据系统组ID批量查询绑定关系 [分页] - 返回分组结果
-     * @param sGroupIds 系统组ID列表
+     * 根据租户组ID批量查询绑定关系 [分页] - 返回分组结果
+     * @param tGroupIds 租户组ID列表
      * @param page 分页参数
      * @return 按系统组ID分组的绑定分页列表
      */
-    IPage<Map<Long, List<GroupBindDeptVO>>> getGroupBindDeptsBySGroupIds(List<Long> sGroupIds, Page<GroupBindDept> page);
+    IPage<Map<Long, List<GroupBindDeptVO>>> getGroupBindDeptsBySGroupIds(List<Long> tGroupIds, Page<GroupBindDept> page);
 
     /**
      * 根据租户部门ID查询绑定关系 [分页]

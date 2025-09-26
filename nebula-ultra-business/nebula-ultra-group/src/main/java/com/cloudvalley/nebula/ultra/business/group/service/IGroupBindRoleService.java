@@ -36,20 +36,20 @@ public interface IGroupBindRoleService extends IService<GroupBindRole> {
     IPage<GroupBindRoleVO> getGroupBindRolesByIds(List<Long> ids, Page<GroupBindRole> page);
 
     /**
-     * 根据系统组id查询组租户角色(可查询单个或多个，传入的id可以单个或多个) [查看某个（或多个）系统组有哪些租户角色绑定][分页]
-     * @param groupId 系统组ID
+     * 根据租户组id查询组租户角色(可查询单个或多个，传入的id可以单个或多个) [查看某个（或多个）系统组有哪些租户角色绑定][分页]
+     * @param tGroupId 租户组ID
      * @param page 分页参数
      * @return 分页结果
      */
-    IPage<GroupBindRoleVO> getGroupBindRolesByGroupId(Long groupId, Page<GroupBindRole> page);
+    IPage<GroupBindRoleVO> getGroupBindRolesByGroupId(Long tGroupId, Page<GroupBindRole> page);
 
     /**
-     * 根据系统组id查询组租户角色(批量查询多个组) [查看某个（或多个）系统组有哪些租户角色绑定][分页]
-     * @param groupIds 系统组ID列表
+     * 根据租户组id查询组租户角色(批量查询多个组) [查看某个（或多个）系统组有哪些租户角色绑定][分页]
+     * @param tGroupIds 租户组ID列表
      * @param page 分页参数
      * @return 分页结果，按组ID分组
      */
-    IPage<Map<Long, List<GroupBindRoleVO>>> getGroupBindRolesByGroupIds(List<Long> groupIds, Page<GroupBindRole> page);
+    IPage<Map<Long, List<GroupBindRoleVO>>> getGroupBindRolesByGroupIds(List<Long> tGroupIds, Page<GroupBindRole> page);
 
     /**
      * 根据租户角色id查询组租户角色(可查询单个或多个，传入的id可以单个或多个) [查看某个（或多个）租户角色有哪些系统组绑定][分页]

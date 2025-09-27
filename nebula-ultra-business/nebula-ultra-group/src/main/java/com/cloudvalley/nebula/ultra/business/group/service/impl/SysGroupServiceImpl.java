@@ -89,24 +89,6 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup> i
     }
 
     /**
-     * 根据系统组ID批量查询系统组 [全量]
-     * @param ids 系统组ID列表
-     * @return 系统组信息
-     */
-    @Override
-    public List<SysGroupVO> getSysGroupsByIds(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return Collections.emptyList();
-        }
-        LambdaQueryWrapper<SysGroup> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(SysGroup::getId, ids)
-                .eq(SysGroup::getDeleted, false)
-                .orderByDesc(SysGroup::getCreatedAt);
-        List<SysGroup> list = this.list(queryWrapper);
-        return sysGroupConverter.EnListToVOList(list);
-    }
-
-    /**
      * 新增系统组
      * @param sysGroupRTO 系统组信息
      * @return 操作结果

@@ -35,13 +35,6 @@ public interface ISysGroupService extends IService<SysGroup> {
     IPage<SysGroupVO> getSysGroupsByIds(List<Long> ids, Page<SysGroup> page);
 
     /**
-     * 根据系统组ID批量查询系统组 [全量]
-     * @param ids 系统组ID列表
-     * @return 系统组信息
-     */
-    List<SysGroupVO> getSysGroupsByIds(List<Long> ids);
-
-    /**
      * 新增系统组
      * @param sysGroupRTO 系统组信息
      * @return 操作结果

@@ -101,7 +101,7 @@ public class GroupPermServiceImpl extends ServiceImpl<GroupPermMapper, GroupPerm
     @Override
     public IPage<GroupPermVO> getGroupPermsByGroupId(Long tGroupId, Page<GroupPerm> page) {
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupPerm::getSGroupId, tGroupId)
+        queryWrapper.eq(GroupPerm::getTGroupId, tGroupId)
                 .eq(GroupPerm::getDeleted, false)
                 .orderByDesc(GroupPerm::getCreatedAt);
 
@@ -130,7 +130,7 @@ public class GroupPermServiceImpl extends ServiceImpl<GroupPermMapper, GroupPerm
                 // 分页参数
                 page,
                 // 查询条件：按系统组ID批量查询，且未删除，按创建时间倒序
-                wrapper -> wrapper.in(GroupPerm::getSGroupId, tGroupIds)
+                wrapper -> wrapper.in(GroupPerm::getTGroupId, tGroupIds)
                         .eq(GroupPerm::getDeleted, false)
                         .orderByDesc(GroupPerm::getCreatedAt),
                 // 执行分页查询（调用当前 Service 的 page 方法）

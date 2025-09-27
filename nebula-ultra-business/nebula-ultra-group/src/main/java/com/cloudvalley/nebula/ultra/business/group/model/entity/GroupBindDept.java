@@ -32,9 +32,9 @@ public class GroupBindDept implements Serializable {
     private Long id;
 
     /**
-     * 系统组ID
+     * 租户组ID
      */
-    private Long sGroupId;
+    private Long tGroupId;
 
     /**
      * 租户部门ID

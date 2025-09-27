@@ -16,7 +16,7 @@ public class GroupBindDeptVO {
     Long id;
 
     /**
-     * 系统组ID
+     * 租户组ID
      */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     Long tGroupId;

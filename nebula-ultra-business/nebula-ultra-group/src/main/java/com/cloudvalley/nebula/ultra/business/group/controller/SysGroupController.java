@@ -67,20 +67,6 @@ public class SysGroupController {
     }
 
     /**
-     * 根据ID批量查询系统组 [全量]
-     * @param ids 系统组ID列表
-     * @return 系统组信息
-     */
-    @GetMapping("/batch/all")
-    public SaResult getSysGroupsByIdsAll(@RequestParam List<Long> ids) {
-        List<SysGroupVO> result = sysGroupService.getSysGroupsByIds(ids);
-        if (result.isEmpty()) {
-            return SaResult.ok("暂无系统组数据").setData(result);
-        }
-        return SaResult.ok("批量获取系统组信息成功").setData(result);
-    }
-
-    /**
      * 新增系统组
      * @param sysGroupRTO 系统组信息
      * @return 操作结果

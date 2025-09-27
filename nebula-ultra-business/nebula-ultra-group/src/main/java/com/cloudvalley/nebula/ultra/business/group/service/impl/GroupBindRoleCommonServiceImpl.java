@@ -66,7 +66,7 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
     @Override
     public List<GroupBindRoleVO> getGroupBindRolesByGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindRole::getSGroupId, tGroupId)
+        queryWrapper.eq(GroupBindRole::getTGroupId, tGroupId)
                 .eq(GroupBindRole::getDeleted, false)
                 .orderByDesc(GroupBindRole::getCreatedAt);
         List<GroupBindRole> list = this.list(queryWrapper);
@@ -85,7 +85,7 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
             return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(GroupBindRole::getSGroupId, tGroupIds)
+        queryWrapper.in(GroupBindRole::getTGroupId, tGroupIds)
                 .eq(GroupBindRole::getDeleted, false)
                 .orderByDesc(GroupBindRole::getCreatedAt);
         List<GroupBindRole> entities = this.list(queryWrapper);
@@ -141,7 +141,7 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
     @Override
     public Set<Long> getRoleIdsByGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindRole::getSGroupId, tGroupId)
+        queryWrapper.eq(GroupBindRole::getTGroupId, tGroupId)
                 .eq(GroupBindRole::getDeleted, false)
                 .select(GroupBindRole::getTRoleId);
 
@@ -162,11 +162,11 @@ public class GroupBindRoleCommonServiceImpl extends ServiceImpl<GroupBindRoleMap
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(GroupBindRole::getTRoleId, roleId)
                 .eq(GroupBindRole::getDeleted, false)
-                .select(GroupBindRole::getSGroupId);
+                .select(GroupBindRole::getTGroupId);
 
         List<GroupBindRole> groupBindRoles = this.list(queryWrapper);
         return groupBindRoles.stream()
-                .map(GroupBindRole::getSGroupId)
+                .map(GroupBindRole::getTGroupId)
                 .collect(Collectors.toSet());
     }
     

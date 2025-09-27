@@ -67,7 +67,7 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
     @Override
     public List<GroupPermVO> getGroupPermsByGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupPerm::getSGroupId, tGroupId)
+        queryWrapper.eq(GroupPerm::getTGroupId, tGroupId)
                 .eq(GroupPerm::getDeleted, false)
                 .orderByDesc(GroupPerm::getCreatedAt);
         List<GroupPerm> list = this.list(queryWrapper);
@@ -86,7 +86,7 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
             return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(GroupPerm::getSGroupId, tGroupId)
+        queryWrapper.in(GroupPerm::getTGroupId, tGroupId)
                 .eq(GroupPerm::getDeleted, false)
                 .orderByDesc(GroupPerm::getCreatedAt);
         List<GroupPerm> entities = this.list(queryWrapper);
@@ -141,7 +141,7 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
     @Override
     public Set<Long> getPermIdsByGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupPerm::getSGroupId, tGroupId)
+        queryWrapper.eq(GroupPerm::getTGroupId, tGroupId)
                 .eq(GroupPerm::getDeleted, false)
                 .select(GroupPerm::getTPermId);
 
@@ -162,11 +162,11 @@ public class GroupPermCommonServiceImpl extends ServiceImpl<GroupPermMapper, Gro
         LambdaQueryWrapper<GroupPerm> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(GroupPerm::getTPermId, permId)
                 .eq(GroupPerm::getDeleted, false)
-                .select(GroupPerm::getSGroupId);
+                .select(GroupPerm::getTGroupId);
 
         List<GroupPerm> groupPerms = this.list(queryWrapper);
         return groupPerms.stream()
-                .map(GroupPerm::getSGroupId)
+                .map(GroupPerm::getTGroupId)
                 .collect(Collectors.toSet());
     }
 

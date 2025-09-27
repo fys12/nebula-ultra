@@ -15,7 +15,7 @@ public class GroupPermVO {
     Long id;
 
     /**
-     * 系统组ID
+     * 租户组ID
      */
     Long tGroupId;
 

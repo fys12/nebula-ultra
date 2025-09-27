@@ -65,7 +65,7 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
     @Override
     public List<GroupBindDeptVO> getGroupBindDeptsBySGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindDept::getSGroupId, tGroupId)
+        queryWrapper.eq(GroupBindDept::getTDeptId, tGroupId)
                 .eq(GroupBindDept::getDeleted, false)
                 .orderByDesc(GroupBindDept::getCreatedAt);
         List<GroupBindDept> list = this.list(queryWrapper);
@@ -85,7 +85,7 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
             return Collections.emptyMap();
         }
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(GroupBindDept::getSGroupId, tGroupIds)
+        queryWrapper.in(GroupBindDept::getTGroupId, tGroupIds)
                 .eq(GroupBindDept::getDeleted, false)
                 .orderByDesc(GroupBindDept::getCreatedAt);
         List<GroupBindDept> entities = this.list(queryWrapper);
@@ -143,7 +143,7 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
     @Override
     public Set<Long> getTDeptIdsBySGroupId(Long tGroupId) {
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindDept::getSGroupId, tGroupId)
+        queryWrapper.eq(GroupBindDept::getTGroupId, tGroupId)
                 .eq(GroupBindDept::getDeleted, false)
                 .select(GroupBindDept::getTDeptId);
         List<GroupBindDept> list = this.list(queryWrapper);
@@ -161,9 +161,9 @@ public class GroupBindDeptCommonServiceImpl extends ServiceImpl<GroupBindDeptMap
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(GroupBindDept::getTDeptId, tDeptId)
                 .eq(GroupBindDept::getDeleted, false)
-                .select(GroupBindDept::getSGroupId);
+                .select(GroupBindDept::getTGroupId);
         List<GroupBindDept> list = this.list(queryWrapper);
-        return list.stream().map(GroupBindDept::getSGroupId).collect(Collectors.toSet());
+        return list.stream().map(GroupBindDept::getTGroupId).collect(Collectors.toSet());
     }
 
 }

@@ -108,8 +108,7 @@ public class ComboAggregatorServiceImpl implements IComboAggregatorService {
         // 3.2 根据配额ID查询配额详情
         Map<Long, SysQuotaVO> quotaMap;
         if (!quotaIds.isEmpty()) {
-            List<SysQuotaVO> quotaList = iSysQuotaCommonService.getSysQuotasByIds(new ArrayList<>(quotaIds));
-            quotaMap = quotaList.stream().collect(Collectors.toMap(SysQuotaVO::getId, quota -> quota));
+            quotaMap = iSysQuotaCommonService.getSysQuotasByIds(new ArrayList<>(quotaIds));
         } else {
             quotaMap = Collections.emptyMap();
         }

@@ -90,7 +90,7 @@ public class GroupBindDeptServiceImpl extends ServiceImpl<GroupBindDeptMapper, G
     @Override
     public IPage<GroupBindDeptVO> getGroupBindDeptsBySGroupId(Long tGroupId, Page<GroupBindDept> page) {
         LambdaQueryWrapper<GroupBindDept> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindDept::getSGroupId, tGroupId)
+        queryWrapper.eq(GroupBindDept::getTGroupId, tGroupId)
                 .eq(GroupBindDept::getDeleted, false)
                 .orderByDesc(GroupBindDept::getCreatedAt);
         IPage<GroupBindDept> dataPage = this.page(page, queryWrapper);
@@ -114,7 +114,7 @@ public class GroupBindDeptServiceImpl extends ServiceImpl<GroupBindDeptMapper, G
         return FetchUtils.pageGroupQuery(
                 tGroupIds,
                 page,
-                wrapper -> wrapper.in(GroupBindDept::getSGroupId, tGroupIds)
+                wrapper -> wrapper.in(GroupBindDept::getTGroupId, tGroupIds)
                         .eq(GroupBindDept::getDeleted, false)
                         .orderByDesc(GroupBindDept::getCreatedAt),
                 this::page,

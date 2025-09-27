@@ -100,7 +100,7 @@ public class GroupBindRoleServiceImpl extends ServiceImpl<GroupBindRoleMapper, G
     @Override
     public IPage<GroupBindRoleVO> getGroupBindRolesByGroupId(Long tGroupId, Page<GroupBindRole> page) {
         LambdaQueryWrapper<GroupBindRole> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(GroupBindRole::getSGroupId, tGroupId)
+        queryWrapper.eq(GroupBindRole::getTGroupId, tGroupId)
                 .eq(GroupBindRole::getDeleted, false)
                 .orderByDesc(GroupBindRole::getCreatedAt);
 
@@ -129,7 +129,7 @@ public class GroupBindRoleServiceImpl extends ServiceImpl<GroupBindRoleMapper, G
                 // 分页参数
                 page,
                 // 查询条件：按组ID批量查询，且未删除，按创建时间倒序
-                wrapper -> wrapper.in(GroupBindRole::getSGroupId, tGroupIds)
+                wrapper -> wrapper.in(GroupBindRole::getTGroupId, tGroupIds)
                         .eq(GroupBindRole::getDeleted, false)
                         .orderByDesc(GroupBindRole::getCreatedAt),
                 // 执行分页查询（调用当前 Service 的 page 方法）

@@ -32,6 +32,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -204,7 +205,8 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
                 .collect(Collectors.toSet());
 
         // 6. 根据租户ID查询租户信息
-        Map<Long, SysTenantVO> sysTenantsByIds = iSysTenantCommonService.getSysTenantsByIds(new ArrayList<>(tenantIds));
+        Map<Long, SysTenantVO> sysTenantsByIds = iSysTenantCommonService.getSysTenantsByIds(new ArrayList<>(tenantIds)).stream()
+                .collect(Collectors.toMap(SysTenantVO::getId, sysTenantVO -> sysTenantVO));
 
         // ======== 部门信息查询 ========
         // 7. 根据租户用户ID查询用户-部门绑定关系，得到租户部门ID
@@ -232,7 +234,8 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
                 .toList();
 
         // 12. 根据系统部门ID查询系统部门信息
-        Map<Long, SysDeptVO> sysDeptsByIds = iSysDeptCommonService.getSysDeptsByIds(systemDeptIds);
+        Map<Long, SysDeptVO> sysDeptsByIds = iSysDeptCommonService.getSysDeptsByIds(systemDeptIds).stream()
+                .collect(Collectors.toMap(SysDeptVO::getId, sysDeptVO -> sysDeptVO));
 
         // ======== 角色信息查询 ========
         // 13. 根据租户用户ID查询用户-角色绑定关系，得到租户角色ID
@@ -260,7 +263,8 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
                 .toList();
 
         // 18. 根据系统角色ID查询系统角色信息
-        Map<Long, SysRoleVO> sysRolesByIds = iSysRoleCommonService.getSysRolesByIds(systemRoleIds);
+        Map<Long, SysRoleVO> sysRolesByIds = iSysRoleCommonService.getSysRolesByIds(systemRoleIds).stream()
+                .collect(Collectors.toMap(SysRoleVO::getId, sysRoleVO -> sysRoleVO));
 
         // 19. 获取创建人ID和更新人ID
         List<Long> creatorAndUpdaterIds = userList.getRecords().stream()
@@ -270,7 +274,8 @@ public class UserAggregatorServiceImpl implements IUserAggregatorService {
                 .toList();
 
         // 20. 根据创建人ID和更新人ID获取用户信息
-        Map<Long, SysUserVO> usersByIds = iSysUserCommonService.getUsersByIds(creatorAndUpdaterIds);
+        Map<Long, SysUserVO> usersByIds = iSysUserCommonService.getUsersByIds(creatorAndUpdaterIds).stream()
+                .collect(Collectors.toMap(SysUserVO::getId, sysUserVO -> sysUserVO));
 
         // 21. 组装用户聚合信息
         List<UserAggregatorInfoVO> userAggregatorInfoList = userList.getRecords().stream()

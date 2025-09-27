@@ -108,7 +108,8 @@ public class ComboAggregatorServiceImpl implements IComboAggregatorService {
         // 3.2 根据配额ID查询配额详情
         Map<Long, SysQuotaVO> quotaMap;
         if (!quotaIds.isEmpty()) {
-            quotaMap = iSysQuotaCommonService.getSysQuotasByIds(new ArrayList<>(quotaIds));
+            quotaMap = iSysQuotaCommonService.getSysQuotasByIds(new ArrayList<>(quotaIds)).stream()
+                    .collect(Collectors.toMap(SysQuotaVO::getId, quota -> quota));
         } else {
             quotaMap = Collections.emptyMap();
         }
@@ -126,13 +127,15 @@ public class ComboAggregatorServiceImpl implements IComboAggregatorService {
         // 4.2 根据角色ID查询角色详情
         Map<Long, SysRoleVO> roleMap;
         if (!roleIds.isEmpty()) {
-            roleMap = iSysRoleCommonService.getSysRolesByIds(new ArrayList<>(roleIds));
+            roleMap = iSysRoleCommonService.getSysRolesByIds(new ArrayList<>(roleIds)).stream()
+                    .collect(Collectors.toMap(SysRoleVO::getId, role -> role));
         } else {
             roleMap = Collections.emptyMap();
         }
 
         // 5. 根据 创建人Id 查询 创建人信息
-        Map<Long, SysUserVO> userMap = iSysUserCommonService.getUsersByIds(userIds);
+        Map<Long, SysUserVO> userMap = iSysUserCommonService.getUsersByIds(userIds).stream()
+                .collect(Collectors.toMap(SysUserVO::getId, sysUserVO -> sysUserVO));
 
         // 6. 组装数据
         List<ComboDetailsVO> detailsList = sysComboList.getRecords().stream()

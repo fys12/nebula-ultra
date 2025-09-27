@@ -39,12 +39,12 @@ public class SysTenantCommonServiceImpl extends ServiceImpl<SysTenantMapper, Sys
     /**
      * 根据多个系统租户ID全量查询租户信息（不分页）
      * @param ids 系统租户ID列表
-     * @return 所有匹配的 SysTenantVO Map<租户Id 租户VO>
+     * @return 所有匹配的 SysTenantVO
      */
     @Override
-    public Map<Long, SysTenantVO> getSysTenantsByIds(List<Long> ids) {
+    public List<SysTenantVO> getSysTenantsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
 
         LambdaQueryWrapper<SysTenant> queryWrapper = new LambdaQueryWrapper<>();
@@ -53,13 +53,7 @@ public class SysTenantCommonServiceImpl extends ServiceImpl<SysTenantMapper, Sys
                 .orderByDesc(SysTenant::getCreatedAt);
 
         List<SysTenant> list = this.list(queryWrapper);
-        List<SysTenantVO> voList = sysTenantConverter.EnListToVOList(list);
-
-        return voList.stream()
-                .collect(Collectors.toMap(
-                        SysTenantVO::getId,
-                        vo -> vo
-                ));
+        return sysTenantConverter.EnListToVOList(list);
     }
 
     /**

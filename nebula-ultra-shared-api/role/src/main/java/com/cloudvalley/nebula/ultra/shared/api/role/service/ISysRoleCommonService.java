@@ -17,8 +17,8 @@ public interface ISysRoleCommonService {
     /**
      * 根据多个系统角色ID全量查询角色信息（不分页）
      * @param ids 系统角色ID列表
-     * @return 所有匹配的 SysRoleVO 列表 Map<角色Id, 角色VO>
+     * @return 所有匹配的 SysRoleVO 列表
      */
-     Map<Long, SysRoleVO> getSysRolesByIds(List<Long> ids);
+    List<SysRoleVO> getSysRolesByIds(List<Long> ids);
 
 }

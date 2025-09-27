@@ -39,12 +39,12 @@ public class SysDeptCommonServiceImpl extends ServiceImpl<SysDeptMapper, SysDept
     /**
      * 根据ID列表查询多个系统部门。
      * @param ids 部门ID列表
-     * @return 对应的部门VO列表 Map<部门ID, 部门VO>
+     * @return 对应的部门VO列表
      */
     @Override
-    public Map<Long, SysDeptVO> getSysDeptsByIds(List<Long> ids) {
+    public List<SysDeptVO> getSysDeptsByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
 
         LambdaQueryWrapper<SysDept> queryWrapper = new LambdaQueryWrapper<>();
@@ -52,13 +52,7 @@ public class SysDeptCommonServiceImpl extends ServiceImpl<SysDeptMapper, SysDept
                 .eq(SysDept::getDeleted, false);
 
         List<SysDept> entities = this.list(queryWrapper);
-        List<SysDeptVO> voList = sysDeptConverter.EnListToVOList(entities);
-
-        return voList.stream()
-                .collect(Collectors.toMap(
-                        SysDeptVO::getId,
-                        vo -> vo
-                ));
+        return sysDeptConverter.EnListToVOList(entities);
     }
 
 }

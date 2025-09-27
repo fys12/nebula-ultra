@@ -39,12 +39,12 @@ public class SysRoleCommonServiceImpl extends ServiceImpl<SysRoleMapper, SysRole
     /**
      * 根据多个系统角色ID全量查询角色信息（不分页）
      * @param ids 系统角色ID列表
-     * @return 所有匹配的 SysRoleVO 列表 Map<角色Id, 角色VO>
+     * @return 所有匹配的 SysRoleVO 列表
      */
     @Override
-    public Map<Long, SysRoleVO> getSysRolesByIds(List<Long> ids) {
+    public List<SysRoleVO> getSysRolesByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
 
         LambdaQueryWrapper<SysRole> queryWrapper = new LambdaQueryWrapper<>();
@@ -53,13 +53,7 @@ public class SysRoleCommonServiceImpl extends ServiceImpl<SysRoleMapper, SysRole
                 .orderByDesc(SysRole::getCreatedAt);
 
         List<SysRole> list = this.list(queryWrapper);
-        List<SysRoleVO> voList = sysRoleConverter.EnListToVOList(list);
-
-        return voList.stream()
-                .collect(Collectors.toMap(
-                        SysRoleVO::getId,
-                        vo -> vo
-                ));
+        return sysRoleConverter.EnListToVOList(list);
     }
 
 }

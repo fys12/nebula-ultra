@@ -107,13 +107,15 @@ public class TenantAggregatorServiceImpl implements ITenantAggregatorService {
                 .toList();
 
         // 2. 根据 租户Id 查询 租户信息
-        Map<Long, SysTenantVO> tenantMap = iSysTenantCommonService.getSysTenantsByIds(tenantIds);
+        Map<Long, SysTenantVO> tenantMap = iSysTenantCommonService.getSysTenantsByIds(tenantIds).stream()
+                .collect(Collectors.toMap(SysTenantVO::getId, sysTenantVO -> sysTenantVO));
 
         // 3. 根据 套餐Id 获取 套餐信息
         Map<Long, SysComboVO> comboMap = iSysComboCommonService.getSysCombosByIds(comboIds);
 
         // 4. 根据 用户Id 获取 用户信息
-        Map<Long, SysUserVO> userMap = iSysUserCommonService.getUsersByIds(userIds);
+        Map<Long, SysUserVO> userMap = iSysUserCommonService.getUsersByIds(userIds).stream()
+                .collect(Collectors.toMap(SysUserVO::getId, sysUserVO -> sysUserVO));
 
         // 5. 组装数据
         List<TenantSubscribeDetailsVO> detailsList = tenantSubscribeList.getRecords().stream()

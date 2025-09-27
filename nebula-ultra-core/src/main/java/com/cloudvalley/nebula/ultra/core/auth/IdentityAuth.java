@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1403,7 +1404,8 @@ public class IdentityAuth {
      */
     public CheckTenantVO checkTenant(List<Long> sTenantIds) {
         // 1. 根据 系统租户Id列表 查询 系统租户信息
-        Map<Long, SysTenantVO> sysTenantsByIds = iSysTenantCommonService.getSysTenantsByIds(sTenantIds);
+        Map<Long, SysTenantVO> sysTenantsByIds = iSysTenantCommonService.getSysTenantsByIds(sTenantIds).stream()
+                .collect(Collectors.toMap(SysTenantVO::getId, sysTenantVO -> sysTenantVO));
 
         // 2. 获取 禁用的 系统租户Id [ 禁用租户 系统级 ]
         List<SysTenantVO> disabledSysTenant = sysTenantsByIds.values().stream()
@@ -1473,7 +1475,8 @@ public class IdentityAuth {
                 .toList();
 
         // 3.1 根据 系统部门Id 获取 系统部门信息 Map<系统部门ID, 部门VO>
-        Map<Long, SysDeptVO> sysDeptsByIds = iSysDeptCommonService.getSysDeptsByIds(sysDeptIds);
+        Map<Long, SysDeptVO> sysDeptsByIds = iSysDeptCommonService.getSysDeptsByIds(sysDeptIds).stream()
+                .collect(Collectors.toMap(SysDeptVO::getId, Function.identity()));
 
         // 3.2 获取 禁用系统部门Id [ 禁用部门 系统级 ]
         List<SysDeptVO> disabledSysDept = sysDeptsByIds.values().stream()
@@ -1871,7 +1874,8 @@ public class IdentityAuth {
                 .toList();
 
         // 3.1 根据 系统角色Id 获取 系统角色信息 Map<系统角色ID, 角色VO>
-        Map<Long, SysRoleVO> sysRolesByIds = iSysRoleCommonService.getSysRolesByIds(sysRoleIds);
+        Map<Long, SysRoleVO> sysRolesByIds = iSysRoleCommonService.getSysRolesByIds(sysRoleIds).stream()
+                .collect(Collectors.toMap(SysRoleVO::getId, sysRoleVO -> sysRoleVO));
 
         // 3.2 获取 禁用系统角色Id [ 禁用角色 系统级 ]
         List<SysRoleVO> disabledSysRole = sysRolesByIds.values().stream()

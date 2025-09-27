@@ -18,8 +18,8 @@ public interface ISysDeptCommonService {
     /**
      * 根据ID列表查询多个系统部门。
      * @param ids 部门ID列表
-     * @return 对应的部门VO列表 Map<部门ID, 部门VO>
+     * @return 对应的部门VO列表
      */
-    Map<Long, SysDeptVO> getSysDeptsByIds(List<Long> ids);
+     List<SysDeptVO> getSysDeptsByIds(List<Long> ids);
 
 }

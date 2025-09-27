@@ -43,9 +43,9 @@ public class SysQuotaCommonServiceImpl extends ServiceImpl<SysQuotaMapper, SysQu
      * @return 所有匹配的 SysQuotaVO 列表，按创建时间倒序排列；输入为空时返回空列表
      */
     @Override
-    public Map<Long, SysQuotaVO> getSysQuotasByIds(List<Long> ids) {
+    public List<SysQuotaVO> getSysQuotasByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
         LambdaQueryWrapper<SysQuota> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(SysQuota::getId, ids)
@@ -53,10 +53,7 @@ public class SysQuotaCommonServiceImpl extends ServiceImpl<SysQuotaMapper, SysQu
                 .orderByDesc(SysQuota::getCreatedAt);
         List<SysQuota> list = this.list(queryWrapper);
 
-        // 使用Converter将实体列表转为VO列表后，再转换为Map
-        List<SysQuotaVO> voList = sysQuotaConverter.EnListToVOList(list);
-        return voList.stream()
-                .collect(Collectors.toMap(SysQuotaVO::getId, Function.identity()));
+        return sysQuotaConverter.EnListToVOList(list);
     }
 
 }

@@ -40,12 +40,12 @@ public class SysUserCommonServiceImpl extends ServiceImpl<SysUserMapper, SysUser
     /**
      * 根据ID查询系统用户（多个）
      * @param ids 用户ID
-     * @return 用户信息 Map<用户Id 用户VO>
+     * @return 用户信息
      */
     @Override
-    public Map<Long, SysUserVO> getUsersByIds(List<Long> ids) {
+    public List<SysUserVO> getUsersByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
 
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
@@ -53,13 +53,7 @@ public class SysUserCommonServiceImpl extends ServiceImpl<SysUserMapper, SysUser
                 .eq(SysUser::getDeleted, false);
 
         List<SysUser> users = this.list(queryWrapper);
-        List<SysUserVO> voList = sysUserConverter.EnListToVOList(users);
-
-        return voList.stream()
-                .collect(Collectors.toMap(
-                        SysUserVO::getId,
-                        vo -> vo
-                ));
+        return sysUserConverter.EnListToVOList(users);
     }
 
 }

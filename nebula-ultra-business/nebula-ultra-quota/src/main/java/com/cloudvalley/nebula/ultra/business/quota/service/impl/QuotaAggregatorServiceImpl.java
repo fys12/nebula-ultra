@@ -57,10 +57,12 @@ public class QuotaAggregatorServiceImpl implements IQuotaAggregatorService {
                 .toList();
 
         // 3. 根据 租户Id 查询 租户信息
-        Map<Long, SysTenantVO> tenantMap = iSysTenantCommonService.getSysTenantsByIds(tenantIds);
+        Map<Long, SysTenantVO> tenantMap = iSysTenantCommonService.getSysTenantsByIds(tenantIds).stream()
+                .collect(Collectors.toMap(SysTenantVO::getId, sysTenantVO -> sysTenantVO));
 
         // 4. 根据 配额Id 获取 配额信息
-        Map<Long, SysQuotaVO> quotaMap = iSysQuotaCommonService.getSysQuotasByIds(quotaIds);
+        Map<Long, SysQuotaVO> quotaMap = iSysQuotaCommonService.getSysQuotasByIds(quotaIds).stream()
+                .collect(Collectors.toMap(SysQuotaVO::getId, quota -> quota));
 
         // 5. 获取 创建人Id 列表
         List<Long> userIds = quotaMap.values().stream()
@@ -69,7 +71,8 @@ public class QuotaAggregatorServiceImpl implements IQuotaAggregatorService {
                 .toList();
 
         // 6. 根据 创建人Id 查询 创建人信息
-        Map<Long, SysUserVO> userMap = iSysUserCommonService.getUsersByIds(userIds);
+        Map<Long, SysUserVO> userMap = iSysUserCommonService.getUsersByIds(userIds).stream()
+                .collect(Collectors.toMap(SysUserVO::getId, sysUserVO -> sysUserVO));
 
         // 7. 组装数据
         List<QuoatDetailsVO> detailsList = quotaTenantList.getRecords().stream()

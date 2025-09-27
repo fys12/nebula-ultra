@@ -17,9 +17,9 @@ public interface ISysTenantCommonService {
     /**
      * 根据多个系统租户ID全量查询租户信息（不分页）
      * @param ids 系统租户ID列表
-     * @return 所有匹配的 SysTenantVO Map<租户Id 租户VO>
+     * @return 所有匹配的 SysTenantVO
      */
-    Map<Long, SysTenantVO> getSysTenantsByIds(List<Long> ids);
+    List<SysTenantVO> getSysTenantsByIds(List<Long> ids);
 
     /**
      * 查询 所有 系统租户信息

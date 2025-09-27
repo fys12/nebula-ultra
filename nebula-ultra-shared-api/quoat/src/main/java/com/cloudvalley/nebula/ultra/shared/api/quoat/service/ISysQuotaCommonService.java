@@ -19,7 +19,7 @@ public interface ISysQuotaCommonService {
      * @param ids 系统配额ID列表
      * @return 系统配额信息
      */
-    Map<Long, SysQuotaVO> getSysQuotasByIds(List<Long> ids);
+    List<SysQuotaVO> getSysQuotasByIds(List<Long> ids);
 
 
 }

@@ -18,8 +18,8 @@ public interface ISysUserCommonService {
     /**
      * 根据ID查询系统用户（多个）
      * @param ids 用户ID
-     * @return 用户信息 Map<用户Id 用户VO>
+     * @return 用户信息
      */
-    Map<Long, SysUserVO> getUsersByIds(List<Long> ids);
+    List<SysUserVO> getUsersByIds(List<Long> ids);
 
 }

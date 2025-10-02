@@ -1,5 +1,6 @@
 package com.cloudvalley.nebula.ultra.business.dept.model.vo;
 
+import com.cloudvalley.nebula.ultra.shared.api.user.model.vo.SysUserVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Value;
@@ -40,12 +41,17 @@ public class DeptDetailsVO {
     /**
      * 创建人用户
      */
-    String createdByUser;
+    SysUserVO createdByUser;
 
     /**
      * 更新人用户ID
      */
-    String updatedByUser;
+    SysUserVO updatedByUser;
+
+    /**
+     * 绑定的用户
+     */
+    List<SysUserVO> bandUsers;
 
     /**
      * 色标

@@ -13,4 +13,12 @@ public interface IDeptAggregatorService {
      * @return 部门树列表
      */
     IPage<DeptListVO> getDeptTree(Integer current, Integer size);
+
+    /**
+     * 获取部门详情
+     * @param deptId 部门id
+     * @param tenantId 租户Id
+     * @return 部门详情
+     */
+    DeptDetailsVO getDeptDetails(Long deptId, Long tenantId);
 }

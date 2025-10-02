@@ -2,16 +2,24 @@ package com.cloudvalley.nebula.ultra.business.dept.service.impl;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cloudvalley.nebula.ultra.business.dept.model.vo.DeptDetailsVO;
 import com.cloudvalley.nebula.ultra.business.dept.model.vo.DeptListVO;
 import com.cloudvalley.nebula.ultra.business.dept.service.IDeptAggregatorService;
 import com.cloudvalley.nebula.ultra.business.dept.service.ISysDeptService;
+import com.cloudvalley.nebula.ultra.shared.api.dept.model.vo.DeptTenantVO;
 import com.cloudvalley.nebula.ultra.shared.api.dept.model.vo.SysDeptVO;
+import com.cloudvalley.nebula.ultra.shared.api.dept.service.IDeptTenantCommonService;
 import com.cloudvalley.nebula.ultra.shared.api.dept.service.IDeptUserCommonService;
 import com.cloudvalley.nebula.ultra.shared.api.dept.service.ISysDeptCommonService;
+import com.cloudvalley.nebula.ultra.shared.api.user.model.vo.SysUserVO;
+import com.cloudvalley.nebula.ultra.shared.api.user.model.vo.UserTenantVO;
+import com.cloudvalley.nebula.ultra.shared.api.user.service.ISysUserCommonService;
+import com.cloudvalley.nebula.ultra.shared.api.user.service.IUserTenantCommonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -27,6 +35,15 @@ public class DeptAggregatorServiceImpl implements IDeptAggregatorService {
 
     @Autowired
     private IDeptUserCommonService iDeptUserCommonService;
+
+    @Autowired
+    private ISysUserCommonService iSysUserCommonService;
+
+    @Autowired
+    private IDeptTenantCommonService iDeptTenantCommonService;
+
+    @Autowired
+    private IUserTenantCommonService iUserTenantCommonService;
 
     /**
      * 获取部门树列表
@@ -98,4 +115,62 @@ public class DeptAggregatorServiceImpl implements IDeptAggregatorService {
                 childDeptVOs
         );
     }
+
+    /**
+     * 获取部门详情
+     * @param deptId 部门id
+     * @param tenantId 租户Id
+     * @return 部门详情
+     */
+    @Override
+    public DeptDetailsVO getDeptDetails(Long deptId, Long tenantId) {
+        // 1. 获取部门基本信息
+        SysDeptVO dept = iSysDeptCommonService.getSysDeptById(deptId);
+        if (dept == null) {
+            return null;
+        }
+
+        // 2. 根据 系统部门Id和租户Id 查询 对应 租户部门信息
+        DeptTenantVO deptTenantBySTenantIdAndSDeptId = iDeptTenantCommonService.getDeptTenantBySTenantIdAndSDeptId(tenantId, deptId);
+
+        // 2.1 获取 租户部门Id
+        Long tDeptId = deptTenantBySTenantIdAndSDeptId.getId();
+
+        // 3. 获取部门绑定的用户ID列表
+        List<Long> userIds = new ArrayList<>(iDeptUserCommonService.getUserIdsByDeptId(tDeptId));
+
+        // 3.1 根据 租户用户Id列表 查询 租户用户信息
+        List<UserTenantVO> userTenantsByIds = iUserTenantCommonService.getUserTenantsByIds(userIds);
+
+        // 3.2 获取 系统用户Id
+        List<Long> sysUserIds = userTenantsByIds.stream()
+                .map(UserTenantVO::getSUserId)
+                .toList();
+
+        // 4. 根据 系统用户ID列表 查询 用户详细信息
+        List<SysUserVO> bandUsers = new ArrayList<>();
+        if (!userIds.isEmpty()) {
+            bandUsers = iSysUserCommonService.getUsersByIds(sysUserIds);
+        }
+
+        // 5. 获取创建人和更新人用户名
+        Map<Long, SysUserVO> userMap = iSysUserCommonService.getUsersByIds(new ArrayList<>(Arrays.asList(dept.getCreatedById(), dept.getUpdatedById()))).stream()
+                .collect(Collectors.toMap(SysUserVO::getId, sysUserVO -> sysUserVO));
+
+        // 6. 构建并返回部门详情VO
+        return new DeptDetailsVO(
+                dept.getId(),
+                dept.getName(),
+                dept.getDesc(),
+                dept.getCreatedAt(),
+                dept.getUpdatedAt(),
+                userMap.get(dept.getCreatedById()),
+                userMap.get(dept.getUpdatedById()),
+                bandUsers,
+                dept.getColor(),
+                dept.getState(),
+                dept.getDeleted()
+        );
+    }
+
 }

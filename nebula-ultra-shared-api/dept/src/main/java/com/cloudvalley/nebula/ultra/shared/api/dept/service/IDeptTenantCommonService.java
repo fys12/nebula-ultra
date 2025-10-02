@@ -87,4 +87,12 @@ public interface IDeptTenantCommonService {
      * @return 按租户Id分组的绑定关系映射列表
      */
     Map<Long, List<DeptTenantVO>> getDeptTenantsBySTenantIdsAndSDeptIds(List<Long> sTenantIds, List<Long> sDeptIds);
+
+    /**
+     * 根据 租户Id 和 部门Id 查询 租户部门信息
+     * @param sTenantId 租户Id
+     * @param sDeptId 部门Id
+     * @return 租户部门信息
+     */
+    DeptTenantVO getDeptTenantBySTenantIdAndSDeptId(Long sTenantId, Long sDeptId);
 }

@@ -15,6 +15,11 @@ public class SysDeptRTO {
     private Long id;
 
     /**
+     * 父部门ID
+     */
+    Long parentId;
+
+    /**
      * 部门名称
      */
     private String name;

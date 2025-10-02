@@ -22,6 +22,19 @@ public class SysDeptCommonServiceImpl extends ServiceImpl<SysDeptMapper, SysDept
     private SysDeptConverter sysDeptConverter;
 
     /**
+     * 获取所有部门信息
+     * @return 所有部门信息
+     */
+    @Override
+    public List<SysDeptVO> getAllSysDepts() {
+        LambdaQueryWrapper<SysDept> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysDept::getDeleted, false);
+
+        List<SysDept> entities = this.list(queryWrapper);
+        return sysDeptConverter.EnListToVOList(entities);
+    }
+
+    /**
      * 根据主键 ID 查询单个未删除的系统部门。
      *
      * @param id 部门ID

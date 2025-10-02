@@ -9,6 +9,12 @@ import java.util.Map;
 public interface ISysDeptCommonService {
 
     /**
+     * 获取所有部门信息
+     * @return 所有部门信息
+     */
+    List<SysDeptVO> getAllSysDepts();
+
+    /**
      * 根据ID查询单个系统部门。
      * @param id 部门ID
      * @return 对应的部门VO，不存在则返回null

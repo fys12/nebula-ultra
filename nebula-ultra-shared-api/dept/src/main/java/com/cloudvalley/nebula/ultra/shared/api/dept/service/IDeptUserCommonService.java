@@ -78,5 +78,10 @@ public interface IDeptUserCommonService {
      */
     Map<Long, Set<Long>> getUserIdsByDeptIds(List<Long> deptIds);
 
-
+    /**
+     * 根据 部门Id列表 查询 关联的用户数量
+     * @param deptIds 部门ID列表
+     * @return 用户数量
+     */
+    Map<Long, Integer> getDeptUserCount(List<Long> deptIds);
 }

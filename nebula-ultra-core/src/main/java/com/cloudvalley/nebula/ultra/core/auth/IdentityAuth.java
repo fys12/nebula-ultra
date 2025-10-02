@@ -1632,6 +1632,7 @@ public class IdentityAuth {
                                             if (cascadeDisabledDeptBySys.contains(deptTenant.getId())) {
                                                 return new SysDeptVO(
                                                         originalDept.getId(),
+                                                        originalDept.getParentId(),
                                                         originalDept.getName(),
                                                         originalDept.getDesc(),
                                                         originalDept.getCreatedAt(),
@@ -1667,6 +1668,7 @@ public class IdentityAuth {
                                             if (cascadeDisabledDeptBySys.contains(deptTenant.getId())) {
                                                 return new SysDeptVO(
                                                         originalDept.getId(),
+                                                        originalDept.getParentId(),
                                                         originalDept.getName(),
                                                         originalDept.getDesc(),
                                                         originalDept.getCreatedAt(),
@@ -1681,6 +1683,7 @@ public class IdentityAuth {
                                             } else if (disabledTenantDeptTenantIds.contains(deptTenant.getId())) {
                                                 return new SysDeptVO(
                                                         originalDept.getId(),
+                                                        originalDept.getParentId(),
                                                         originalDept.getName(),
                                                         originalDept.getDesc(),
                                                         originalDept.getCreatedAt(),
@@ -1714,6 +1717,7 @@ public class IdentityAuth {
                                             SysDeptVO originalDept = sysDeptsByIds.get(deptTenant.getSDeptId());
                                             return new SysDeptVO(
                                                     originalDept.getId(),
+                                                    originalDept.getParentId(),
                                                     originalDept.getName(),
                                                     originalDept.getDesc(),
                                                     originalDept.getCreatedAt(),

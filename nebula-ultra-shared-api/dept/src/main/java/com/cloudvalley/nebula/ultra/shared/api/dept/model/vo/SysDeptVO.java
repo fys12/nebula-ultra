@@ -18,6 +18,11 @@ public class SysDeptVO {
     Long id;
 
     /**
+     * 父部门ID
+     */
+    Long parentId;
+
+    /**
      * 部门名称
      */
     String name;

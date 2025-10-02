@@ -216,4 +216,30 @@ public class DeptUserCommonServiceImpl extends ServiceImpl<DeptUserMapper, DeptU
                 ));
     }
 
+    /**
+     * 根据 部门Id 查询 关联的用户数量
+     * @param deptIds 部门ID列表
+     * @return 用户数量
+     */
+    @Override
+    public Map<Long, Integer> getDeptUserCount(List<Long> deptIds) {
+
+        if (deptIds == null || deptIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        LambdaQueryWrapper<DeptUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(DeptUser::getTDeptId, deptIds)
+                .eq(DeptUser::getDeleted, false);
+
+        List<DeptUser> deptUsers = this.list(queryWrapper);
+
+        return deptUsers.stream()
+                .collect(Collectors.groupingBy(
+                        DeptUser::getTDeptId,
+                        Collectors.collectingAndThen(Collectors.counting(), Math::toIntExact)
+                ));
+
+    }
+
 }

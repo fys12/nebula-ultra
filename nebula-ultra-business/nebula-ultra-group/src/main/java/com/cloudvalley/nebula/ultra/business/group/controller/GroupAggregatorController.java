@@ -24,7 +24,7 @@ public class GroupAggregatorController {
      * @return 权限组 详细 详细
      */
     @GetMapping("/perm/{current}/{size}")
-    public SaResult getPermGroupInfo(@PathVariable Integer current, @PathVariable Integer size) {
+    public SaResult getPermGroupDetails(@PathVariable Integer current, @PathVariable Integer size) {
         if (current == null || size == null) {
             return SaResult.error("参数缺失");
         }

@@ -227,20 +227,4 @@ public class DeptTenantCommonServiceImpl extends ServiceImpl<DeptTenantMapper, D
                 .collect(Collectors.groupingBy(DeptTenantVO::getSTenantId));
     }
 
-    /**
-     * 根据 租户Id 和 部门Id 查询 租户部门信息
-     * @param sTenantId 租户Id
-     * @param sDeptId 部门Id
-     * @return 租户部门信息
-     */
-    @Override
-    public DeptTenantVO getDeptTenantBySTenantIdAndSDeptId(Long sTenantId, Long sDeptId) {
-        LambdaQueryWrapper<DeptTenant> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(DeptTenant::getSTenantId, sTenantId)
-                .eq(DeptTenant::getSDeptId, sDeptId)
-                .eq(DeptTenant::getDeleted, false);
-        DeptTenant entity = this.getOne(queryWrapper);
-        return deptTenantConverter.EnToVO(entity);
-    }
-
 }

@@ -16,9 +16,8 @@ public interface IDeptAggregatorService {
 
     /**
      * 获取部门详情
-     * @param deptId 部门id
-     * @param tenantId 租户Id
+     * @param tDeptId 部门Id
      * @return 部门详情
      */
-    DeptDetailsVO getDeptDetails(Long deptId, Long tenantId);
+    DeptDetailsVO getDeptDetails(Long tDeptId);
 }

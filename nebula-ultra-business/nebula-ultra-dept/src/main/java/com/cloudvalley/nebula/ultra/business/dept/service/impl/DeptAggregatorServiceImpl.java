@@ -67,12 +67,35 @@ public class DeptAggregatorServiceImpl implements IDeptAggregatorService {
                 .collect(Collectors.groupingBy(SysDeptVO::getParentId));
 
         // 4. 获取所有部门的用户数量
-        List<Long> deptIds = allDepts.stream().map(SysDeptVO::getId).collect(Collectors.toList());
-        Map<Long, Integer> deptUserCountMap = iDeptUserCommonService.getDeptUserCount(deptIds);
+        List<Long> sDeptIds = allDepts.stream()
+                .map(SysDeptVO::getId)
+                .collect(Collectors.toList());
+
+        // 获取系统部门ID到租户部门ID的映射
+        Map<Long, List<DeptTenantVO>> sDeptIdToTDeptIds = iDeptTenantCommonService.getDeptTenantsBySDeptIds(sDeptIds);
+
+        // 提取所有租户部门ID
+        List<Long> tDeptIds = sDeptIdToTDeptIds.values().stream()
+                .flatMap(List::stream)
+                .map(DeptTenantVO::getId)
+                .collect(Collectors.toList());
+
+        // 根据租户部门ID查询用户数量
+        Map<Long, Integer> deptUserCountMap = iDeptUserCommonService.getDeptUserCount(tDeptIds);
+
+        // 构建系统部门ID到用户数量的映射
+        Map<Long, Integer> sDeptIdToUserCountMap = sDeptIdToTDeptIds.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(DeptTenantVO::getId)
+                                .map(tDeptId -> deptUserCountMap.getOrDefault(tDeptId, 0))
+                                .reduce(0, Integer::sum)
+                ));
 
         // 5. 对分页结果中的每个部门构建完整的树形结构
         List<DeptListVO> deptTreeList = sysDeptList.getRecords().stream()
-                .map(dept -> buildDeptTree(dept, deptMap, parentToChildrenMap, deptUserCountMap))
+                .map(dept -> buildDeptTree(dept, deptMap, parentToChildrenMap, sDeptIdToTDeptIds, sDeptIdToUserCountMap))
                 .collect(Collectors.toList());
 
         // 6. 创建新的分页对象并返回
@@ -85,30 +108,41 @@ public class DeptAggregatorServiceImpl implements IDeptAggregatorService {
     }
 
     /**
-     * 递归构建部门树
+     * 递归构建部门树（使用租户部门信息）
      * @param dept 当前部门
      * @param deptMap 部门ID到部门的映射
      * @param parentToChildrenMap 父ID到子部门列表的映射
-     * @param deptUserCountMap 部门ID到用户数量的映射
+     * @param sDeptIdToTDeptIds 系统部门ID到租户部门列表的映射
+     * @param sDeptIdToUserCountMap 系统部门ID到用户数量的映射
      * @return 部门树
      */
     private DeptListVO buildDeptTree(SysDeptVO dept, Map<Long, SysDeptVO> deptMap,
-                                     Map<Long, List<SysDeptVO>> parentToChildrenMap,
-                                     Map<Long, Integer> deptUserCountMap) {
+                                                   Map<Long, List<SysDeptVO>> parentToChildrenMap,
+                                                   Map<Long, List<DeptTenantVO>> sDeptIdToTDeptIds,
+                                                   Map<Long, Integer> sDeptIdToUserCountMap) {
         // 1. 获取当前部门的子部门列表
         List<SysDeptVO> childDepts = parentToChildrenMap.getOrDefault(dept.getId(), new ArrayList<>());
 
         // 2. 递归构建子部门树
         List<DeptListVO> childDeptVOs = childDepts.stream()
-                .map(childDept -> buildDeptTree(childDept, deptMap, parentToChildrenMap, deptUserCountMap))
+                .map(childDept -> buildDeptTree(childDept, deptMap, parentToChildrenMap, sDeptIdToTDeptIds, sDeptIdToUserCountMap))
                 .collect(Collectors.toList());
 
         // 3. 获取当前部门的用户数量，默认为0
-        Integer userCount = deptUserCountMap.getOrDefault(dept.getId(), 0);
+        Integer userCount = sDeptIdToUserCountMap.getOrDefault(dept.getId(), 0);
 
-        // 4. 构建当前部门的DeptListVO
+        // 4. 获取当前部门对应的租户部门ID列表
+        List<DeptTenantVO> tDeptList = sDeptIdToTDeptIds.getOrDefault(dept.getId(), new ArrayList<>());
+
+        // 5. 如果存在租户部门，使用第一个租户部门的ID作为部门ID；否则使用系统部门ID
+        Long deptId = dept.getId();
+        if (!tDeptList.isEmpty()) {
+            deptId = tDeptList.get(0).getId(); // 使用第一个租户部门ID
+        }
+
+        // 6. 构建当前部门的DeptListVO
         return new DeptListVO(
-                dept.getId(),
+                deptId, // 使用租户部门ID
                 dept.getName(),
                 dept.getColor(),
                 userCount,
@@ -118,23 +152,16 @@ public class DeptAggregatorServiceImpl implements IDeptAggregatorService {
 
     /**
      * 获取部门详情
-     * @param deptId 部门id
-     * @param tenantId 租户Id
+     * @param tDeptId 租户部门id
      * @return 部门详情
      */
     @Override
-    public DeptDetailsVO getDeptDetails(Long deptId, Long tenantId) {
-        // 1. 获取部门基本信息
-        SysDeptVO dept = iSysDeptCommonService.getSysDeptById(deptId);
-        if (dept == null) {
-            return null;
-        }
+    public DeptDetailsVO getDeptDetails(Long tDeptId) {
+        // 1. 根据 租户部门Id 查询 对应 租户部门信息
+        DeptTenantVO tenantDept = iDeptTenantCommonService.getDeptTenantById(tDeptId);
 
-        // 2. 根据 系统部门Id和租户Id 查询 对应 租户部门信息
-        DeptTenantVO deptTenantBySTenantIdAndSDeptId = iDeptTenantCommonService.getDeptTenantBySTenantIdAndSDeptId(tenantId, deptId);
-
-        // 2.1 获取 租户部门Id
-        Long tDeptId = deptTenantBySTenantIdAndSDeptId.getId();
+        // 2. 根据 系统部门Id 查询 部门基本信息
+        SysDeptVO sysDept = iSysDeptCommonService.getSysDeptById(tenantDept.getSDeptId());
 
         // 3. 获取部门绑定的用户ID列表
         List<Long> userIds = new ArrayList<>(iDeptUserCommonService.getUserIdsByDeptId(tDeptId));
@@ -154,22 +181,22 @@ public class DeptAggregatorServiceImpl implements IDeptAggregatorService {
         }
 
         // 5. 获取创建人和更新人用户名
-        Map<Long, SysUserVO> userMap = iSysUserCommonService.getUsersByIds(new ArrayList<>(Arrays.asList(dept.getCreatedById(), dept.getUpdatedById()))).stream()
+        Map<Long, SysUserVO> userMap = iSysUserCommonService.getUsersByIds(new ArrayList<>(Arrays.asList(sysDept.getCreatedById(), sysDept.getUpdatedById()))).stream()
                 .collect(Collectors.toMap(SysUserVO::getId, sysUserVO -> sysUserVO));
 
         // 6. 构建并返回部门详情VO
         return new DeptDetailsVO(
-                dept.getId(),
-                dept.getName(),
-                dept.getDesc(),
-                dept.getCreatedAt(),
-                dept.getUpdatedAt(),
-                userMap.get(dept.getCreatedById()),
-                userMap.get(dept.getUpdatedById()),
+                tenantDept.getId(),
+                sysDept.getName(),
+                sysDept.getDesc(),
+                tenantDept.getCreatedAt(),
+                tenantDept.getUpdatedAt(),
+                userMap.get(tenantDept.getCreatedById()),
+                userMap.get(sysDept.getUpdatedById()),
                 bandUsers,
-                dept.getColor(),
-                dept.getState(),
-                dept.getDeleted()
+                tenantDept.getColor(),
+                tenantDept.getState(),
+                tenantDept.getDeleted()
         );
     }
 

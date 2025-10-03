@@ -35,16 +35,15 @@ public class DeptAggregatorController {
 
     /**
      * 获取部门详情
-     * @param deptId 部门Id
-     * @param tenantId 租户Id
+     * @param tDeptId 部门Id
      * @return 部门详情
      */
-    @GetMapping("/dept/{deptId}/{tenantId}")
-    public SaResult getDeptDetails(@PathVariable Long deptId, @PathVariable Long tenantId) {
-        if (deptId == null) {
+    @GetMapping("/dept/{tDeptId}")
+    public SaResult getDeptDetails(@PathVariable Long tDeptId) {
+        if (tDeptId == null) {
             return SaResult.error("参数缺失");
         }
-        DeptDetailsVO deptDetails = iDeptAggregatorService.getDeptDetails(deptId, tenantId);
+        DeptDetailsVO deptDetails = iDeptAggregatorService.getDeptDetails(tDeptId);
         return SaResult.ok("部门详情获取成功").setData(deptDetails);
     }
 

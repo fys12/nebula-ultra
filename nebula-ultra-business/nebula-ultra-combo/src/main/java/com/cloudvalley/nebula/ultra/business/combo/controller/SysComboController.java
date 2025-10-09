@@ -34,9 +34,8 @@ public class SysComboController {
      * @param size 每页大小
      * @return 系统套餐列表
      */
-    @GetMapping
-    public SaResult getSysComboList(@RequestParam(value = "current", defaultValue = "1") Integer current,
-                                    @RequestParam(value = "size", defaultValue = "10") Integer size) {
+    @GetMapping("/{current}/{size}")
+    public SaResult getSysComboList(@PathVariable Integer current, @PathVariable Integer size) {
         Page<SysCombo> page = new Page<>(current, size);
         IPage<SysComboVO> result = sysComboService.getSysComboList(page);
         if (result.getRecords().isEmpty()) {

@@ -45,6 +45,21 @@ public class QuoatDetailsVO {
     String unit;
 
     /**
+     * 总配额
+     */
+    Integer total;
+
+    /**
+     * 已使用
+     */
+    Integer used;
+
+    /**
+     * 剩余配额
+     */
+    Integer remain;
+
+    /**
      * 色标
      */
     String color;
@@ -70,13 +85,13 @@ public class QuoatDetailsVO {
     SysUserVO createdByUser;
 
     /**
-     * 软删
-     */
-    Boolean deleted;
-
-    /**
      * 配额 所属租户
      */
     SysTenantVO tenant;
+
+    /**
+     * 软删
+     */
+    Boolean deleted;
 
 }

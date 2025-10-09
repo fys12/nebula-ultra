@@ -3,6 +3,7 @@ package com.cloudvalley.nebula.ultra.business.quota.converter;
 import com.cloudvalley.nebula.ultra.business.quota.model.entity.SysQuota;
 import com.cloudvalley.nebula.ultra.shared.api.quoat.model.vo.SysQuotaVO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public interface SysQuotaConverter {
      * @param sysQuota 源实体对象
      * @return 转换后的 VO 对象
      */
+    @Mapping(source = "QDesc", target = "desc")
     SysQuotaVO EnToVO(SysQuota sysQuota);
 
     /**

@@ -6,6 +6,7 @@ import com.cloudvalley.nebula.ultra.shared.api.role.model.vo.SysRoleVO;
 import com.cloudvalley.nebula.ultra.shared.api.user.model.vo.SysUserVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
 import lombok.Value;
 
 import java.math.BigDecimal;
@@ -75,6 +76,50 @@ public class ComboDetailsVO {
     /**
      * 套餐包含的配额
      */
-    List<SysQuotaVO> quotas;
+    List<QuotaDetail> quotas;
+
+    @Data
+    public static class QuotaDetail {
+        /**
+         * 主键ID（雪花算法ID）
+         */
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        Long id;
+
+        /**
+         * 配额类型名称
+         */
+        String name;
+
+        /**
+         * 配额类型编码（如 root_cap/sub_cap/user_cap/storage_gb/db_gb/ai_tokens）
+         */
+        String code;
+
+        /**
+         * 描述
+         */
+        String desc;
+
+        /**
+         * 单价
+         */
+        BigDecimal price;
+
+        /**
+         * 单位（count/GB/tokens等）
+         */
+        String unit;
+
+        /**
+         * 色标
+         */
+        String color;
+
+        /**
+         * 配额 可用量
+         */
+        Integer value;
+    }
 
 }

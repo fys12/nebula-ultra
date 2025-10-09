@@ -18,18 +18,17 @@ public class ComboAggregatorController {
     private IComboAggregatorService iComboAggregatorService;
 
     /**
-     * 获取租户 套餐 详情信息
+     * 获取 套餐 详情信息
      * 包含 套餐 包含的 权限、角色、配额
-     * @param current 当前页
-     * @param size 每页数量
+     * @param comboId 套餐ID
      * @return 套餐详情信息
      */
-    @GetMapping("/tenant/combo/{current}/{size}")
-    public SaResult getComboInfo(@PathVariable Integer current, @PathVariable Integer size) {
-        if (current == null || size == null) {
+    @GetMapping("/combo/detail/{comboId}")
+    public SaResult getComboDetails(@PathVariable Long comboId) {
+        if (comboId == null) {
             return SaResult.error("参数缺失");
         }
-        IPage<ComboDetailsVO> comboDetailsVO = iComboAggregatorService.getComboInfo(current, size);
+        ComboDetailsVO comboDetailsVO = iComboAggregatorService.getComboDetails(comboId);
         return SaResult.ok("套餐详情信息列表获取成功").setData(comboDetailsVO);
     }
 

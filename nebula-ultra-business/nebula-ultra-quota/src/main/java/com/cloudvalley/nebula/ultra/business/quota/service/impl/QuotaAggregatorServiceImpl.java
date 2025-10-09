@@ -98,13 +98,16 @@ public class QuotaAggregatorServiceImpl implements IQuotaAggregatorService {
                                 quota.getDesc(),
                                 quota.getPrice(),
                                 quota.getUnit(),
+                                quotaTenant.getTotal(),
+                                quotaTenant.getUsed(),
+                                quotaTenant.getRemain(),
                                 quota.getColor(),
                                 quota.getState(),
-                                quota.getCreatedAt(),
-                                quota.getUpdatedAt(),
+                                quotaTenant.getCreatedAt(),
+                                quotaTenant.getUpdatedAt(),
                                 createdByUser,
-                                quota.getDeleted(),
-                                tenant
+                                tenant,
+                                quotaTenant.getDeleted()
                         );
                     }
                     return null;

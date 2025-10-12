@@ -29,7 +29,7 @@ public class GroupPermDetailsVO {
     /**
      * 权限
      */
-    SysPermVO sysPerm;
+    List<SysPermVO> sysPerm;
 
     /**
      * 组绑定的部门信息

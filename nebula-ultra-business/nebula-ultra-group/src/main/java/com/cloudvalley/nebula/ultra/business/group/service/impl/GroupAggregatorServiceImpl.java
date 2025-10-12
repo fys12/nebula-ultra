@@ -25,10 +25,7 @@ import com.cloudvalley.nebula.ultra.shared.api.user.service.ISysUserCommonServic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -130,7 +127,7 @@ public class GroupAggregatorServiceImpl implements IGroupAggregatorService {
                     }
 
                     return new GroupPermListVO(
-                            perm.getId(),
+                            tenantGroup.getId(),
                             sysGroup
                     );
                 })
@@ -153,97 +150,105 @@ public class GroupAggregatorServiceImpl implements IGroupAggregatorService {
      */
     @Override
     public GroupPermDetailsVO getPermGroupDetails(Long groupId) {
-        // 1. 查询 权限组 基本信息
-        GroupPermVO groupPerm = iGroupPermCommonService.getGroupPermById(groupId);
-        if (groupPerm == null) {
-            return null;
-        }
+        // 1. 根据 租户组Id 查询 权限组 基本信息
+        List<GroupPermVO> groupPermsByGroupId = iGroupPermCommonService.getGroupPermsByGroupId(groupId);
 
         // 2. 根据 租户组Id 查询 租户组信息
-        GroupTenantVO tenantGroup = iGroupTenantCommonService.getGroupTenantById(groupPerm.getTGroupId());
+        GroupTenantVO tenantGroup = iGroupTenantCommonService.getGroupTenantById(groupId);
 
         // 3. 根据 系统组Id 查询 系统组信息
         SysGroupVO sysGroup = null;
-        if (tenantGroup != null) {
+        if (tenantGroup != null && tenantGroup.getSGroupId() != null) {
             sysGroup = iSysGroupCommonService.getSysGroupById(tenantGroup.getSGroupId());
         }
 
-        // 4. 根据 租户权限Id 查询 租户权限信息
-        PermTenantVO tenantPerm = iPermTenantCommonService.getPermTenantById(groupPerm.getTPermId());
+        // 4. 根据 租户权限Id列表 查询 租户权限信息
+        List<Long> tPermIds = groupPermsByGroupId.stream()
+                .map(GroupPermVO::getTPermId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
 
-        // 5. 根据 系统权限Id 查询 系统权限信息
-        SysPermVO sysPerm = null;
-        if (tenantPerm != null) {
-            sysPerm = iSysPermCommonService.getSysPermById(tenantPerm.getSPermId());
+        // 5. 根据 系统权限Id列表 查询 系统权限信息
+        List<SysPermVO> sysPerms = new ArrayList<>();
+        if (!tPermIds.isEmpty()) {
+            List<PermTenantVO> permTenants = iPermTenantCommonService.getPermTenantsByIds(tPermIds);
+            List<Long> sPermIds = permTenants.stream()
+                    .map(PermTenantVO::getSPermId)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
+            if (!sPermIds.isEmpty()) {
+                sysPerms = iSysPermCommonService.getSysPermsByIds(sPermIds);
+            }
         }
 
         // 6. 根据 租户组Id 查询 组 绑定的租户部门信息
-        List<GroupBindDeptVO> groupBindDeptList = iGroupBindDeptCommonService.getGroupBindDeptsBySGroupId(groupPerm.getTGroupId());
+        List<GroupBindDeptVO> groupBindDepts = iGroupBindDeptCommonService.getGroupBindDeptsBySGroupId(groupId);
 
         // 6.1 获取 租户部门Id
-        List<Long> tDeptIdList = groupBindDeptList.stream()
+        List<Long> tDeptIds = groupBindDepts.stream()
                 .map(GroupBindDeptVO::getTDeptId)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
 
         // 6.2 根据 租户部门Id 查询 租户部门信息
-        Map<Long, DeptTenantVO> deptTenantMap = iDeptTenantCommonService.getDeptTenantsByIds(tDeptIdList).stream()
-                .collect(Collectors.toMap(DeptTenantVO::getId, deptTenant -> deptTenant));
+        List<DeptTenantVO> deptTenants = new ArrayList<>();
+        if (!tDeptIds.isEmpty()) {
+            deptTenants = iDeptTenantCommonService.getDeptTenantsByIds(tDeptIds);
+        }
 
         // 6.3 获取 系统部门Id
-        List<Long> sDeptIdList = deptTenantMap.values().stream()
+        List<Long> sDeptIds = deptTenants.stream()
                 .map(DeptTenantVO::getSDeptId)
+                .filter(Objects::nonNull)
+                .distinct()
                 .toList();
 
         // 6.4 根据 系统部门Id 查询 系统部门信息
-        Map<Long, SysDeptVO> sysDeptMap = iSysDeptCommonService.getSysDeptsByIds(sDeptIdList).stream()
-                .collect(Collectors.toMap(SysDeptVO::getId, sysDept -> sysDept));
+        List<SysDeptVO> sysDepts = new ArrayList<>();
+        if (!sDeptIds.isEmpty()) {
+            sysDepts = iSysDeptCommonService.getSysDeptsByIds(sDeptIds);
+        }
 
         // 7. 根据 租户组Id 查询 组 绑定的租户角色信息
-        List<GroupBindRoleVO> groupBindRoleList = iGroupBindRoleCommonService.getGroupBindRolesByGroupId(groupPerm.getTGroupId());
+        List<GroupBindRoleVO> groupBindRoles = iGroupBindRoleCommonService.getGroupBindRolesByGroupId(groupId);
 
         // 7.1 获取 租户角色Id
-        List<Long> tRoleIdList = groupBindRoleList.stream()
+        List<Long> tRoleIds = groupBindRoles.stream()
                 .map(GroupBindRoleVO::getTRoleId)
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
 
         // 7.2 根据 租户角色Id 查询 租户角色信息
-        Map<Long, RoleTenantVO> roleTenantMap = iRoleTenantCommonService.getRoleTenantsByIds(tRoleIdList).stream()
-                .collect(Collectors.toMap(RoleTenantVO::getId, roleTenant -> roleTenant));
+        List<RoleTenantVO> roleTenants = new ArrayList<>();
+        if (!tRoleIds.isEmpty()) {
+            roleTenants = iRoleTenantCommonService.getRoleTenantsByIds(tRoleIds);
+        }
 
         // 7.3 获取 系统角色Id
-        List<Long> sRoleIdList = roleTenantMap.values().stream()
+        List<Long> sRoleIds = roleTenants.stream()
                 .map(RoleTenantVO::getSRoleId)
+                .filter(Objects::nonNull)
+                .distinct()
                 .toList();
 
         // 7.4 根据 系统角色Id 查询 系统角色信息
-        Map<Long, SysRoleVO> sysRoleMap = iSysRoleCommonService.getSysRolesByIds(sRoleIdList).stream()
-                .collect(Collectors.toMap(SysRoleVO::getId, sysRole -> sysRole));
+        List<SysRoleVO> sysRoles = new ArrayList<>();
+        if (!sRoleIds.isEmpty()) {
+            sysRoles = iSysRoleCommonService.getSysRolesByIds(sRoleIds);
+        }
 
         // 8. 获取组绑定的部门信息
-        List<SysDeptVO> groupBindDept = groupBindDeptList.stream()
-                .map(bindDept -> {
-                    DeptTenantVO deptTenant = deptTenantMap.get(bindDept.getTDeptId());
-                    return (deptTenant != null) ? sysDeptMap.get(deptTenant.getSDeptId()) : null;
-                })
-                .filter(Objects::nonNull)
-                .toList();
+        List<SysDeptVO> groupBindDeptList = sysDepts;
 
         // 9. 获取组绑定的角色信息
-        List<SysRoleVO> groupBindRole = groupBindRoleList.stream()
-                .map(bindRole -> {
-                    RoleTenantVO roleTenant = roleTenantMap.get(bindRole.getTRoleId());
-                    return (roleTenant != null) ? sysRoleMap.get(roleTenant.getSRoleId()) : null;
-                })
-                .filter(Objects::nonNull)
-                .toList();
+        List<SysRoleVO> groupBindRoleList = sysRoles;
 
         // 10. 使用租户组的颜色替换系统组的颜色
-        String color = (tenantGroup != null) ? tenantGroup.getColor() : null;
-        if (sysGroup != null) {
+        if (sysGroup != null && tenantGroup != null) {
             sysGroup = new SysGroupVO(
                     sysGroup.getId(),
                     sysGroup.getName(),
@@ -253,21 +258,21 @@ public class GroupAggregatorServiceImpl implements IGroupAggregatorService {
                     sysGroup.getCreatorById(),
                     sysGroup.getCreatedAt(),
                     sysGroup.getUpdatedAt(),
-                    color, // 使用租户组的颜色
+                    tenantGroup.getColor(), // 使用租户组的颜色
                     sysGroup.getDeleted()
             );
         }
 
         // 11. 组装并返回数据
         return new GroupPermDetailsVO(
-                groupPerm.getId(),
+                groupId,
                 sysGroup,
-                sysPerm,
-                groupBindDept,
-                groupBindRole,
-                groupPerm.getCreatedAt(),
-                groupPerm.getUpdatedAt(),
-                groupPerm.getDeleted()
+                sysPerms,
+                groupBindDeptList,
+                groupBindRoleList,
+                tenantGroup.getCreatedAt(),
+                tenantGroup.getUpdatedAt(),
+                tenantGroup.getDeleted()
         );
     }
 }

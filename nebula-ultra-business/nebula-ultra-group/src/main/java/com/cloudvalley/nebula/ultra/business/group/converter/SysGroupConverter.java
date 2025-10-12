@@ -3,6 +3,7 @@ package com.cloudvalley.nebula.ultra.business.group.converter;
 import com.cloudvalley.nebula.ultra.business.group.model.entity.SysGroup;
 import com.cloudvalley.nebula.ultra.shared.api.group.model.vo.SysGroupVO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public interface SysGroupConverter {
      * @param sysGroup 源实体对象
      * @return 转换后的 SysGroupVO 对象
      */
+    @Mapping(source = "GDesc", target = "desc")
     SysGroupVO EnToVO(SysGroup sysGroup);
 
     /**

@@ -95,7 +95,7 @@ public class DeptAggregatorServiceImpl implements IDeptAggregatorService {
 
         // 5. 对分页结果中的每个部门构建完整的树形结构
         List<DeptListVO> deptTreeList = sysDeptList.getRecords().stream()
-                .map(dept -> buildDeptTree(dept, deptMap, parentToChildrenMap, sDeptIdToTDeptIds, sDeptIdToUserCountMap))
+                .map(dept -> buildDeptTree(dept, deptMap, parentToChildrenMap, sDeptIdToTDeptIds, sDeptIdToUserCountMap, 0))
                 .collect(Collectors.toList());
 
         // 6. 创建新的分页对象并返回
@@ -119,13 +119,13 @@ public class DeptAggregatorServiceImpl implements IDeptAggregatorService {
     private DeptListVO buildDeptTree(SysDeptVO dept, Map<Long, SysDeptVO> deptMap,
                                                    Map<Long, List<SysDeptVO>> parentToChildrenMap,
                                                    Map<Long, List<DeptTenantVO>> sDeptIdToTDeptIds,
-                                                   Map<Long, Integer> sDeptIdToUserCountMap) {
+                                                   Map<Long, Integer> sDeptIdToUserCountMap, int depth) {
         // 1. 获取当前部门的子部门列表
         List<SysDeptVO> childDepts = parentToChildrenMap.getOrDefault(dept.getId(), new ArrayList<>());
 
         // 2. 递归构建子部门树
         List<DeptListVO> childDeptVOs = childDepts.stream()
-                .map(childDept -> buildDeptTree(childDept, deptMap, parentToChildrenMap, sDeptIdToTDeptIds, sDeptIdToUserCountMap))
+                .map(childDept -> buildDeptTree(childDept, deptMap, parentToChildrenMap, sDeptIdToTDeptIds, sDeptIdToUserCountMap, depth + 1))
                 .collect(Collectors.toList());
 
         // 3. 获取当前部门的用户数量，默认为0
@@ -143,6 +143,7 @@ public class DeptAggregatorServiceImpl implements IDeptAggregatorService {
         // 6. 构建当前部门的DeptListVO
         return new DeptListVO(
                 deptId, // 使用租户部门ID
+                depth > 0 ? deptId + "-" + depth : deptId.toString(), // displayId
                 dept.getName(),
                 dept.getColor(),
                 userCount,
@@ -191,7 +192,7 @@ public class DeptAggregatorServiceImpl implements IDeptAggregatorService {
                 sysDept.getDesc(),
                 tenantDept.getCreatedAt(),
                 tenantDept.getUpdatedAt(),
-                userMap.get(tenantDept.getCreatedById()),
+                userMap.get(sysDept.getCreatedById()),
                 userMap.get(sysDept.getUpdatedById()),
                 bandUsers,
                 tenantDept.getColor(),

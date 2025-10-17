@@ -24,7 +24,7 @@ public class DeptAggregatorController {
      * @param size 每页数量
      * @return 部门树列表
      */
-    @GetMapping("/deptTree/{current}/{size}")
+    @GetMapping("/dept/tree/{current}/{size}")
     public SaResult getDeptTree(@PathVariable Integer current, @PathVariable Integer size) {
         if (current == null || size == null) {
             return SaResult.error("参数缺失");
@@ -38,7 +38,7 @@ public class DeptAggregatorController {
      * @param tDeptId 部门Id
      * @return 部门详情
      */
-    @GetMapping("/dept/{tDeptId}")
+    @GetMapping("/deptDetails/{tDeptId}")
     public SaResult getDeptDetails(@PathVariable Long tDeptId) {
         if (tDeptId == null) {
             return SaResult.error("参数缺失");

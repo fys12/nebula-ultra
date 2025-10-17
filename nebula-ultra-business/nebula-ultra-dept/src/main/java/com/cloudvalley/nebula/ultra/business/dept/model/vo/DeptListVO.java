@@ -17,6 +17,11 @@ public class DeptListVO {
     Long id;
 
     /**
+     * 用于前端树形结构的唯一标识，带层级后缀
+     */
+    String displayId;
+
+    /**
      * 部门名称
      */
     String name;

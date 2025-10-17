@@ -44,7 +44,7 @@ public class DeptDetailsVO {
     SysUserVO createdByUser;
 
     /**
-     * 更新人用户ID
+     * 更新人用户
      */
     SysUserVO updatedByUser;
 

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.cloudvalley.nebula.ultra</groupId>
+        <artifactId>nebula-ultra</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.cloudvalley.nebula.ultra.start</groupId>
+    <artifactId>nebula-ultra-start</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!--  mysql驱动  -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+        </dependency>
+        <!--  分页插件  -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>${mybatis.version}</version>
+        </dependency>
+
+        <!-- 业务模块依赖 -->
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.common</groupId>
+            <artifactId>nebula-ultra-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.core</groupId>
+            <artifactId>nebula-ultra-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.business</groupId>
+            <artifactId>nebula-ultra-business</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
+
+        <!-- 具体业务模块 -->
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.business.user</groupId>
+            <artifactId>nebula-ultra-user</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.business.dept</groupId>
+            <artifactId>nebula-ultra-dept</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.business.role</groupId>
+            <artifactId>nebula-ultra-role</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.business.perm</groupId>
+            <artifactId>nebula-ultra-perm</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.business.tenant</groupId>
+            <artifactId>nebula-ultra-tenant</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.business.quota</groupId>
+            <artifactId>nebula-ultra-quota</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.business.group</groupId>
+            <artifactId>nebula-ultra-group</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.business.combo</groupId>
+            <artifactId>nebula-ultra-combo</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.business.log</groupId>
+            <artifactId>nebula-ultra-log</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.cloudvalley.nebula.ultra.shared.api</groupId>
+            <artifactId>nebula-ultra-shared-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-auth/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-combo/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-combo/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-dept/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-dept/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-group/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-group/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-log/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-log/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-perm/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-perm/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-quota/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-quota/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-role/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-role/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-tenant/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-tenant/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-user/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/nebula-ultra-user/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-business/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/combo/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/dept/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/group/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/log/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/perm/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/quoat/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/role/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/tenant/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-shared-api/user/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-start/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/nebula-ultra-start/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>
